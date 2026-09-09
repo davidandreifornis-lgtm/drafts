@@ -1,0 +1,6 @@
+{
+  "name": "Printer Toner & Ink Inventory Management System",
+  "description": "An inventory management system for printer toner and ink with approved ticket-based stock movements, serial tracking, transactions, and analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
