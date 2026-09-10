@@ -46,7 +46,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="font-bold text-slate-900 leading-tight text-base sm:text-lg">Toner & Ink Manager</h1>
+            <h1 class="font-bold text-slate-900 leading-tight text-base sm:text-lg">Toner Inventory Manager</h1>
             <p class="text-xs text-slate-500 font-medium">Ticket-Governed Inventory Authority</p>
           </div>
         </div>
@@ -96,7 +96,7 @@
         </button>
         <button id="nav-inventory" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          Ink Inventory
+          Toner Inventory
         </button>
         <button id="nav-transactions" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -140,7 +140,7 @@
             </button>
             <button id="quick-btn-release" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-              Release Ink
+              Release Toner
             </button>
           </div>
         </div>
@@ -148,9 +148,9 @@
         <!-- KPI Cards Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Ink SKUs</div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Toner SKUs</div>
             <div id="kpi-total-skus" class="text-3xl font-bold text-slate-900 mt-2">0</div>
-            <div class="text-xs text-slate-500 mt-1">Cataloged cartridge models</div>
+            <div class="text-xs text-slate-500 mt-1">Toner models in master list</div>
           </div>
           <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Stock On-Hand</div>
@@ -189,60 +189,16 @@
           </div>
         </div>
 
-        <!-- Dashboard Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs lg:col-span-2">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="font-bold text-slate-900">Inventory Movement Activity</h3>
-                <p class="text-xs text-slate-500">Inbound delivered vs. outbound released units</p>
-              </div>
-            </div>
-            <div class="relative h-64">
-              <canvas id="chart-activity"></canvas>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="mb-4">
-              <h3 class="font-bold text-slate-900">Stock by Brand</h3>
-              <p class="text-xs text-slate-500">Unit distribution across printer manufacturers</p>
-            </div>
-            <div class="relative h-64">
-              <canvas id="chart-brand"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Transactions Preview -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-          <div class="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
+        <!-- Dashboard Chart: departments that request toner most often -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
             <div>
-              <h3 class="font-bold text-slate-900">Recent Inventory Transactions</h3>
-              <p class="text-xs text-slate-500">Latest stock movements governed by tickets</p>
+              <h3 class="font-bold text-slate-900">Departments Needing Toner Most Often</h3>
+              <p class="text-xs text-slate-500">Based on release ticket volume (units issued per department)</p>
             </div>
-            <button id="dash-view-all-txns" class="text-xs font-semibold text-blue-600 hover:text-blue-800">
-              View All History &rarr;
-            </button>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
-                <tr>
-                  <th class="px-4 py-3">Txn ID</th>
-                  <th class="px-4 py-3">Ref Number</th>
-                  <th class="px-4 py-3">Type</th>
-                  <th class="px-4 py-3">Ink Code</th>
-                  <th class="px-4 py-3">Brand</th>
-                  <th class="px-4 py-3">Color</th>
-                  <th class="px-4 py-3 text-right">Quantity</th>
-                  <th class="px-4 py-3">Date</th>
-                </tr>
-              </thead>
-              <tbody id="dash-recent-txns-tbody" class="divide-y divide-slate-100 text-slate-700">
-                <!-- Dynamically injected -->
-              </tbody>
-            </table>
+          <div class="relative h-72">
+            <canvas id="chart-activity"></canvas>
           </div>
         </div>
       </section>
@@ -251,42 +207,23 @@
       <section id="view-inventory" class="page-view hidden space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Ink & Toner Inventory</h2>
-            <p class="text-sm text-slate-500 mt-0.5">Comprehensive catalog of physical toner and ink cartridges.</p>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Toner Inventory</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Master list of toner cartridges by printer, department, location, and supplier.</p>
           </div>
         </div>
 
         <!-- Filters Bar -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center gap-3">
           <div class="flex-1 min-w-[200px]">
-            <label for="filter-inv-search" class="sr-only">Search</label>
+            <label for="filter-inv-search" class="sr-only">Toner Code</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               </div>
-              <input id="filter-inv-search" type="text" placeholder="Search ink code, brand, model..." class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <input id="filter-inv-search" type="text" placeholder="Search by toner code..." class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
           </div>
-          <div class="w-36">
-            <select id="filter-inv-brand" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">All Brands</option>
-              <option value="HP">HP</option>
-              <option value="Canon">Canon</option>
-              <option value="Epson">Epson</option>
-              <option value="Brother">Brother</option>
-            </select>
-          </div>
-          <div class="w-36">
-            <select id="filter-inv-color" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">All Colors</option>
-              <option value="Black">Black</option>
-              <option value="Cyan">Cyan</option>
-              <option value="Magenta">Magenta</option>
-              <option value="Yellow">Yellow</option>
-              <option value="Tri-color">Tri-color</option>
-            </select>
-          </div>
-          <div class="w-40">
+          <div class="w-44">
             <select id="filter-inv-status" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="ALL">All Statuses</option>
               <option value="IN_STOCK">In Stock</option>
@@ -305,15 +242,11 @@
             <table class="w-full text-left text-sm">
               <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-4 py-3.5">Ink Code</th>
-                  <th class="px-4 py-3.5">Brand</th>
+                  <th class="px-4 py-3.5">Toner Code</th>
                   <th class="px-4 py-3.5">Printer Model</th>
-                  <th class="px-4 py-3.5">Color</th>
+                  <th class="px-4 py-3.5">Supplier</th>
                   <th class="px-4 py-3.5 text-right">Quantity</th>
-                  <th class="px-4 py-3.5 text-right">Reorder Level</th>
                   <th class="px-4 py-3.5">Stock Status</th>
-                  <th class="px-4 py-3.5">Location</th>
-                  <th class="px-4 py-3.5">Serial Numbers</th>
                 </tr>
               </thead>
               <tbody id="inventory-tbody" class="divide-y divide-slate-100 text-slate-700">
@@ -324,7 +257,7 @@
           <div id="inventory-empty-state" class="hidden p-8 text-center">
             <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
             <h4 class="font-bold text-slate-800">No Inventory Items Found</h4>
-            <p class="text-sm text-slate-500 mt-1">No toner or ink items match the active search or status filters.</p>
+            <p class="text-sm text-slate-500 mt-1">No toner items match the active search or filters.</p>
           </div>
         </div>
       </section>
@@ -417,11 +350,11 @@
         </div>
       </section>
 
-      <!-- VIEW: RELEASE INK -->
+      <!-- VIEW: RELEASE TONER -->
       <section id="view-release" class="page-view hidden space-y-6">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Release / Give Ink</h2>
-          <p class="text-sm text-slate-500 mt-0.5">Fulfill approved consumable release tickets. Stock is decremented automatically after atomic pre-validation.</p>
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Release / Give Toner</h2>
+          <p class="text-sm text-slate-500 mt-0.5">Fulfill approved toner release tickets. Stock is decremented automatically after atomic pre-validation.</p>
         </div>
 
         <!-- Search Ticket Card -->
@@ -529,7 +462,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Transaction History</h2>
-            <p class="text-sm text-slate-500 mt-0.5">Audit log of all stock receipts and issuances with complete reference traceability.</p>
+            <p class="text-sm text-slate-500 mt-0.5">Separate logs for incoming deliveries and toner releases by department.</p>
           </div>
           <button id="btn-export-txns" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-colors">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -537,68 +470,62 @@
           </button>
         </div>
 
-        <!-- Transaction Filter Controls -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center gap-3">
-          <div class="flex-1 min-w-[200px]">
-            <input id="filter-txn-search" type="text" placeholder="Search reference #, ink code, serial, recipient..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div class="w-36">
-            <select id="filter-txn-type" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">All Types</option>
-              <option value="RECEIVED">Received</option>
-              <option value="RELEASED">Released</option>
-            </select>
-          </div>
-          <div class="w-36">
-            <select id="filter-txn-brand" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">All Brands</option>
-              <option value="HP">HP</option>
-              <option value="Canon">Canon</option>
-              <option value="Epson">Epson</option>
-              <option value="Brother">Brother</option>
-            </select>
-          </div>
-          <div class="w-44">
-            <select id="filter-txn-date" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">All Time</option>
-              <option value="TODAY">Today</option>
-              <option value="WEEK">This Week</option>
-              <option value="MONTH">This Month</option>
-            </select>
-          </div>
-          <button id="btn-clear-txn-filters" class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-            Reset Filters
-          </button>
-        </div>
-
-        <!-- Transactions Ledger Table -->
+        <!-- Main tabs: Deliveries vs Releases -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="flex border-b border-slate-200" id="txn-main-tabs">
+            <button type="button" data-txn-tab="RECEIVED" class="txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-blue-700 bg-blue-50 border-b-2 border-blue-600 transition-colors">
+              Incoming Deliveries
+              <span id="txn-tab-count-received" class="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800">0</span>
+            </button>
+            <button type="button" data-txn-tab="RELEASED" class="txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-b-2 border-transparent transition-colors">
+              Releases by Department
+              <span id="txn-tab-count-released" class="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-600">0</span>
+            </button>
+          </div>
+
+          <!-- Department sub-tabs (releases only) -->
+          <div id="txn-dept-tabs" class="hidden px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap gap-2">
+            <button type="button" data-txn-dept="ALL" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white">All Departments</button>
+            <button type="button" data-txn-dept="ACCT" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">ACCT</button>
+            <button type="button" data-txn-dept="BD" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">BD</button>
+            <button type="button" data-txn-dept="BMS" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">BMS</button>
+            <button type="button" data-txn-dept="LOGISTICS" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">LOGISTICS</button>
+            <button type="button" data-txn-dept="PRODUCTION" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">PRODUCTION</button>
+            <button type="button" data-txn-dept="PURCHASING" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">PURCHASING</button>
+            <button type="button" data-txn-dept="QC" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">QC</button>
+          </div>
+
+          <!-- Search -->
+          <div class="p-4 border-b border-slate-100 flex flex-wrap gap-3 items-center">
+            <div class="flex-1 min-w-[200px]">
+              <input id="filter-txn-search" type="text" placeholder="Search ticket ref, toner code, location..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="w-40">
+              <select id="filter-txn-date" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="ALL">All Time</option>
+                <option value="TODAY">Today</option>
+                <option value="WEEK">This Week</option>
+                <option value="MONTH">This Month</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm table-fixed">
               <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
-                <tr>
-                  <th class="px-4 py-3.5">Txn ID</th>
-                  <th class="px-4 py-3.5">Reference No.</th>
-                  <th class="px-4 py-3.5">Type</th>
-                  <th class="px-4 py-3.5">Date & Time</th>
-                  <th class="px-4 py-3.5">Ink Code</th>
-                  <th class="px-4 py-3.5">Color</th>
-                  <th class="px-4 py-3.5 text-right">Qty</th>
-                  <th class="px-4 py-3.5">Serial #</th>
-                  <th class="px-4 py-3.5">Supplier / Recipient</th>
-                  <th class="px-4 py-3.5">Department</th>
-                  <th class="px-4 py-3.5">Status</th>
+                <tr id="txns-thead-row">
+                  <!-- Headers set by renderTransactions() -->
                 </tr>
               </thead>
               <tbody id="txns-tbody" class="divide-y divide-slate-100 text-slate-700">
-                <!-- Dynamically populated -->
               </tbody>
             </table>
           </div>
           <div id="txns-empty-state" class="hidden p-8 text-center">
             <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
             <h4 class="font-bold text-slate-800">No Transactions Found</h4>
-            <p class="text-sm text-slate-500 mt-1">There are no transaction records matching your current filter criteria.</p>
+            <p class="text-sm text-slate-500 mt-1" id="txns-empty-msg">There are no records in this tab yet.</p>
           </div>
         </div>
       </section>
@@ -762,8 +689,8 @@
     </div>
 
     <!-- ===================== RECEIVE DELIVERY MODAL ===================== -->
-    <div id="modal-receive" class="modal-card hidden bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200">
-      <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10">
+    <div id="modal-receive" class="modal-card hidden bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+      <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path></svg>
@@ -778,7 +705,7 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-5">
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
         <!-- Search -->
         <div id="receive-step-search">
           <label class="block text-sm font-semibold text-slate-800 mb-1">Delivery Reference Number</label>
@@ -890,16 +817,16 @@
       </div>
     </div>
 
-    <!-- ===================== RELEASE INK MODAL ===================== -->
-    <div id="modal-release" class="modal-card hidden bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200">
-      <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10">
+    <!-- ===================== RELEASE TONER MODAL ===================== -->
+    <div id="modal-release" class="modal-card hidden bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+      <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-slate-900">Release / Give Ink</h3>
-            <p class="text-xs text-slate-500">Enter an approved ticket to issue stock</p>
+            <h3 class="text-lg font-bold text-slate-900">Release / Give Toner</h3>
+            <p class="text-xs text-slate-500">Enter an approved ticket to issue toner (1 ticket = 1 unit)</p>
           </div>
         </div>
         <button type="button" id="btn-close-release-modal" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
@@ -907,7 +834,7 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-5">
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
         <!-- Search -->
         <div id="release-step-search">
           <label class="block text-sm font-semibold text-slate-800 mb-1">Release Reference Number</label>
@@ -980,6 +907,20 @@
             <p class="text-xs text-slate-500 mt-2 italic" id="m-rel-purpose"></p>
           </div>
 
+          <div id="m-rel-location-section" class="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50">
+            <label for="modal-rel-location" class="block text-sm font-semibold text-slate-800 mb-1">Give to Location</label>
+            <p id="m-rel-location-help" class="text-xs text-slate-500 mb-2">Select where the toner will be issued for this department.</p>
+            <select id="modal-rel-location" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="">— Select location —</option>
+            </select>
+            <!-- Shown when department has only one office/location (no dropdown needed) -->
+            <div id="m-rel-location-auto" class="hidden mt-1">
+              <div class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white font-semibold text-slate-800" id="m-rel-location-auto-text">—</div>
+              <p class="text-xs text-slate-500 mt-1.5">Only location for this department — applied automatically.</p>
+            </div>
+            <p id="m-rel-location-hint" class="text-xs text-slate-500 mt-1.5 hidden"></p>
+          </div>
+
           <div id="m-rel-stock-error" class="hidden p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-sm"></div>
 
           <div class="overflow-x-auto rounded-lg border border-slate-200">
@@ -1033,7 +974,7 @@
       </div>
       <h3 class="text-lg font-bold text-slate-900">Log out?</h3>
       <p class="text-sm text-slate-600 mt-2">
-        You will be signed out of the Toner &amp; Ink Manager. Unsaved work is already stored locally.
+        You will be signed out of the Toner Inventory Manager. Unsaved work is already stored locally.
       </p>
       <div class="mt-6 flex justify-end gap-3">
         <button id="btn-cancel-logout" type="button" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors">
@@ -1056,9 +997,9 @@
 // 1. CONSTANTS
 // ==========================================
 const STORAGE_KEYS = {
-  INKS: 'inventoryInks',
+  INKS: 'inventoryToners_v2',
   TRANSACTIONS: 'inventoryTransactions',
-  TICKETS: 'inventoryTickets',
+  TICKETS: 'inventoryTickets_v2',
   SETTINGS: 'inventorySettings'
 };
 
@@ -1068,132 +1009,199 @@ const STOCK_STATUS = {
   OUT_OF_STOCK: 'OUT OF STOCK'
 };
 
+// Department → Location options for release destination
+const RELEASE_LOCATIONS = [
+  { department: 'ACCT', location: 'Acctg Office' },
+  { department: 'BD', location: 'BD Office' },
+  { department: 'BMS', location: 'General Warehouse' },
+  { department: 'LOGISTICS', location: 'Logistics Office' },
+  { department: 'PRODUCTION', location: 'Production Office' },
+  { department: 'PRODUCTION', location: 'Packaging Office' },
+  { department: 'PURCHASING', location: 'Purchasing Office' },
+  { department: 'QC', location: 'QC Laboratory' },
+  { department: 'LOGISTICS', location: 'PM warehouse' }
+];
+
 const DEMO_INITIAL_INVENTORY = [
   {
-    id: "INK-001",
-    inkCode: "HP-682-BLK",
-    brand: "HP",
-    printerModel: "HP DeskJet 2775 / 4175",
-    color: "Black",
-    serialNumbers: ["SN-H682-001", "SN-H682-002", "SN-H682-003", "SN-H682-004", "SN-H682-005", "SN-H682-006", "SN-H682-007", "SN-H682-008", "SN-H682-009", "SN-H682-010"],
-    quantity: 10,
-    reorderLevel: 5,
-    supplier: "ABC Office Supplies",
-    location: "Shelf A-1",
-    createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T14:30:00"
-  },
-  {
-    id: "INK-002",
-    inkCode: "HP-682-CYN",
-    brand: "HP",
-    printerModel: "HP DeskJet 2775 / 4175",
-    color: "Cyan",
-    serialNumbers: ["SN-H682-C01", "SN-H682-C02", "SN-H682-C03", "SN-H682-C04", "SN-H682-C05"],
-    quantity: 5,
-    reorderLevel: 5,
-    supplier: "ABC Office Supplies",
-    location: "Shelf A-1",
-    createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T14:30:00"
-  },
-  {
-    id: "INK-003",
-    inkCode: "HP-682-MAG",
-    brand: "HP",
-    printerModel: "HP DeskJet 2775 / 4175",
-    color: "Magenta",
-    serialNumbers: ["SN-H682-M01", "SN-H682-M02", "SN-H682-M03", "SN-H682-M04"],
-    quantity: 4,
-    reorderLevel: 5,
-    supplier: "ABC Office Supplies",
-    location: "Shelf A-1",
-    createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T14:30:00"
-  },
-  {
-    id: "INK-004",
-    inkCode: "HP-682-YEL",
-    brand: "HP",
-    printerModel: "HP DeskJet 2775 / 4175",
-    color: "Yellow",
-    serialNumbers: ["SN-H682-Y01", "SN-H682-Y02", "SN-H682-Y03", "SN-H682-Y04", "SN-H682-Y05", "SN-H682-Y06", "SN-H682-Y07", "SN-H682-Y08"],
-    quantity: 8,
-    reorderLevel: 5,
-    supplier: "ABC Office Supplies",
-    location: "Shelf A-1",
-    createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T14:30:00"
-  },
-  {
-    id: "INK-005",
-    inkCode: "Canon PG-47",
+    id: "TNR-001",
+    inkCode: "CRG-737",
     brand: "Canon",
-    printerModel: "Canon PIXMA E410 / E470",
+    printerModel: "Canon MF237W",
     color: "Black",
+    department: "ACCT",
     serialNumbers: [],
-    quantity: 0,
-    reorderLevel: 4,
-    supplier: "TechInk Distributors",
-    location: "Shelf B-2",
+    quantity: 8,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Acctg Office",
     createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T10:15:00"
+    updatedAt: "2026-09-09T10:00:00"
   },
   {
-    id: "INK-006",
-    inkCode: "Canon CL-57",
-    brand: "Canon",
-    printerModel: "Canon PIXMA E410 / E470",
-    color: "Tri-color",
-    serialNumbers: ["SN-CCL57-01", "SN-CCL57-02", "SN-CCL57-03", "SN-CCL57-04", "SN-CCL57-05", "SN-CCL57-06"],
+    id: "TNR-002",
+    inkCode: "CF276A",
+    brand: "HP",
+    printerModel: "HP LaserJet Pro MFP M428fdn",
+    color: "Black",
+    department: "BD",
+    serialNumbers: [],
     quantity: 6,
-    reorderLevel: 4,
-    supplier: "TechInk Distributors",
-    location: "Shelf B-2",
+    reorderLevel: 3,
+    supplier: "JAN A",
+    location: "BD Office",
     createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T10:15:00"
+    updatedAt: "2026-09-09T10:00:00"
   },
   {
-    id: "INK-007",
-    inkCode: "Epson 003 Black",
-    brand: "Epson",
-    printerModel: "Epson EcoTank L3110 / L3210",
+    id: "TNR-003",
+    inkCode: "Q2612A",
+    brand: "Canon",
+    printerModel: "Canon LBP 2900",
     color: "Black",
-    serialNumbers: ["SN-EP003-B01", "SN-EP003-B02", "SN-EP003-B03", "SN-EP003-B04", "SN-EP003-B05", "SN-EP003-B06", "SN-EP003-B07", "SN-EP003-B08", "SN-EP003-B09", "SN-EP003-B10", "SN-EP003-B11", "SN-EP003-B12"],
-    quantity: 12,
-    reorderLevel: 6,
-    supplier: "Universal Supplies Co.",
-    location: "Shelf C-3",
+    department: "BMS",
+    serialNumbers: [],
+    quantity: 10,
+    reorderLevel: 3,
+    supplier: "JMD",
+    location: "General Warehouse",
     createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T11:00:00"
+    updatedAt: "2026-09-09T10:00:00"
   },
   {
-    id: "INK-008",
-    inkCode: "Epson 003 Cyan",
-    brand: "Epson",
-    printerModel: "Epson EcoTank L3110 / L3210",
-    color: "Cyan",
-    serialNumbers: ["SN-EP003-C01", "SN-EP003-C02"],
-    quantity: 2,
-    reorderLevel: 5,
-    supplier: "Universal Supplies Co.",
-    location: "Shelf C-3",
-    createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T11:00:00"
-  },
-  {
-    id: "INK-009",
-    inkCode: "Brother BTD60BK",
-    brand: "Brother",
-    printerModel: "Brother DCP-T510W / T710W",
+    id: "TNR-004",
+    inkCode: "CRG-737",
+    brand: "Canon",
+    printerModel: "Canon MF237W",
     color: "Black",
-    serialNumbers: ["SN-BR60-01", "SN-BR60-02", "SN-BR60-03", "SN-BR60-04", "SN-BR60-05", "SN-BR60-06", "SN-BR60-07"],
+    department: "LOGISTICS",
+    serialNumbers: [],
+    quantity: 5,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Logistics Office",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-005",
+    inkCode: "CAN 045 HBK",
+    brand: "Canon",
+    printerModel: "Canon MF633DW",
+    color: "Black",
+    department: "PRODUCTION",
+    serialNumbers: [],
     quantity: 7,
-    reorderLevel: 5,
-    supplier: "Prime Office Gear",
-    location: "Shelf D-4",
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Production Office",
     createdAt: "2026-09-01T09:00:00",
-    updatedAt: "2026-09-08T16:00:00"
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-006",
+    inkCode: "CAN 045 HC",
+    brand: "Canon",
+    printerModel: "Canon MF633DW",
+    color: "Cyan",
+    department: "PRODUCTION",
+    serialNumbers: [],
+    quantity: 4,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Production Office",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-007",
+    inkCode: "CAN 045 HY",
+    brand: "Canon",
+    printerModel: "Canon MF633DW",
+    color: "Yellow",
+    department: "PRODUCTION",
+    serialNumbers: [],
+    quantity: 4,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Production Office",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-008",
+    inkCode: "CAN 045 HM",
+    brand: "Canon",
+    printerModel: "Canon MF633DW",
+    color: "Magenta",
+    department: "PRODUCTION",
+    serialNumbers: [],
+    quantity: 4,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Production Office",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-009",
+    inkCode: "CRG-737",
+    brand: "Canon",
+    printerModel: "Canon MF237W",
+    color: "Black",
+    department: "PRODUCTION",
+    serialNumbers: [],
+    quantity: 6,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Packaging Office",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-010",
+    inkCode: "CRG-737",
+    brand: "Canon",
+    printerModel: "Canon MF237W",
+    color: "Black",
+    department: "PURCHASING",
+    serialNumbers: [],
+    quantity: 5,
+    reorderLevel: 3,
+    supplier: "INKRITE",
+    location: "Purchasing Office",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-011",
+    inkCode: "CF280A",
+    brand: "HP",
+    printerModel: "HP Color Laserjet Pro 400 MFP 425dn/M401n",
+    color: "Black",
+    department: "QC",
+    serialNumbers: [],
+    quantity: 3,
+    reorderLevel: 3,
+    supplier: "JMD",
+    location: "QC Laboratory",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
+  },
+  {
+    id: "TNR-012",
+    inkCode: "Q2612A",
+    brand: "Canon",
+    printerModel: "Canon LBP 2900",
+    color: "Black",
+    department: "LOGISTICS",
+    serialNumbers: [],
+    quantity: 9,
+    reorderLevel: 3,
+    supplier: "JMD",
+    location: "PM warehouse",
+    createdAt: "2026-09-01T09:00:00",
+    updatedAt: "2026-09-09T10:00:00"
   }
 ];
 
@@ -1312,17 +1320,17 @@ const DEMO_APPROVED_TICKETS = [
     type: "RELEASE",
     status: "APPROVED",
     date: "2026-09-09",
-    givenTo: "Juan Dela Cruz",
-    department: "Human Resources",
-    purpose: "Printer replacement for HR workstation",
+    givenTo: "Neressa J. Siman",
+    department: "LOGISTICS",
+    purpose: "Toner request for Logistics Office printer",
     items: [
       {
-        serialNumber: "SN-H682-001",
-        inkCode: "HP-682-BLK",
-        brand: "HP",
-        printerModel: "HP DeskJet 2775",
+        serialNumber: "",
+        inkCode: "CRG-737",
+        brand: "Canon",
+        printerModel: "Canon MF237W",
         color: "Black",
-        quantity: 2
+        quantity: 1
       }
     ],
     createdAt: "2026-09-09T11:00:00"
@@ -1334,15 +1342,15 @@ const DEMO_APPROVED_TICKETS = [
     status: "APPROVED",
     date: "2026-09-09",
     givenTo: "Maria Santos",
-    department: "Accounting",
-    purpose: "Fiscal year-end audit report printing",
+    department: "ACCT",
+    purpose: "Accounting office toner replenishment",
     items: [
       {
-        serialNumber: "SN-CCL57-01",
-        inkCode: "Canon CL-57",
+        serialNumber: "",
+        inkCode: "CRG-737",
         brand: "Canon",
-        printerModel: "Canon PIXMA E410",
-        color: "Tri-color",
+        printerModel: "Canon MF237W",
+        color: "Black",
         quantity: 1
       }
     ],
@@ -1355,8 +1363,8 @@ const DEMO_APPROVED_TICKETS = [
     status: "APPROVED",
     date: "2026-09-09",
     givenTo: "Alex Rivera",
-    department: "Engineering",
-    purpose: "CAD Plotter large blueprint volume run",
+    department: "PRODUCTION",
+    purpose: "Production Office toner request",
     items: [
       {
         serialNumber: "SN-BR60-01",
@@ -1376,7 +1384,7 @@ const DEMO_APPROVED_TICKETS = [
     status: "APPROVED",
     date: "2026-09-09",
     givenTo: "Sarah Gomez",
-    department: "Marketing",
+    department: "QC",
     purpose: "Product catalog print run",
     items: [
       {
@@ -1453,6 +1461,8 @@ const AppState = {
   },
   activeDeliveryTicket: null,
   activeReleaseTicket: null,
+  selectedReleaseLocation: '',
+  selectedReleaseDepartment: '',
   charts: {
     activity: null,
     brand: null,
@@ -1465,9 +1475,10 @@ const AppState = {
     inventoryColor: "ALL",
     inventoryStatus: "ALL",
     transactionSearch: "",
-    transactionType: "ALL",
+    transactionType: "RECEIVED",
     transactionBrand: "ALL",
     transactionDate: "ALL",
+    transactionDept: "ALL",
     reportDate: "ALL"
   },
   notifications: []
@@ -1775,7 +1786,7 @@ function renderDashboard() {
   const tbody = document.getElementById('dash-recent-txns-tbody');
   if (tbody) {
     if (recentTxns.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">No transactions recorded yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No toner movements recorded yet.</td></tr>`;
     } else {
       tbody.innerHTML = recentTxns.map(t => {
         const isReceived = t.type === 'RECEIVED';
@@ -1784,12 +1795,11 @@ function renderDashboard() {
           : `<span class="px-2 py-0.5 text-xs font-bold rounded-md bg-emerald-100 text-emerald-800">RELEASED</span>`;
         return `
           <tr class="hover:bg-slate-50/70 transition-colors">
-            <td class="px-4 py-3 font-mono text-xs text-slate-500">${escapeHTML(t.id)}</td>
-            <td class="px-4 py-3 font-mono font-bold text-slate-900">${escapeHTML(t.referenceNumber)}</td>
+            <td class="px-4 py-3 font-mono font-bold text-slate-900 text-xs">${escapeHTML(t.referenceNumber)}</td>
             <td class="px-4 py-3">${typeBadge}</td>
-            <td class="px-4 py-3 font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
-            <td class="px-4 py-3">${escapeHTML(t.brand)}</td>
-            <td class="px-4 py-3">${escapeHTML(t.color)}</td>
+            <td class="px-4 py-3 font-semibold font-mono text-slate-900">${escapeHTML(t.inkCode)}</td>
+            <td class="px-4 py-3 text-xs">${escapeHTML(t.department || '—')}</td>
+            <td class="px-4 py-3 text-xs text-slate-600">${escapeHTML(t.location || t.supplier || '—')}</td>
             <td class="px-4 py-3 text-right font-bold ${isReceived ? 'text-blue-600' : 'text-emerald-600'}">${isReceived ? '+' : '-'}${t.quantity}</td>
             <td class="px-4 py-3 text-xs text-slate-500">${formatDate(t.date)}</td>
           </tr>
@@ -1839,25 +1849,14 @@ function renderInventory() {
   if (!tbody) return;
 
   const search = AppState.filters.inventorySearch.toLowerCase().trim();
-  const brand = AppState.filters.inventoryBrand;
-  const color = AppState.filters.inventoryColor;
   const statusFilter = AppState.filters.inventoryStatus;
 
   const filtered = AppState.inks.filter(item => {
-    // Search match
+    // Toner code search only
     if (search) {
       const matchCode = (item.inkCode || '').toLowerCase().includes(search);
-      const matchBrand = (item.brand || '').toLowerCase().includes(search);
-      const matchModel = (item.printerModel || '').toLowerCase().includes(search);
-      const matchLocation = (item.location || '').toLowerCase().includes(search);
-      if (!matchCode && !matchBrand && !matchModel && !matchLocation) return false;
+      if (!matchCode) return false;
     }
-
-    // Brand filter
-    if (brand !== 'ALL' && item.brand !== brand) return false;
-
-    // Color filter
-    if (color !== 'ALL' && item.color !== color) return false;
 
     // Status filter
     const status = getStockStatus(item.quantity, item.reorderLevel);
@@ -1884,35 +1883,19 @@ function renderInventory() {
       badgeClass = 'bg-amber-100 text-amber-800 border-amber-200 font-bold';
     }
 
-    const serialsCount = (item.serialNumbers || []).length;
-    const serialSample = serialsCount > 0 
-      ? `<span class="inline-flex items-center gap-1 font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200" title="${escapeHTML(item.serialNumbers.join(', '))}">
-          ${escapeHTML(item.serialNumbers[0])}${serialsCount > 1 ? ` <span class="text-blue-600 font-bold">+${serialsCount - 1} more</span>` : ''}
-        </span>`
-      : `<span class="text-xs text-slate-400 italic">No serials active</span>`;
-
     return `
       <tr class="hover:bg-slate-50 transition-colors">
-        <td class="px-4 py-3.5 font-bold text-slate-900 font-mono">${escapeHTML(item.inkCode)}</td>
-        <td class="px-4 py-3.5 font-semibold text-slate-800">${escapeHTML(item.brand)}</td>
-        <td class="px-4 py-3.5 text-slate-600 text-xs">${escapeHTML(item.printerModel || 'General')}</td>
-        <td class="px-4 py-3.5">
-          <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700">
-            <span class="w-2.5 h-2.5 rounded-full ${getColorSwatch(item.color)}"></span>
-            ${escapeHTML(item.color)}
-          </span>
-        </td>
+        <td class="px-4 py-3.5 font-bold text-slate-900 font-mono whitespace-nowrap">${escapeHTML(item.inkCode)}</td>
+        <td class="px-4 py-3.5 text-slate-700 text-xs">${escapeHTML(item.printerModel || '—')}</td>
+        <td class="px-4 py-3.5 text-xs font-semibold text-slate-800">${escapeHTML(item.supplier || '—')}</td>
         <td class="px-4 py-3.5 text-right font-bold font-mono text-base ${item.quantity === 0 ? 'text-rose-600' : (item.quantity <= item.reorderLevel ? 'text-amber-600' : 'text-slate-900')}">
           ${item.quantity}
         </td>
-        <td class="px-4 py-3.5 text-right text-xs font-mono text-slate-500">${item.reorderLevel}</td>
         <td class="px-4 py-3.5">
           <span class="inline-block px-2.5 py-1 text-xs rounded-full border ${badgeClass}">
             ${status}
           </span>
         </td>
-        <td class="px-4 py-3.5 text-xs text-slate-600">${escapeHTML(item.location || 'Main Shelf')}</td>
-        <td class="px-4 py-3.5">${serialSample}</td>
       </tr>
     `;
   }).join('');
@@ -2081,15 +2064,18 @@ const TicketService = {
     let validationFailed = false;
     let failureDetail = '';
 
-    for (const item of ticket.items) {
-      const matched = inks.find(i => i.inkCode.toUpperCase() === item.inkCode.toUpperCase());
+    // Business rule: 1 release ticket = 1 toner (use first item / primary toner on ticket)
+    const items = ticket.items && ticket.items.length ? ticket.items : [{ inkCode: 'UNKNOWN', quantity: 1 }];
+    // Only validate the primary toner line at qty 1
+    const primary = items[0];
+    {
+      const matched = inks.find(i => i.inkCode.toUpperCase() === (primary.inkCode || '').toUpperCase());
       const available = matched ? (Number(matched.quantity) || 0) : 0;
-      const requested = Number(item.quantity) || 0;
+      const requested = 1;
 
       if (!matched || available < requested) {
         validationFailed = true;
-        failureDetail = `${item.inkCode}: Requested ${requested} units, but only ${available} available in stock.`;
-        break;
+        failureDetail = `${primary.inkCode}: Need 1 unit, but only ${available} available in stock.`;
       }
     }
 
@@ -2098,15 +2084,17 @@ const TicketService = {
       return false;
     }
 
-    // Step 4: Atomic Execution: All items passed verification; decrement stock
+    // Step 4: Atomic Execution — 1 ticket = 1 toner
     const newTxns = [];
     const executionTime = new Date().toISOString();
+    const releaseItems = (ticket.items && ticket.items.length) ? [ticket.items[0]] : [];
 
-    ticket.items.forEach(item => {
+    releaseItems.forEach(item => {
       const matched = inks.find(i => i.inkCode.toUpperCase() === item.inkCode.toUpperCase());
-      const reqQty = Number(item.quantity) || 0;
+      // Business rule: 1 ticket = 1 toner unit
+      const reqQty = 1;
 
-      // Stock Decrement: New Stock = Current Stock - Ticket Qty
+      // Stock Decrement: New Stock = Current Stock - 1
       matched.quantity = (Number(matched.quantity) || 0) - reqQty;
       matched.updatedAt = executionTime;
 
@@ -2129,8 +2117,9 @@ const TicketService = {
         date: ticket.date || executionTime.split('T')[0],
         supplier: '',
         givenTo: ticket.givenTo || 'Authorized Staff',
-        department: ticket.department || 'General Department',
-        purpose: ticket.purpose || 'Consumable Release',
+        department: (AppState.selectedReleaseDepartment || ticket.department || 'General Department'),
+        location: (AppState.selectedReleaseLocation || ''),
+        purpose: ticket.purpose || 'Toner Release',
         status: 'APPROVED',
         createdAt: executionTime
       };
@@ -2154,8 +2143,8 @@ const TicketService = {
     renderCharts();
     renderAlerts();
 
-    showToast(`Release ${ticket.referenceNumber} processed successfully! Stock decremented.`, 'success');
-    pushNotification('success', 'Ink Released', `Ticket ${ticket.referenceNumber} processed. Stock decremented.`, { source: 'action' });
+    showToast(`Toner release ${ticket.referenceNumber} processed successfully! Stock decremented.`, 'success');
+    pushNotification('success', 'Toner Released', `Ticket ${ticket.referenceNumber} processed. Toner stock decremented.`, { source: 'action' });
     return true;
   }
 };
@@ -2249,7 +2238,7 @@ function searchAndDisplayRelease(refNumber) {
   document.getElementById('rel-preview-date').textContent = formatDate(ticket.date);
   document.getElementById('rel-preview-dept').textContent = ticket.department || 'General';
   document.getElementById('rel-preview-givento').textContent = ticket.givenTo || 'Staff';
-  document.getElementById('rel-preview-purpose').textContent = ticket.purpose || 'Consumable replacement';
+  document.getElementById('rel-preview-purpose').textContent = ticket.purpose || 'Toner replacement';
 
   const tbody = document.getElementById('rel-preview-tbody');
   const errorBox = document.getElementById('rel-stock-error-box');
@@ -2316,74 +2305,133 @@ function searchAndDisplayRelease(refNumber) {
 // ==========================================
 // 13. TRANSACTIONS
 // ==========================================
+function updateTxnTabUI() {
+  const type = AppState.filters.transactionType;
+  document.querySelectorAll('.txn-main-tab').forEach(btn => {
+    const active = btn.getAttribute('data-txn-tab') === type;
+    if (active) {
+      if (type === 'RECEIVED') {
+        btn.className = 'txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-blue-700 bg-blue-50 border-b-2 border-blue-600 transition-colors';
+      } else {
+        btn.className = 'txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-emerald-700 bg-emerald-50 border-b-2 border-emerald-600 transition-colors';
+      }
+    } else {
+      btn.className = 'txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-b-2 border-transparent transition-colors';
+    }
+  });
+
+  const deptTabs = document.getElementById('txn-dept-tabs');
+  if (deptTabs) {
+    if (type === 'RELEASED') deptTabs.classList.remove('hidden');
+    else deptTabs.classList.add('hidden');
+  }
+
+  document.querySelectorAll('.txn-dept-tab').forEach(btn => {
+    const active = btn.getAttribute('data-txn-dept') === AppState.filters.transactionDept;
+    btn.className = active
+      ? 'txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white'
+      : 'txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
+  });
+
+  const receivedCount = AppState.transactions.filter(t => t.type === 'RECEIVED').length;
+  const releasedCount = AppState.transactions.filter(t => t.type === 'RELEASED').length;
+  const elR = document.getElementById('txn-tab-count-received');
+  const elL = document.getElementById('txn-tab-count-released');
+  if (elR) elR.textContent = receivedCount;
+  if (elL) elL.textContent = releasedCount;
+}
+
 function renderTransactions() {
   const tbody = document.getElementById('txns-tbody');
   const emptyState = document.getElementById('txns-empty-state');
   if (!tbody) return;
 
+  updateTxnTabUI();
+
   const search = AppState.filters.transactionSearch.toLowerCase().trim();
-  const typeFilter = AppState.filters.transactionType;
-  const brandFilter = AppState.filters.transactionBrand;
+  const typeFilter = AppState.filters.transactionType; // RECEIVED | RELEASED
+  const deptFilter = AppState.filters.transactionDept || 'ALL';
   const dateFilter = AppState.filters.transactionDate;
 
   const filtered = AppState.transactions.filter(t => {
-    // Search
+    if (t.type !== typeFilter) return false;
+
+    if (typeFilter === 'RELEASED' && deptFilter !== 'ALL') {
+      const code = resolveDepartmentCode(t.department) || (t.department || '').toUpperCase();
+      if (code !== deptFilter) return false;
+    }
+
     if (search) {
       const matchRef = (t.referenceNumber || '').toLowerCase().includes(search);
       const matchInk = (t.inkCode || '').toLowerCase().includes(search);
-      const matchSerial = (t.serialNumber || '').toLowerCase().includes(search);
-      const matchRecipient = (t.givenTo || '').toLowerCase().includes(search);
+      const matchLoc = (t.location || '').toLowerCase().includes(search);
       const matchSupplier = (t.supplier || '').toLowerCase().includes(search);
       const matchDept = (t.department || '').toLowerCase().includes(search);
-      if (!matchRef && !matchInk && !matchSerial && !matchRecipient && !matchSupplier && !matchDept) {
-        return false;
-      }
+      if (!matchRef && !matchInk && !matchLoc && !matchSupplier && !matchDept) return false;
     }
 
-    // Type
-    if (typeFilter !== 'ALL' && t.type !== typeFilter) return false;
-
-    // Brand
-    if (brandFilter !== 'ALL' && t.brand !== brandFilter) return false;
-
-    // Date
     if (!isDateInFilter(t.date || t.createdAt, dateFilter)) return false;
-
     return true;
   });
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
     emptyState.classList.remove('hidden');
+    const msg = document.getElementById('txns-empty-msg');
+    if (msg) {
+      msg.textContent = typeFilter === 'RECEIVED'
+        ? 'No incoming delivery transactions yet.'
+        : (deptFilter === 'ALL' ? 'No release transactions yet.' : `No releases for ${deptFilter} yet.`);
+    }
     return;
   }
 
   emptyState.classList.add('hidden');
+  const isReceived = typeFilter === 'RECEIVED';
+  const theadRow = document.getElementById('txns-thead-row');
+
+  // Equal-width columns; different headers per tab
+  if (theadRow) {
+    if (isReceived) {
+      theadRow.innerHTML = `
+        <th class="px-4 py-3.5 w-[20%]">Ticket Ref</th>
+        <th class="px-4 py-3.5 w-[20%]">Date</th>
+        <th class="px-4 py-3.5 w-[20%]">Toner Code</th>
+        <th class="px-4 py-3.5 w-[15%] text-right">Qty</th>
+        <th class="px-4 py-3.5 w-[25%]">Supplier</th>`;
+    } else {
+      theadRow.innerHTML = `
+        <th class="px-4 py-3.5 w-[18%]">Ticket Ref</th>
+        <th class="px-4 py-3.5 w-[18%]">Date</th>
+        <th class="px-4 py-3.5 w-[18%]">Toner Code</th>
+        <th class="px-4 py-3.5 w-[10%] text-right">Qty</th>
+        <th class="px-4 py-3.5 w-[18%]">Department</th>
+        <th class="px-4 py-3.5 w-[18%]">Location</th>`;
+    }
+  }
+
   tbody.innerHTML = [...filtered].reverse().map(t => {
-    const isReceived = t.type === 'RECEIVED';
-    const typeBadge = isReceived
-      ? `<span class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-blue-100 text-blue-800">RECEIVED</span>`
-      : `<span class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-emerald-100 text-emerald-800">RELEASED</span>`;
-
-    const counterparty = isReceived ? (t.supplier || 'ABC Supplies') : (t.givenTo || 'Staff Member');
-
+    if (isReceived) {
+      return `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3.5 font-mono font-bold text-blue-700">${escapeHTML(t.referenceNumber)}</td>
+          <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
+          <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
+          <td class="px-4 py-3.5 text-right font-mono font-bold text-blue-600">+${t.quantity}</td>
+          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.supplier || '—')}</td>
+        </tr>`;
+    }
     return `
       <tr class="hover:bg-slate-50 transition-colors">
-        <td class="px-4 py-3.5 font-mono text-xs text-slate-500">${escapeHTML(t.id)}</td>
-        <td class="px-4 py-3.5 font-mono font-bold text-slate-900">${escapeHTML(t.referenceNumber)}</td>
-        <td class="px-4 py-3.5">${typeBadge}</td>
+        <td class="px-4 py-3.5 font-mono font-bold text-emerald-700">${escapeHTML(t.referenceNumber)}</td>
         <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
         <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
-        <td class="px-4 py-3.5 text-slate-700">${escapeHTML(t.color)}</td>
-        <td class="px-4 py-3.5 text-right font-mono font-bold ${isReceived ? 'text-blue-600' : 'text-emerald-600'}">
-          ${isReceived ? '+' : '-'}${t.quantity}
+        <td class="px-4 py-3.5 text-right font-mono font-bold text-emerald-600">-${t.quantity}</td>
+        <td class="px-4 py-3.5">
+          <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
         </td>
-        <td class="px-4 py-3.5 font-mono text-xs text-slate-500">${escapeHTML(t.serialNumber || 'N/A')}</td>
-        <td class="px-4 py-3.5 font-medium text-slate-800">${escapeHTML(counterparty)}</td>
-        <td class="px-4 py-3.5 text-xs text-slate-600">${escapeHTML(t.department || 'N/A')}</td>
-        <td class="px-4 py-3.5 text-xs font-bold text-slate-500">${escapeHTML(t.status || 'APPROVED')}</td>
-      </tr>
-    `;
+        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.location || '—')}</td>
+      </tr>`;
   }).join('');
 }
 
@@ -2608,12 +2656,10 @@ function renderNotifications() {
 // ==========================================
 function renderCharts() {
   if (typeof Chart === 'undefined') return;
-
-  renderDashboardActivityChart();
-  renderDashboardBrandChart();
+  renderDepartmentDemandChart();
 }
 
-function renderDashboardActivityChart() {
+function renderDepartmentDemandChart() {
   const canvas = document.getElementById('chart-activity');
   if (!canvas) return;
 
@@ -2621,29 +2667,63 @@ function renderDashboardActivityChart() {
     AppState.charts.activity.destroy();
   }
 
-  // Aggregate past 7 days of transaction activity
-  const labels = [];
-  const receivedData = [];
-  const releasedData = [];
-  const now = new Date();
+  // Frequency of toner need = units RELEASED per department (from transactions)
+  const demand = {};
+  AppState.transactions
+    .filter(t => t.type === 'RELEASED')
+    .forEach(t => {
+      const d = t.department || 'Other';
+      demand[d] = (demand[d] || 0) + (Number(t.quantity) || 0);
+    });
 
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(now.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
-    labels.push(label);
+  // Also count release ticket frequency (number of release events) as secondary insight in tooltip
+  const ticketCount = {};
+  AppState.transactions
+    .filter(t => t.type === 'RELEASED')
+    .forEach(t => {
+      const d = t.department || 'Other';
+      const key = d + '|' + (t.referenceNumber || '');
+      // count unique refs per dept
+    });
 
-    const rec = AppState.transactions
-      .filter(t => t.type === 'RECEIVED' && t.date.startsWith(dateStr))
-      .reduce((s, t) => s + (Number(t.quantity) || 0), 0);
-    const rel = AppState.transactions
-      .filter(t => t.type === 'RELEASED' && t.date.startsWith(dateStr))
-      .reduce((s, t) => s + (Number(t.quantity) || 0), 0);
+  const releaseEvents = {};
+  const seen = new Set();
+  AppState.transactions
+    .filter(t => t.type === 'RELEASED')
+    .forEach(t => {
+      const d = t.department || 'Other';
+      const ref = normalizeRefNumber(t.referenceNumber);
+      const key = d + '::' + ref;
+      if (!seen.has(key)) {
+        seen.add(key);
+        releaseEvents[d] = (releaseEvents[d] || 0) + 1;
+      }
+    });
 
-    receivedData.push(rec);
-    releasedData.push(rel);
+  // Sort by units issued (most frequent demand first)
+  const labels = Object.keys(demand).sort((a, b) => demand[b] - demand[a]);
+  const data = labels.map(l => demand[l]);
+  const eventData = labels.map(l => releaseEvents[l] || 0);
+
+  // If no release history yet, show empty state message on chart
+  if (labels.length === 0) {
+    AppState.charts.activity = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: ['No release data yet'],
+        datasets: [{ label: 'Units issued', data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, max: 5 } }
+      }
+    });
+    return;
   }
+
+  const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#06b6d4', '#ec4899', '#84cc16'];
 
   AppState.charts.activity = new Chart(canvas, {
     type: 'bar',
@@ -2651,77 +2731,41 @@ function renderDashboardActivityChart() {
       labels: labels,
       datasets: [
         {
-          label: 'Received (Units)',
-          data: receivedData,
-          backgroundColor: '#3b82f6',
-          borderRadius: 4
-        },
-        {
-          label: 'Released (Units)',
-          data: releasedData,
-          backgroundColor: '#10b981',
-          borderRadius: 4
+          label: 'Units issued',
+          data: data,
+          backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+          borderRadius: 6
         }
       ]
     },
     options: {
+      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'top',
-          labels: { font: { size: 12 } }
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const dept = ctx.label;
+              const units = ctx.parsed.x;
+              const events = releaseEvents[dept] || 0;
+              return [
+                ` Units issued: ${units}`,
+                ` Release tickets: ${events}`
+              ];
+            }
+          }
         }
       },
       scales: {
-        y: {
+        x: {
           beginAtZero: true,
-          ticks: { stepSize: 5 }
-        }
-      }
-    }
-  });
-}
-
-function renderDashboardBrandChart() {
-  const canvas = document.getElementById('chart-brand-dist');
-  if (!canvas) return;
-
-  if (AppState.charts.brand) {
-    AppState.charts.brand.destroy();
-  }
-
-  // Count stock by Brand
-  const brandStock = {};
-  AppState.inks.forEach(item => {
-    const b = item.brand || 'Other';
-    brandStock[b] = (brandStock[b] || 0) + (Number(item.quantity) || 0);
-  });
-
-  const labels = Object.keys(brandStock);
-  const data = Object.values(brandStock);
-
-  const colors = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed'];
-
-  AppState.charts.brand = new Chart(canvas, {
-    type: 'doughnut',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          data: data,
-          backgroundColor: colors.slice(0, labels.length),
-          hoverOffset: 4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: { boxWidth: 14, font: { size: 11 } }
+          ticks: { stepSize: 1 },
+          title: { display: true, text: 'Toner units issued', font: { size: 11 } }
+        },
+        y: {
+          ticks: { font: { size: 12, weight: '600' } }
         }
       }
     }
@@ -2984,6 +3028,10 @@ function resetReleaseModal() {
   document.getElementById('release-step-preview')?.classList.add('hidden');
   document.getElementById('release-step-success')?.classList.add('hidden');
   AppState.activeReleaseTicket = null;
+  AppState.selectedReleaseLocation = '';
+  AppState.selectedReleaseDepartment = '';
+  const loc = document.getElementById('modal-rel-location');
+  if (loc) loc.value = '';
 }
 
 function showReceiveError(ref, title, desc) {
@@ -3068,6 +3116,103 @@ function searchAndDisplayDeliveryModal(refNumber) {
   document.getElementById('receive-step-preview')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+
+function resolveDepartmentCode(ticketDept) {
+  const d = (ticketDept || '').toUpperCase().trim();
+  if (!d) return null;
+  if (d === 'ACCT' || d.includes('ACCOUNT') || d.includes('ACCTG')) return 'ACCT';
+  if (d === 'BD' || d.includes('BUSINESS DEV')) return 'BD';
+  if (d === 'BMS') return 'BMS';
+  if (d.includes('LOGISTIC') || d.includes('AMEC ICT') || d === 'LOGISTICS') return 'LOGISTICS';
+  if (d.includes('PRODUCT') || d.includes('PACKAG')) return 'PRODUCTION';
+  if (d.includes('PURCHAS')) return 'PURCHASING';
+  if (d === 'QC' || d.includes('QUALITY') || d.includes('LAB')) return 'QC';
+  // Exact department code match
+  const codes = [...new Set(RELEASE_LOCATIONS.map(r => r.department))];
+  if (codes.includes(d)) return d;
+  return null;
+}
+
+function populateReleaseLocationsForDepartment(ticketDept) {
+  const select = document.getElementById('modal-rel-location');
+  const hint = document.getElementById('m-rel-location-hint');
+  const autoBox = document.getElementById('m-rel-location-auto');
+  const autoText = document.getElementById('m-rel-location-auto-text');
+  const help = document.getElementById('m-rel-location-help');
+  if (!select) return;
+
+  const code = resolveDepartmentCode(ticketDept);
+  select.innerHTML = '<option value="">— Select location —</option>';
+  select.classList.remove('hidden');
+  if (autoBox) autoBox.classList.add('hidden');
+  if (hint) {
+    hint.classList.add('hidden');
+    hint.classList.remove('text-rose-600');
+  }
+
+  let options = [];
+  if (code) {
+    options = RELEASE_LOCATIONS.filter(r => r.department === code);
+  }
+
+  if (options.length === 0) {
+    if (hint) {
+      hint.textContent = ticketDept
+        ? `No mapped locations for department “${ticketDept}”. Check the ticket department or master list.`
+        : 'Ticket has no department. Cannot select a location.';
+      hint.classList.remove('hidden');
+      hint.classList.add('text-rose-600');
+    }
+    select.disabled = true;
+    select.value = '';
+    if (help) help.classList.remove('hidden');
+    return;
+  }
+
+  // Only one office for this department → auto-apply, hide dropdown
+  if (options.length === 1) {
+    const only = options[0];
+    select.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = only.location;
+    opt.setAttribute('data-dept', only.department);
+    opt.textContent = `${only.department} — ${only.location}`;
+    select.appendChild(opt);
+    select.value = only.location;
+    select.classList.add('hidden');
+    select.disabled = false;
+    if (autoBox) autoBox.classList.remove('hidden');
+    if (autoText) autoText.textContent = `${only.department} — ${only.location}`;
+    if (help) help.classList.add('hidden');
+    if (hint) hint.classList.add('hidden');
+    AppState.selectedReleaseLocation = only.location;
+    AppState.selectedReleaseDepartment = only.department;
+    return;
+  }
+
+  // Multiple locations → show dropdown to choose
+  options.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.location;
+    opt.setAttribute('data-dept', r.department);
+    opt.textContent = `${r.department} — ${r.location}`;
+    select.appendChild(opt);
+  });
+  select.disabled = false;
+  select.classList.remove('hidden');
+  if (autoBox) autoBox.classList.add('hidden');
+  if (help) {
+    help.textContent = `Select where the toner will be issued for ${code}.`;
+    help.classList.remove('hidden');
+  }
+  if (hint) {
+    hint.textContent = `${options.length} locations for ${code}. Choose one.`;
+    hint.classList.remove('hidden', 'text-rose-600');
+  }
+  AppState.selectedReleaseLocation = '';
+  AppState.selectedReleaseDepartment = code || '';
+}
+
 function showReleaseError(ref, title, desc) {
   const errRef = document.getElementById('release-error-ref');
   const errTitle = document.getElementById('release-error-title');
@@ -3120,13 +3265,18 @@ function searchAndDisplayReleaseModal(refNumber) {
   document.getElementById('m-rel-givento').textContent = ticket.givenTo || 'Staff';
   document.getElementById('m-rel-purpose').textContent = ticket.purpose || '';
 
+  // Only show locations that belong to this ticket's department
+  populateReleaseLocationsForDepartment(ticket.department);
+
   let totalQty = 0;
   let hasInsufficient = false;
   const tbody = document.getElementById('m-rel-tbody');
-  tbody.innerHTML = ticket.items.map(item => {
+  // 1 ticket = 1 toner: only show primary item at quantity 1
+  const displayItems = (ticket.items && ticket.items.length) ? [ticket.items[0]] : [];
+  tbody.innerHTML = displayItems.map(item => {
     const matched = AppState.inks.find(i => i.inkCode.toUpperCase() === item.inkCode.toUpperCase());
     const available = matched ? (Number(matched.quantity) || 0) : 0;
-    const req = Number(item.quantity) || 0;
+    const req = 1;
     const after = available - req;
     totalQty += req;
     const isShort = after < 0;
@@ -3144,8 +3294,8 @@ function searchAndDisplayReleaseModal(refNumber) {
     </tr>`;
   }).join('');
 
-  document.getElementById('m-rel-total-items').textContent = ticket.items.length;
-  document.getElementById('m-rel-total-qty').textContent = totalQty;
+  document.getElementById('m-rel-total-items').textContent = 1;
+  document.getElementById('m-rel-total-qty').textContent = 1;
 
   const errorBox = document.getElementById('m-rel-stock-error');
   const badge = document.getElementById('m-rel-validation-badge');
@@ -3418,12 +3568,23 @@ function setupEventListeners() {
   if (btnModalProcessRel) {
     btnModalProcessRel.addEventListener('click', () => {
       if (!AppState.activeReleaseTicket) return;
+      const locSelect = document.getElementById('modal-rel-location');
+      const locValue = locSelect ? locSelect.value.trim() : '';
+      if (!locValue) {
+        showToast('Please select the location where the toner will be given.', 'warning');
+        if (locSelect) locSelect.focus();
+        return;
+      }
+      const selectedOpt = locSelect.options[locSelect.selectedIndex];
+      AppState.selectedReleaseLocation = locValue;
+      AppState.selectedReleaseDepartment = selectedOpt.getAttribute('data-dept') || '';
       const success = TicketService.processReleaseTicket(AppState.activeReleaseTicket);
       if (success) {
         document.getElementById('m-rel-success-ref').textContent = AppState.activeReleaseTicket.referenceNumber;
-        document.getElementById('release-step-search').classList.add('hidden');
-        document.getElementById('release-step-preview').classList.add('hidden');
-        document.getElementById('release-step-success').classList.remove('hidden');
+        document.getElementById('release-step-search')?.classList.add('hidden');
+        document.getElementById('release-step-error')?.classList.add('hidden');
+        document.getElementById('release-step-preview')?.classList.add('hidden');
+        document.getElementById('release-step-success')?.classList.remove('hidden');
         if (AppState.currentPage === 'dashboard') renderDashboard();
         if (AppState.currentPage === 'inventory') renderInventory();
         renderAlerts();
@@ -3587,28 +3748,30 @@ function setupEventListeners() {
     });
   }
 
-  // Transactions Filters & Export
-  const txnSearch = document.getElementById('txn-search');
-  const txnType = document.getElementById('txn-filter-type');
-  const txnBrand = document.getElementById('txn-filter-brand');
-  const txnDate = document.getElementById('txn-filter-date');
+  // Transactions Filters, Tabs & Export
+  document.querySelectorAll('.txn-main-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      AppState.filters.transactionType = btn.getAttribute('data-txn-tab');
+      if (AppState.filters.transactionType === 'RECEIVED') {
+        AppState.filters.transactionDept = 'ALL';
+      }
+      renderTransactions();
+    });
+  });
+  document.querySelectorAll('.txn-dept-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      AppState.filters.transactionDept = btn.getAttribute('data-txn-dept');
+      renderTransactions();
+    });
+  });
+
+  const txnSearch = document.getElementById('filter-txn-search');
+  const txnDate = document.getElementById('filter-txn-date');
   const btnTxnExport = document.getElementById('btn-export-txns');
 
   if (txnSearch) {
     txnSearch.addEventListener('input', (e) => {
       AppState.filters.transactionSearch = e.target.value;
-      renderTransactions();
-    });
-  }
-  if (txnType) {
-    txnType.addEventListener('change', (e) => {
-      AppState.filters.transactionType = e.target.value;
-      renderTransactions();
-    });
-  }
-  if (txnBrand) {
-    txnBrand.addEventListener('change', (e) => {
-      AppState.filters.transactionBrand = e.target.value;
       renderTransactions();
     });
   }
