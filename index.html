@@ -142,6 +142,10 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
               Stock Issuance
             </button>
+            <button id="quick-btn-defective" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg bg-rose-600 text-white hover:bg-rose-700 shadow-xs transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              Return Defective
+            </button>
           </div>
         </div>
 
@@ -208,8 +212,12 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Toner Inventory</h2>
-            <p class="text-sm text-slate-500 mt-0.5">Master list of toner cartridges by printer, department, location, and supplier.</p>
+            <p class="text-sm text-slate-500 mt-0.5">Master list of toners. Click a row for stock card · use actions to add or remove.</p>
           </div>
+          <button type="button" id="btn-add-toner" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-xs transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Toner
+          </button>
         </div>
 
         <!-- Filters Bar -->
@@ -239,14 +247,15 @@
         <!-- Inventory Table Container -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm table-fixed">
               <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-4 py-3.5">Toner Code</th>
-                  <th class="px-4 py-3.5">Printer Model</th>
-                  <th class="px-4 py-3.5">Supplier</th>
-                  <th class="px-4 py-3.5 text-right">Quantity</th>
-                  <th class="px-4 py-3.5">Stock Status</th>
+                  <th class="px-4 py-3.5 w-[16%]">Toner Code</th>
+                  <th class="px-4 py-3.5 w-[30%]">Compatible Printer(s)</th>
+                  <th class="px-4 py-3.5 w-[16%]">Supplier</th>
+                  <th class="px-4 py-3.5 w-[12%] text-right">Quantity</th>
+                  <th class="px-4 py-3.5 w-[14%]">Stock Status</th>
+                  <th class="px-4 py-3.5 w-[12%] text-center">Actions</th>
                 </tr>
               </thead>
               <tbody id="inventory-tbody" class="divide-y divide-slate-100 text-slate-700">
@@ -481,6 +490,10 @@
               Releases by Department
               <span id="txn-tab-count-released" class="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-600">0</span>
             </button>
+            <button type="button" data-txn-tab="DEFECTIVE" class="txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-b-2 border-transparent transition-colors">
+              Defective Returns
+              <span id="txn-tab-count-defective" class="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-600">0</span>
+            </button>
           </div>
 
           <!-- Department sub-tabs (releases only) -->
@@ -495,18 +508,26 @@
             <button type="button" data-txn-dept="QC" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">QC</button>
           </div>
 
-          <!-- Search -->
+          <!-- Search + date filters -->
           <div class="p-4 border-b border-slate-100 flex flex-wrap gap-3 items-center">
             <div class="flex-1 min-w-[200px]">
               <input id="filter-txn-search" type="text" placeholder="Search ticket ref, toner code, location..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div class="w-40">
+            <div class="w-44">
               <select id="filter-txn-date" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="ALL">All Time</option>
                 <option value="TODAY">Today</option>
                 <option value="WEEK">This Week</option>
                 <option value="MONTH">This Month</option>
+                <option value="CUSTOM">Custom Range</option>
               </select>
+            </div>
+            <div id="txn-custom-range" class="hidden flex flex-wrap items-center gap-2">
+              <label class="text-xs font-semibold text-slate-500" for="filter-txn-from">From</label>
+              <input id="filter-txn-from" type="date" class="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="text-xs font-semibold text-slate-500" for="filter-txn-to">To</label>
+              <input id="filter-txn-to" type="date" class="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button type="button" id="btn-txn-apply-range" class="px-3 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition-colors">Apply</button>
             </div>
           </div>
 
@@ -688,8 +709,8 @@
       </div>
     </div>
 
-    <!-- ===================== RECEIVE DELIVERY MODAL ===================== -->
-    <div id="modal-receive" class="modal-card hidden bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+        <!-- ===================== RECEIVE DELIVERY MODAL ===================== -->
+    <div id="modal-receive" class="modal-card hidden bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
       <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
@@ -697,7 +718,7 @@
           </div>
           <div>
             <h3 class="text-lg font-bold text-slate-900">Receive Delivery</h3>
-            <p class="text-xs text-slate-500">Enter an approved ticket to ingest stock</p>
+            <p class="text-xs text-slate-500">Enter ticket reference and delivery details manually</p>
           </div>
         </div>
         <button type="button" id="btn-close-receive-modal" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
@@ -705,120 +726,52 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
-        <!-- Search -->
-        <div id="receive-step-search">
-          <label class="block text-sm font-semibold text-slate-800 mb-1">Delivery Reference Number</label>
-          <p class="text-xs text-slate-500 mb-3">Enter an approved ticket reference, or load a sample valid ticket below.</p>
-          <div class="flex gap-2">
-            <input id="modal-del-ref" type="text" placeholder="e.g. DEL-2026-00125" class="flex-1 px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button id="btn-modal-search-del" type="button" class="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors">Search</button>
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+        <div id="receive-step-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-ref">Delivery Reference No. <span class="text-rose-500">*</span></label>
+            <input id="modal-del-ref" type="text" placeholder="e.g. DEL-2026-00125" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
-
-          <!-- Sample valid tickets -->
-          <div class="mt-4 p-3.5 rounded-xl bg-blue-50 border border-blue-100">
-            <div class="text-xs font-semibold text-blue-800 mb-2">Sample valid tickets (click to load)</div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" class="sample-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition-colors" data-ref="DEL-2026-00125">
-                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                DEL-2026-00125
-              </button>
-              <button type="button" class="sample-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition-colors" data-ref="DEL-2026-00126">
-                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                DEL-2026-00126
-              </button>
-              <button type="button" class="sample-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 transition-colors" data-ref="DEL-2026-99999">
-                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                DEL-2026-99999 (not found)
-              </button>
-            </div>
-            <p class="text-[11px] text-blue-600/80 mt-2">Green samples are valid approved tickets. The red sample shows the “ticket not found” error.</p>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-toner">Toner Code <span class="text-rose-500">*</span></label>
+            <select id="modal-del-toner" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">— Select toner —</option>
+            </select>
           </div>
-        </div>
-
-        <!-- Not Found / Error state (inside modal) -->
-        <div id="receive-step-error" class="hidden space-y-4 relative z-10 rounded-2xl border-2 border-rose-200 bg-white p-4 shadow-lg">
-          <div class="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <div class="text-sm font-bold" id="receive-error-title">Ticket Not Found</div>
-              <div class="text-xs opacity-80" id="receive-error-desc">No approved ticket matches this reference in the registry.</div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-qty">Quantity <span class="text-rose-500">*</span></label>
+              <input id="modal-del-qty" type="number" min="1" value="1" class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-          </div>
-          <div class="p-3.5 bg-rose-50 rounded-xl border border-rose-100 text-center">
-            <div class="text-[10px] uppercase tracking-wider text-rose-500 font-semibold mb-1">Reference Number</div>
-            <div class="text-base font-mono font-bold text-rose-700" id="receive-error-ref">—</div>
-          </div>
-          <ul class="space-y-1.5 text-xs text-slate-500">
-            <li class="flex items-start gap-2"><span class="text-slate-400 mt-0.5">•</span> Check for typos in the ticket number</li>
-            <li class="flex items-start gap-2"><span class="text-slate-400 mt-0.5">•</span> Confirm the ticket was approved</li>
-            <li class="flex items-start gap-2"><span class="text-slate-400 mt-0.5">•</span> Or click a green sample valid ticket above</li>
-          </ul>
-          <div class="flex justify-end pt-2">
-            <button type="button" id="btn-receive-error-back" class="px-5 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl transition-colors">
-              Try another ticket
-            </button>
-          </div>
-        </div>
-
-        <!-- Preview (Validated) -->
-        <div id="receive-step-preview" class="hidden space-y-4 relative z-10 rounded-2xl border-2 border-emerald-200 bg-white p-4 shadow-lg">
-          <div class="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div>
-              <div class="text-sm font-bold">Ticket Validated</div>
-              <div class="text-xs opacity-80">Approved delivery ticket found. Review stock changes below, then confirm to increment inventory.</div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-date">Date <span class="text-rose-500">*</span></label>
+              <input id="modal-del-date" type="date" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
           </div>
-          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <div class="flex flex-wrap gap-4 text-sm">
-              <div><span class="text-slate-500">Ticket:</span> <span id="m-del-ref" class="font-bold font-mono text-blue-700"></span></div>
-              <div><span class="text-slate-500">Date:</span> <span id="m-del-date" class="font-semibold"></span></div>
-              <div><span class="text-slate-500">Supplier:</span> <span id="m-del-supplier" class="font-semibold"></span></div>
-            </div>
-          </div>
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
-            <table class="w-full text-sm">
-              <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th class="px-3 py-2 text-left">Ink Code</th>
-                  <th class="px-3 py-2 text-left">Brand</th>
-                  <th class="px-3 py-2 text-left">Color</th>
-                  <th class="px-3 py-2 text-right">Current</th>
-                  <th class="px-3 py-2 text-right text-blue-600">Incoming</th>
-                  <th class="px-3 py-2 text-right">New</th>
-                </tr>
-              </thead>
-              <tbody id="m-del-tbody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span>Total items: <strong id="m-del-total-items">0</strong> · Qty: <strong id="m-del-total-qty">0</strong></span>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-supplier">Supplier <span class="text-rose-500">*</span></label>
+            <input id="modal-del-supplier" type="text" placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="btn-modal-cancel-del" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg">Cancel</button>
-            <button type="button" id="btn-modal-process-del" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              Confirm & Process Delivery
-            </button>
+            <button type="button" id="btn-modal-cancel-del" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+            <button type="button" id="btn-modal-process-del" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl">Record Delivery</button>
           </div>
         </div>
 
-        <!-- Success -->
         <div id="receive-step-success" class="hidden text-center py-8">
           <div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
           </div>
-          <h4 class="text-xl font-bold text-slate-900 mb-1">Delivery Processed Successfully</h4>
-          <p class="text-sm text-slate-500 mb-1">Ticket <span id="m-del-success-ref" class="font-mono font-semibold text-blue-700"></span> has been executed.</p>
-          <p class="text-xs text-slate-400 mb-6">Stock levels updated · Transaction logged</p>
+          <h4 class="text-xl font-bold text-slate-900 mb-1">Delivery Recorded</h4>
+          <p class="text-sm text-slate-500 mb-1">Reference <span id="m-del-success-ref" class="font-mono font-semibold text-blue-700"></span></p>
+          <p class="text-xs text-slate-400 mb-6">Stock increased · Transaction logged</p>
           <button type="button" id="btn-receive-done" class="px-6 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-lg">Done</button>
         </div>
       </div>
     </div>
 
     <!-- ===================== RELEASE TONER MODAL ===================== -->
-    <div id="modal-release" class="modal-card hidden bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+    <div id="modal-release" class="modal-card hidden bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
       <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
@@ -826,7 +779,7 @@
           </div>
           <div>
             <h3 class="text-lg font-bold text-slate-900">Stock Issuance</h3>
-            <p class="text-xs text-slate-500">Enter an approved ticket to issue toner</p>
+            <p class="text-xs text-slate-500">Enter ticket reference and issuance details manually</p>
           </div>
         </div>
         <button type="button" id="btn-close-release-modal" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
@@ -834,136 +787,292 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
-        <!-- Search -->
-        <div id="release-step-search">
-          <label class="block text-sm font-semibold text-slate-800 mb-1">Ticket Reference Number</label>
-          <p class="text-xs text-slate-500 mb-3">Enter an approved ticket reference, or load a sample below.</p>
-          <div class="flex gap-2">
-            <input id="modal-rel-ref" type="text" placeholder="e.g. REL-2026-00451" class="flex-1 px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <button id="btn-modal-search-rel" type="button" class="px-5 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors">Search</button>
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+        <div id="release-step-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-ref">Issuance Reference No. <span class="text-rose-500">*</span></label>
+            <input id="modal-rel-ref" type="text" placeholder="e.g. AMEC-006353" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
-
-          <div class="mt-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100">
-            <div class="text-xs font-semibold text-emerald-800 mb-2">Sample tickets (click to load)</div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" class="sample-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-colors" data-ref="REL-2026-00451">
-                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                REL-2026-00451
-              </button>
-              <button type="button" class="sample-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-colors" data-ref="REL-2026-00452">
-                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                REL-2026-00452
-              </button>
-              <button type="button" class="sample-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 transition-colors" data-ref="REL-2026-00453">
-                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                REL-2026-00453 (insufficient)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview -->
-        <!-- Not Found / Error state -->
-        <div id="release-step-error" class="hidden space-y-4 relative z-10 rounded-2xl border-2 border-rose-200 bg-white p-4 shadow-lg">
-          <div class="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <div>
-              <div class="text-sm font-bold" id="release-error-title">Ticket Not Found</div>
-              <div class="text-xs opacity-80" id="release-error-desc">No approved release ticket matches this reference.</div>
-            </div>
-          </div>
-          <div class="p-3.5 bg-rose-50 rounded-xl border border-rose-100 text-center">
-            <div class="text-[10px] uppercase tracking-wider text-rose-500 font-semibold mb-1">Reference Number</div>
-            <div class="text-base font-mono font-bold text-rose-700" id="release-error-ref">—</div>
-          </div>
-          <ul class="space-y-1.5 text-xs text-slate-500">
-            <li class="flex items-start gap-2"><span class="text-slate-400 mt-0.5">•</span> Ticket may not exist or is not approved yet</li>
-            <li class="flex items-start gap-2"><span class="text-slate-400 mt-0.5">•</span> Check for typos in the reference number</li>
-            <li class="flex items-start gap-2"><span class="text-slate-400 mt-0.5">•</span> Try a green sample valid ticket if testing</li>
-          </ul>
-          <div class="flex justify-end pt-2">
-            <button type="button" id="btn-release-error-back" class="px-5 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl transition-colors">
-              Try another ticket
-            </button>
-          </div>
-        </div>
-
-        <div id="release-step-preview" class="hidden space-y-4 relative z-10 rounded-2xl border-2 border-emerald-200 bg-white p-4 shadow-lg">
-          <div id="m-rel-validated-banner" class="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <div>
-              <div class="text-sm font-bold">Ticket Validated</div>
-              <div class="text-xs opacity-80">Approved release ticket found. Review stock impact below, then confirm to decrement inventory.</div>
-            </div>
-          </div>
-          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <div class="flex flex-wrap gap-4 text-sm">
-              <div><span class="text-slate-500">Ticket:</span> <span id="m-rel-ref" class="font-bold font-mono text-emerald-700"></span></div>
-              <div><span class="text-slate-500">Date:</span> <span id="m-rel-date" class="font-semibold"></span></div>
-              <div><span class="text-slate-500">Dept:</span> <span id="m-rel-dept" class="font-semibold"></span></div>
-              <div><span class="text-slate-500">Given To:</span> <span id="m-rel-givento" class="font-semibold"></span></div>
-            </div>
-            <p class="text-xs text-slate-500 mt-2 italic" id="m-rel-purpose"></p>
-          </div>
-
-          <div id="m-rel-location-section" class="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50">
-            <label for="modal-rel-location" class="block text-sm font-semibold text-slate-800 mb-1">Give to Location</label>
-            <p id="m-rel-location-help" class="text-xs text-slate-500 mb-2">Select where the toner will be issued for this department.</p>
-            <select id="modal-rel-location" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="">— Select location —</option>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-toner">Toner Code <span class="text-rose-500">*</span></label>
+            <select id="modal-rel-toner" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="">— Select toner —</option>
             </select>
-            <!-- Shown when department has only one office/location (no dropdown needed) -->
-            <div id="m-rel-location-auto" class="hidden mt-1">
-              <div class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white font-semibold text-slate-800" id="m-rel-location-auto-text">—</div>
-              <p class="text-xs text-slate-500 mt-1.5">Only location for this department — applied automatically.</p>
+            <p id="modal-rel-stock-hint" class="text-xs text-slate-500 mt-1"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-dept">Department <span class="text-rose-500">*</span></label>
+            <select id="modal-rel-dept" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="">— Select department —</option>
+              <option value="ACCT">ACCT</option>
+              <option value="BD">BD</option>
+              <option value="BMS">BMS</option>
+              <option value="LOGISTICS">LOGISTICS</option>
+              <option value="PRODUCTION">PRODUCTION</option>
+              <option value="PURCHASING">PURCHASING</option>
+              <option value="QC">QC</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-location">Location <span class="text-rose-500">*</span></label>
+            <select id="modal-rel-location" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="">— Select department first —</option>
+            </select>
+            <div id="m-rel-location-auto" class="hidden mt-2">
+              <div class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-800" id="m-rel-location-auto-text">—</div>
+              <p class="text-xs text-slate-500 mt-1">Only location for this department — applied automatically.</p>
             </div>
-            <p id="m-rel-location-hint" class="text-xs text-slate-500 mt-1.5 hidden"></p>
           </div>
-
-          <div id="m-rel-stock-error" class="hidden p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-sm"></div>
-
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
-            <table class="w-full text-sm">
-              <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th class="px-3 py-2 text-left">Ink Code</th>
-                  <th class="px-3 py-2 text-left">Brand</th>
-                  <th class="px-3 py-2 text-right">Available</th>
-                  <th class="px-3 py-2 text-right text-emerald-600">Request</th>
-                  <th class="px-3 py-2 text-right">After</th>
-                  <th class="px-3 py-2 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody id="m-rel-tbody" class="divide-y divide-slate-100"></tbody>
-            </table>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-date">Date</label>
+            <input id="modal-rel-date" type="date" readonly tabindex="-1" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed">
+            <p class="text-[11px] text-slate-500 mt-1">Always set to today — not editable</p>
           </div>
-          <div class="flex items-center justify-between text-sm">
-            <span>Total items: <strong id="m-rel-total-items">0</strong> · Qty: <strong id="m-rel-total-qty">0</strong></span>
-            <span id="m-rel-validation-badge" class="text-xs px-2.5 py-1 font-bold rounded-md bg-emerald-100 text-emerald-800">Stock Verified</span>
-          </div>
+          <p class="text-xs text-slate-500">Issuance is always <strong>1 unit</strong> per ticket.</p>
           <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="btn-modal-cancel-rel" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors">Cancel</button>
-            <button type="button" id="btn-modal-process-rel" class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              Confirm & Process Release
-            </button>
-            <button type="button" id="btn-release-try-another" class="hidden px-5 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl transition-colors">
-              Try another ticket
-            </button>
+            <button type="button" id="btn-modal-cancel-rel" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+            <button type="button" id="btn-modal-process-rel" class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl">Record Issuance</button>
           </div>
         </div>
 
-        <!-- Success -->
         <div id="release-step-success" class="hidden text-center py-8">
           <div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
           </div>
-          <h4 class="text-xl font-bold text-slate-900 mb-1">Release Processed Successfully</h4>
-          <p class="text-sm text-slate-500 mb-1">Ticket <span id="m-rel-success-ref" class="font-mono font-semibold text-emerald-700"></span> has been executed.</p>
-          <p class="text-xs text-slate-400 mb-6">Stock levels updated · Transaction logged</p>
+          <h4 class="text-xl font-bold text-slate-900 mb-1">Issuance Recorded</h4>
+          <p class="text-sm text-slate-500 mb-1">Reference <span id="m-rel-success-ref" class="font-mono font-semibold text-emerald-700"></span></p>
+          <p class="text-xs text-slate-400 mb-6">1 unit deducted · Transaction logged</p>
           <button type="button" id="btn-release-done" class="px-6 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-lg">Done</button>
         </div>
+      </div>
+    </div>
+
+<!-- ===================== RETURN DEFECTIVE MODAL ===================== -->
+    <div id="modal-defective" class="modal-card hidden bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+      <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Return Defective Toner</h3>
+            <p class="text-xs text-slate-500">Flag an issued ticket as a defective return</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-defective-modal" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
+        <div id="defective-step-search">
+          <label class="block text-sm font-semibold text-slate-800 mb-1">Issuance Ticket Number</label>
+          <p class="text-xs text-slate-500 mb-3">Enter the stock issuance ticket that was already released. That ticket will be flagged as defective.</p>
+          <div class="flex gap-2">
+            <input id="modal-def-ref" type="text" placeholder="e.g. REL-2026-00451" class="flex-1 px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <button id="btn-modal-search-def" type="button" class="px-5 py-2.5 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors">Search</button>
+          </div>
+          <div class="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-100">
+            <div class="text-xs font-semibold text-rose-800 mb-2">Sample issued tickets (click to load)</div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="sample-def-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-100 transition-colors" data-ref="REL-2026-00451">
+                REL-2026-00451 · LOGISTICS
+              </button>
+              <button type="button" class="sample-def-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-100 transition-colors" data-ref="REL-2026-00452">
+                REL-2026-00452 · ACCT
+              </button>
+              <button type="button" class="sample-def-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors" data-ref="REL-2026-99999">
+                REL-2026-99999 (not found)
+              </button>
+            </div>
+            <p class="text-[11px] text-rose-600/80 mt-2">These are pre-completed issuances. Use one to try flagging as defective.</p>
+          </div>
+        </div>
+
+        <div id="defective-step-error" class="hidden space-y-3 relative z-10 rounded-2xl border-2 border-rose-200 bg-white p-4 shadow-lg">
+          <div class="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <div class="text-sm font-bold" id="defective-error-title">Not Found</div>
+              <div class="text-xs opacity-80" id="defective-error-desc">No matching issuance found.</div>
+            </div>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-xl border border-rose-100 text-center">
+            <div class="text-[10px] uppercase tracking-wider text-rose-500 font-semibold mb-1">Reference</div>
+            <div class="text-base font-mono font-bold text-rose-700" id="defective-error-ref">—</div>
+          </div>
+          <div class="flex justify-end">
+            <button type="button" id="btn-defective-error-back" class="px-5 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl">Try another ticket</button>
+          </div>
+        </div>
+
+        <div id="defective-step-preview" class="hidden space-y-4 relative z-10 rounded-2xl border-2 border-rose-200 bg-white p-4 shadow-lg">
+          <div class="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+              <div class="text-sm font-bold">Issuance Found — Mark as Defective</div>
+              <div class="text-xs opacity-80">This will flag the issued toner as defective. Stock is not returned to usable inventory.</div>
+            </div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-sm">
+            <div class="flex justify-between gap-2"><span class="text-slate-500">Ticket</span><span id="m-def-ref" class="font-mono font-bold text-rose-700"></span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500">Toner Code</span><span id="m-def-code" class="font-mono font-semibold"></span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500">Department</span><span id="m-def-dept" class="font-semibold"></span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500">Location</span><span id="m-def-loc" class="font-semibold"></span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500">Qty issued</span><span id="m-def-qty" class="font-mono font-bold">1</span></div>
+            <div class="flex justify-between gap-2"><span class="text-slate-500">Issued on</span><span id="m-def-date" class="text-slate-700"></span></div>
+          </div>
+          <div>
+            <label for="modal-def-notes" class="block text-sm font-semibold text-slate-800 mb-1">Defect notes (optional)</label>
+            <textarea id="modal-def-notes" rows="2" placeholder="e.g. Leaking cartridge, print quality failure..." class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+          </div>
+          <div class="flex justify-end gap-3 pt-1">
+            <button type="button" id="btn-modal-cancel-def" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+            <button type="button" id="btn-modal-process-def" class="px-5 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl">
+              Flag as Defective
+            </button>
+          </div>
+        </div>
+
+        <div id="defective-step-success" class="hidden text-center py-8">
+          <div class="w-16 h-16 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          </div>
+          <h4 class="text-xl font-bold text-slate-900 mb-1">Marked as Defective</h4>
+          <p class="text-sm text-slate-500 mb-1">Issuance <span id="m-def-success-ref" class="font-mono font-semibold text-rose-700"></span> flagged.</p>
+          <p class="text-xs text-slate-400 mb-6">Logged under Defective Returns · usable stock not increased</p>
+          <button type="button" id="btn-defective-done" class="px-6 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-lg">Done</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===================== STOCK CARD / MOVEMENT HISTORY ===================== -->
+    <div id="modal-stock-card" class="modal-card hidden bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+      <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-lg font-bold text-slate-900 truncate">Stock Card — <span id="stock-card-code" class="font-mono text-blue-700">—</span></h3>
+            <p class="text-xs text-slate-500 truncate" id="stock-card-meta">Movement history for this toner</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-stock-card" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="px-6 py-3 border-b border-slate-100 bg-slate-50 space-y-2">
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+            <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">On hand</span>
+            <span id="stock-card-onhand" class="font-bold font-mono text-lg text-slate-900">0</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Compatible printers</div>
+          <div id="stock-card-printer" class="flex flex-wrap gap-1.5 text-sm"></div>
+        </div>
+        <div>
+          <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Supplier(s)</div>
+          <div id="stock-card-supplier" class="flex flex-wrap gap-1.5 text-sm"></div>
+        </div>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex-1 min-h-0">
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-left text-sm table-fixed">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-3 py-3 w-[16%]">Date</th>
+                <th class="px-3 py-3 w-[22%]">Transaction</th>
+                <th class="px-3 py-3 w-[18%]">Reference</th>
+                <th class="px-3 py-3 w-[12%] text-right">Stock In</th>
+                <th class="px-3 py-3 w-[12%] text-right">Stock Out</th>
+                <th class="px-3 py-3 w-[12%] text-right">Balance</th>
+                <th class="px-3 py-3 w-[8%]">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="stock-card-tbody" class="divide-y divide-slate-100 text-slate-700">
+            </tbody>
+          </table>
+        </div>
+        <p id="stock-card-empty" class="hidden text-center text-sm text-slate-400 py-8">No movement history for this toner yet.</p>
+      </div>
+
+      <div class="shrink-0 px-6 py-3 border-t border-slate-200 flex justify-end">
+        <button type="button" id="btn-stock-card-done" class="px-5 py-2 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl">Close</button>
+      </div>
+    </div>
+
+
+    <!-- ===================== ADD TONER MODAL ===================== -->
+    <div id="modal-add-toner" class="modal-card hidden bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+      <div class="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-20 rounded-t-2xl">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Add Toner</h3>
+            <p class="text-xs text-slate-500">Register a new toner code in inventory</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-add-toner" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+        <div>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-code">Toner Code <span class="text-rose-500">*</span></label>
+          <input id="add-toner-code" type="text" required placeholder="e.g. CRG-737" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-printer">Compatible Printer(s) <span class="text-rose-500">*</span></label>
+          <input id="add-toner-printer" type="text" required placeholder="e.g. Canon MF237W" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-[11px] text-slate-500 mt-1">Separate multiple printers with a comma</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-supplier">Supplier <span class="text-rose-500">*</span></label>
+          <input id="add-toner-supplier" type="text" required placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-qty">Starting Qty <span class="text-rose-500">*</span></label>
+            <input id="add-toner-qty" type="number" min="0" value="0" required class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-reorder">Reorder Level <span class="text-rose-500">*</span></label>
+            <input id="add-toner-reorder" type="number" min="0" value="3" required class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+      <div class="shrink-0 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+        <button type="button" id="btn-cancel-add-toner" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-save-add-toner" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl">Save Toner</button>
+      </div>
+    </div>
+
+    <!-- ===================== REMOVE TONER CONFIRM ===================== -->
+    <div id="modal-remove-toner" class="modal-card hidden bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 mb-4">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <div class="text-sm font-bold">Remove toner from inventory?</div>
+          <div class="text-xs opacity-80">This deletes the stock card entry for this code.</div>
+        </div>
+      </div>
+      <p class="text-sm text-slate-600 mb-2">You are about to remove:</p>
+      <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-center mb-2">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Toner Code</div>
+        <div class="text-lg font-mono font-bold text-rose-700" id="remove-toner-code-label">—</div>
+      </div>
+      <p class="text-xs text-slate-500 mb-5">Past transaction history is kept for audit. Only the inventory master record is removed.</p>
+      <div class="flex justify-end gap-3">
+        <button type="button" id="btn-cancel-remove-toner" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-confirm-remove-toner" class="px-5 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl">Yes, Remove</button>
       </div>
     </div>
 
@@ -998,7 +1107,7 @@
 // ==========================================
 const STORAGE_KEYS = {
   INKS: 'inventoryToners_v2',
-  TRANSACTIONS: 'inventoryTransactions',
+  TRANSACTIONS: 'inventoryTransactions_v3',
   TICKETS: 'inventoryTickets_v2',
   SETTINGS: 'inventorySettings'
 };
@@ -1413,37 +1522,60 @@ const DEMO_INITIAL_TRANSACTIONS = [
     id: "TXN-00001",
     type: "RECEIVED",
     referenceNumber: "DEL-2026-00100",
-    inkId: "INK-001",
-    inkCode: "HP-682-BLK",
-    serialNumber: "SN-H682-INIT",
-    brand: "HP",
+    inkId: "TNR-001",
+    inkCode: "CRG-737",
+    serialNumber: "N/A",
+    brand: "Canon",
     color: "Black",
-    quantity: 10,
+    quantity: 5,
     date: "2026-09-01",
-    supplier: "ABC Office Supplies",
+    supplier: "INKRITE",
     givenTo: "",
-    department: "Main Storage",
-    purpose: "Initial warehouse stock receipt",
+    department: "",
+    location: "",
+    purpose: "Initial stock receipt",
     status: "APPROVED",
     createdAt: "2026-09-01T09:00:00"
   },
   {
     id: "TXN-00002",
     type: "RELEASED",
-    referenceNumber: "REL-2026-00400",
-    inkId: "INK-005",
-    inkCode: "Canon PG-47",
-    serialNumber: "SN-CPG47-01",
+    referenceNumber: "REL-2026-00451",
+    inkId: "TNR-004",
+    inkCode: "CRG-737",
+    serialNumber: "N/A",
     brand: "Canon",
     color: "Black",
-    quantity: 5,
-    date: "2026-09-07",
+    quantity: 1,
+    date: "2026-09-09",
     supplier: "",
-    givenTo: "Carlos Ramos",
-    department: "Executive Office",
-    purpose: "Board meeting documentation packs",
+    givenTo: "Neressa J. Siman",
+    department: "LOGISTICS",
+    location: "Logistics Office",
+    purpose: "Toner request for Logistics Office printer",
     status: "APPROVED",
-    createdAt: "2026-09-07T14:20:00"
+    defective: false,
+    createdAt: "2026-09-09T11:00:00"
+  },
+  {
+    id: "TXN-00003",
+    type: "RELEASED",
+    referenceNumber: "REL-2026-00452",
+    inkId: "TNR-001",
+    inkCode: "CRG-737",
+    serialNumber: "N/A",
+    brand: "Canon",
+    color: "Black",
+    quantity: 1,
+    date: "2026-09-09",
+    supplier: "",
+    givenTo: "Maria Santos",
+    department: "ACCT",
+    location: "Acctg Office",
+    purpose: "Accounting office toner replenishment",
+    status: "APPROVED",
+    defective: false,
+    createdAt: "2026-09-09T11:30:00"
   }
 ];
 
@@ -1461,6 +1593,8 @@ const AppState = {
   },
   activeDeliveryTicket: null,
   activeReleaseTicket: null,
+  activeDefectiveTxn: null,
+  pendingRemoveTonerCode: null,
   selectedReleaseLocation: '',
   selectedReleaseDepartment: '',
   charts: {
@@ -1478,6 +1612,8 @@ const AppState = {
     transactionType: "RECEIVED",
     transactionBrand: "ALL",
     transactionDate: "ALL",
+    transactionDateFrom: "",
+    transactionDateTo: "",
     transactionDept: "ALL",
     reportDate: "ALL"
   },
@@ -1817,9 +1953,9 @@ function isDateInFilter(dateStr, filterType) {
   if (!dateStr) return false;
 
   const itemDate = new Date(dateStr);
-  const now = new Date();
+  if (Number.isNaN(itemDate.getTime())) return false;
 
-  // Reset clock on 'now' to compare calendar dates safely
+  const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const itemDay = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
 
@@ -1837,7 +1973,42 @@ function isDateInFilter(dateStr, filterType) {
     return itemDate.getFullYear() === now.getFullYear() && itemDate.getMonth() === now.getMonth();
   }
 
+  if (filterType === 'CUSTOM') {
+    const fromStr = AppState.filters.transactionDateFrom;
+    const toStr = AppState.filters.transactionDateTo;
+    // If range not set yet, show all (until user applies)
+    if (!fromStr && !toStr) return true;
+
+    let ok = true;
+    if (fromStr) {
+      const fromDay = new Date(fromStr + 'T00:00:00');
+      ok = ok && itemDay >= fromDay;
+    }
+    if (toStr) {
+      const toDay = new Date(toStr + 'T00:00:00');
+      ok = ok && itemDay <= toDay;
+    }
+    return ok;
+  }
+
   return true;
+}
+
+function syncTxnCustomRangeUI() {
+  const wrap = document.getElementById('txn-custom-range');
+  const isCustom = AppState.filters.transactionDate === 'CUSTOM';
+  if (wrap) {
+    if (isCustom) wrap.classList.remove('hidden');
+    else wrap.classList.add('hidden');
+  }
+  const from = document.getElementById('filter-txn-from');
+  const to = document.getElementById('filter-txn-to');
+  if (from && from.value !== (AppState.filters.transactionDateFrom || '')) {
+    from.value = AppState.filters.transactionDateFrom || '';
+  }
+  if (to && to.value !== (AppState.filters.transactionDateTo || '')) {
+    to.value = AppState.filters.transactionDateTo || '';
+  }
 }
 
 // ==========================================
@@ -1851,21 +2022,80 @@ function renderInventory() {
   const search = AppState.filters.inventorySearch.toLowerCase().trim();
   const statusFilter = AppState.filters.inventoryStatus;
 
-  const filtered = AppState.inks.filter(item => {
-    // Toner code search only
+  // Aggregate by toner code so each code appears only once
+  const byCode = {};
+  AppState.inks.forEach(item => {
+    const code = (item.inkCode || '').trim();
+    if (!code) return;
+    const key = code.toUpperCase();
+    if (!byCode[key]) {
+      byCode[key] = {
+        inkCode: code,
+        printerModel: item.printerModel || '',
+        supplier: item.supplier || '',
+        quantity: 0,
+        reorderLevel: Number(item.reorderLevel) || 0,
+        printers: new Set(),
+        suppliers: new Set()
+      };
+    }
+    byCode[key].quantity += Number(item.quantity) || 0;
+    // Use the highest reorder level among lines (safer alert threshold)
+    byCode[key].reorderLevel = Math.max(byCode[key].reorderLevel, Number(item.reorderLevel) || 0);
+    if (item.printerModel) byCode[key].printers.add(item.printerModel);
+    if (item.supplier) byCode[key].suppliers.add(item.supplier);
+  });
+
+  // Optional extra compatible printers by toner code (shared stock, not duplicated rows)
+  const EXTRA_COMPATIBLE = {
+    'CF280A': ['HP Color LaserJet Pro 400 MFP M425dn', 'HP LaserJet Pro M401n'],
+    'CRG-737': ['Canon MF237W'],
+    'CF276A': ['HP LaserJet Pro MFP M428fdn'],
+    'Q2612A': ['Canon LBP 2900'],
+    'CAN 045 HBK': ['Canon MF633DW'],
+    'CAN 045 HC': ['Canon MF633DW'],
+    'CAN 045 HY': ['Canon MF633DW'],
+    'CAN 045 HM': ['Canon MF633DW']
+  };
+
+  let aggregated = Object.values(byCode).map(g => {
+    const fromStock = [...g.printers];
+    const extra = EXTRA_COMPATIBLE[(g.inkCode || '').toUpperCase()] || EXTRA_COMPATIBLE[g.inkCode] || [];
+    const allPrinters = [];
+    const seen = new Set();
+    [...fromStock, ...extra].forEach(p => {
+      const norm = (p || '').trim();
+      if (!norm) return;
+      const key = norm.toUpperCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      allPrinters.push(norm);
+    });
+    return {
+      inkCode: g.inkCode,
+      printerModel: allPrinters.length ? allPrinters.join(' · ') : (g.printerModel || '—'),
+      printerList: allPrinters.length ? allPrinters : [],
+      supplier: [...g.suppliers].join(', ') || g.supplier || '—',
+      supplierList: [...g.suppliers],
+      quantity: g.quantity,
+      reorderLevel: g.reorderLevel || 3
+    };
+  });
+
+  const filtered = aggregated.filter(item => {
     if (search) {
       const matchCode = (item.inkCode || '').toLowerCase().includes(search);
       if (!matchCode) return false;
     }
-
-    // Status filter
     const status = getStockStatus(item.quantity, item.reorderLevel);
     if (statusFilter === 'IN_STOCK' && status !== STOCK_STATUS.IN_STOCK) return false;
     if (statusFilter === 'LOW_STOCK' && status !== STOCK_STATUS.LOW_STOCK) return false;
     if (statusFilter === 'OUT_OF_STOCK' && status !== STOCK_STATUS.OUT_OF_STOCK) return false;
-
     return true;
   });
+
+  // Sort by toner code
+  filtered.sort((a, b) => (a.inkCode || '').localeCompare(b.inkCode || '', undefined, { sensitivity: 'base' }));
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
@@ -1884,10 +2114,27 @@ function renderInventory() {
     }
 
     return `
-      <tr class="hover:bg-slate-50 transition-colors">
-        <td class="px-4 py-3.5 font-bold text-slate-900 font-mono whitespace-nowrap">${escapeHTML(item.inkCode)}</td>
-        <td class="px-4 py-3.5 text-slate-700 text-xs">${escapeHTML(item.printerModel || '—')}</td>
-        <td class="px-4 py-3.5 text-xs font-semibold text-slate-800">${escapeHTML(item.supplier || '—')}</td>
+      <tr class="hover:bg-blue-50/60 transition-colors cursor-pointer inventory-row" data-ink-code="${escapeHTML(item.inkCode)}" title="View stock card / movement history">
+        <td class="px-4 py-3.5 font-bold text-slate-900 font-mono whitespace-nowrap">
+          <span class="inline-flex items-center gap-1.5">
+            ${escapeHTML(item.inkCode)}
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </span>
+        </td>
+        <td class="px-4 py-3.5">
+          <div class="flex flex-wrap gap-1.5">
+            ${(item.printerList && item.printerList.length
+              ? item.printerList.map(p => `<span class="inline-flex items-center gap-1 max-w-full px-2 py-1 rounded-lg text-[11px] font-medium bg-indigo-50 text-indigo-800 border border-indigo-100 shadow-xs" title="${escapeHTML(p)}"><svg class="w-3 h-3 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg><span class="truncate">${escapeHTML(p)}</span></span>`).join('')
+              : `<span class="text-xs text-slate-400 italic">No printer listed</span>`)}
+          </div>
+        </td>
+        <td class="px-4 py-3.5">
+          <div class="flex flex-wrap gap-1.5">
+            ${(item.supplierList && item.supplierList.length
+              ? item.supplierList.map(s => `<span class="inline-flex items-center px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(s)}</span>`).join('')
+              : `<span class="text-xs text-slate-400">—</span>`)}
+          </div>
+        </td>
         <td class="px-4 py-3.5 text-right font-bold font-mono text-base ${item.quantity === 0 ? 'text-rose-600' : (item.quantity <= item.reorderLevel ? 'text-amber-600' : 'text-slate-900')}">
           ${item.quantity}
         </td>
@@ -1896,9 +2143,282 @@ function renderInventory() {
             ${status}
           </span>
         </td>
+        <td class="px-4 py-3.5 text-center">
+          <button type="button" class="btn-remove-toner inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors" data-ink-code="${escapeHTML(item.inkCode)}" title="Remove this toner from inventory">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            Remove
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
+}
+
+
+// ==========================================
+// STOCK CARD / TONER MOVEMENT HISTORY
+// ==========================================
+
+// ==========================================
+// ADD / REMOVE TONER
+// ==========================================
+function openAddTonerModal() {
+  ['add-toner-code','add-toner-printer','add-toner-supplier'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const qty = document.getElementById('add-toner-qty');
+  const re = document.getElementById('add-toner-reorder');
+  if (qty) qty.value = '0';
+  if (re) re.value = '3';
+  const modal = document.getElementById('modal-add-toner');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
+  setTimeout(() => document.getElementById('add-toner-code')?.focus(), 80);
+}
+
+function closeAddTonerModal() {
+  const modal = document.getElementById('modal-add-toner');
+  if (modal) modal.classList.add('hidden');
+  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
+}
+
+function saveNewToner() {
+  const code = (document.getElementById('add-toner-code')?.value || '').trim().toUpperCase();
+  const printers = (document.getElementById('add-toner-printer')?.value || '').trim();
+  const supplier = (document.getElementById('add-toner-supplier')?.value || '').trim();
+  const qtyRaw = document.getElementById('add-toner-qty')?.value;
+  const reorderRaw = document.getElementById('add-toner-reorder')?.value;
+
+  if (!code) {
+    showToast('Toner code is required.', 'warning');
+    document.getElementById('add-toner-code')?.focus();
+    return;
+  }
+  if (!printers) {
+    showToast('Compatible printer(s) are required.', 'warning');
+    document.getElementById('add-toner-printer')?.focus();
+    return;
+  }
+  if (!supplier) {
+    showToast('Supplier is required.', 'warning');
+    document.getElementById('add-toner-supplier')?.focus();
+    return;
+  }
+  if (qtyRaw === '' || qtyRaw === null || qtyRaw === undefined) {
+    showToast('Starting quantity is required.', 'warning');
+    document.getElementById('add-toner-qty')?.focus();
+    return;
+  }
+  if (reorderRaw === '' || reorderRaw === null || reorderRaw === undefined) {
+    showToast('Reorder level is required.', 'warning');
+    document.getElementById('add-toner-reorder')?.focus();
+    return;
+  }
+
+  const exists = AppState.inks.some(i => (i.inkCode || '').toUpperCase() === code);
+  if (exists) {
+    showToast(`Toner ${code} already exists in inventory.`, 'warning');
+    return;
+  }
+
+  const qty = Math.max(0, parseInt(qtyRaw, 10) || 0);
+  const reorder = Math.max(0, parseInt(reorderRaw, 10) || 0);
+  const now = new Date().toISOString();
+  const printerList = printers.split(',').map(p => p.trim()).filter(Boolean);
+  const primaryPrinter = printerList[0] || printers;
+
+  const item = {
+    id: generateInkId(),
+    inkCode: code,
+    brand: '',
+    printerModel: printerList.length > 1 ? printerList.join(', ') : primaryPrinter,
+    color: 'Black',
+    department: '',
+    serialNumbers: [],
+    quantity: qty,
+    reorderLevel: reorder,
+    supplier,
+    location: '',
+    createdAt: now,
+    updatedAt: now
+  };
+
+  const inks = [...AppState.inks, item];
+  StorageService.saveInks(inks);
+  AppState.inks = inks;
+  renderInventory();
+  renderDashboard();
+  renderAlerts();
+  closeAddTonerModal();
+  showToast(`Toner ${code} added to inventory.`, 'success');
+  pushNotification('success', 'Toner Added', `${code} was added to the master inventory.`, { source: 'action' });
+}
+
+function openRemoveTonerModal(inkCode) {
+  AppState.pendingRemoveTonerCode = inkCode;
+  const label = document.getElementById('remove-toner-code-label');
+  if (label) label.textContent = inkCode;
+  const modal = document.getElementById('modal-remove-toner');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeRemoveTonerModal() {
+  const modal = document.getElementById('modal-remove-toner');
+  if (modal) modal.classList.add('hidden');
+  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
+  AppState.pendingRemoveTonerCode = null;
+}
+
+function confirmRemoveToner() {
+  const code = AppState.pendingRemoveTonerCode;
+  if (!code) return;
+  const key = code.toUpperCase();
+  const inks = AppState.inks.filter(i => (i.inkCode || '').toUpperCase() !== key);
+  if (inks.length === AppState.inks.length) {
+    showToast('Toner not found.', 'warning');
+    closeRemoveTonerModal();
+    return;
+  }
+  StorageService.saveInks(inks);
+  AppState.inks = inks;
+  renderInventory();
+  renderDashboard();
+  renderAlerts();
+  closeRemoveTonerModal();
+  showToast(`Toner ${code} removed from inventory.`, 'success');
+  pushNotification('warning', 'Toner Removed', `${code} was removed from the master inventory.`, { source: 'action' });
+}
+
+function closeStockCard() {
+  const modal = document.getElementById('modal-stock-card');
+  if (modal) modal.classList.add('hidden');
+  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
+}
+
+function openStockCard(inkCode) {
+  const code = (inkCode || '').trim();
+  if (!code) return;
+
+  const items = AppState.inks.filter(i => (i.inkCode || '').toUpperCase() === code.toUpperCase());
+  const onHand = items.reduce((s, i) => s + (Number(i.quantity) || 0), 0);
+  const sample = items[0] || {};
+  const printer = [...new Set(items.map(i => i.printerModel).filter(Boolean))].join(', ') || sample.printerModel || '—';
+  const supplier = [...new Set(items.map(i => i.supplier).filter(Boolean))].join(', ') || sample.supplier || '—';
+
+  document.getElementById('stock-card-code').textContent = code;
+  document.getElementById('stock-card-meta').textContent = items.length > 1
+    ? `${items.length} inventory lines · full movement history`
+    : 'Complete stock movement history';
+  document.getElementById('stock-card-onhand').textContent = onHand;
+  const printerEl = document.getElementById('stock-card-printer');
+  const supplierEl = document.getElementById('stock-card-supplier');
+  const printerNames = printer === '—' ? [] : printer.split(',').map(s => s.trim()).filter(Boolean);
+  const supplierNames = supplier === '—' ? [] : supplier.split(',').map(s => s.trim()).filter(Boolean);
+  if (printerEl) {
+    printerEl.innerHTML = printerNames.length
+      ? printerNames.map(p => `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-100"><svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg>${escapeHTML(p)}</span>`).join('')
+      : '<span class="text-xs text-slate-400 italic">No printer listed</span>';
+  }
+  if (supplierEl) {
+    supplierEl.innerHTML = supplierNames.length
+      ? supplierNames.map(s => `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 border border-slate-200">${escapeHTML(s)}</span>`).join('')
+      : '<span class="text-xs text-slate-400">—</span>';
+  }
+
+  const txns = (AppState.transactions || [])
+    .filter(t => (t.inkCode || '').toUpperCase() === code.toUpperCase())
+    .slice()
+    .sort((a, b) => {
+      const da = new Date(a.createdAt || a.date || 0).getTime();
+      const db = new Date(b.createdAt || b.date || 0).getTime();
+      return da - db;
+    });
+
+  // Reconstruct opening balance so ending balance matches on-hand
+  let netFromTxns = 0;
+  txns.forEach(t => {
+    if (t.type === 'RECEIVED') netFromTxns += Number(t.quantity) || 0;
+    else if (t.type === 'RELEASED') netFromTxns -= Number(t.quantity) || 0;
+    // DEFECTIVE does not change usable stock
+  });
+  let balance = onHand - netFromTxns;
+
+  const tbody = document.getElementById('stock-card-tbody');
+  const empty = document.getElementById('stock-card-empty');
+  const rows = [];
+
+  // Beginning balance row
+  rows.push(`
+    <tr class="bg-slate-50/80">
+      <td class="px-3 py-2.5 text-xs text-slate-500">—</td>
+      <td class="px-3 py-2.5 font-semibold text-slate-800">Beginning Balance</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-400">—</td>
+      <td class="px-3 py-2.5 text-right font-mono text-slate-400">—</td>
+      <td class="px-3 py-2.5 text-right font-mono text-slate-400">—</td>
+      <td class="px-3 py-2.5 text-right font-mono font-bold text-slate-900">${balance}</td>
+      <td class="px-3 py-2.5 text-xs text-slate-400">—</td>
+    </tr>
+  `);
+
+  if (txns.length === 0) {
+    if (empty) empty.classList.remove('hidden');
+  } else if (empty) {
+    empty.classList.add('hidden');
+  }
+
+  txns.forEach(t => {
+    const dateLabel = formatDate(t.date || (t.createdAt || '').split('T')[0]);
+    let label = t.type;
+    let stockIn = '—';
+    let stockOut = '—';
+    let note = '';
+    const qty = Number(t.quantity) || 0;
+
+    if (t.type === 'RECEIVED') {
+      label = 'Delivery Received';
+      stockIn = String(qty);
+      balance += qty;
+      note = t.supplier || '';
+    } else if (t.type === 'RELEASED') {
+      label = t.defective ? 'Issued (later defective)' : 'Issued';
+      stockOut = String(qty);
+      balance -= qty;
+      note = [t.department, t.location].filter(Boolean).join(' · ');
+    } else if (t.type === 'DEFECTIVE') {
+      label = 'Defective Return';
+      note = t.purpose || 'Flagged defective';
+      // balance unchanged
+    }
+
+    rows.push(`
+      <tr class="hover:bg-slate-50">
+        <td class="px-3 py-2.5 text-xs text-slate-600 whitespace-nowrap">${escapeHTML(dateLabel)}</td>
+        <td class="px-3 py-2.5 font-medium text-slate-800">${escapeHTML(label)}</td>
+        <td class="px-3 py-2.5 font-mono text-xs font-semibold text-slate-900">${escapeHTML(t.referenceNumber || '—')}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-bold text-blue-600">${stockIn === '—' ? '—' : '+' + stockIn}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-600">${stockOut === '—' ? '—' : '-' + stockOut}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-bold text-slate-900">${balance}</td>
+        <td class="px-3 py-2.5 text-xs text-slate-500 truncate" title="${escapeHTML(note)}">${escapeHTML(note || '—')}</td>
+      </tr>
+    `);
+  });
+
+  if (tbody) tbody.innerHTML = rows.join('');
+
+  const backdrop = document.getElementById('modal-backdrop');
+  const modal = document.getElementById('modal-stock-card');
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
 }
 
 function getColorSwatch(color) {
@@ -1945,9 +2465,8 @@ const TicketService = {
   },
 
   processDeliveryTicket(ticket) {
-    // Step 1: Validate ticket presence and approval
-    if (!ticket || ticket.status !== 'APPROVED') {
-      showToast('Invalid or unapproved ticket.', 'error');
+    if (!ticket || !ticket.referenceNumber) {
+      showToast('Missing delivery reference.', 'error');
       return false;
     }
 
@@ -2015,7 +2534,7 @@ const TicketService = {
         supplier: ticket.supplier || 'N/A',
         givenTo: '',
         department: 'Main Storage',
-        purpose: 'Approved Stock Delivery',
+        purpose: 'Stock delivery',
         status: 'APPROVED',
         createdAt: executionTime
       };
@@ -2045,9 +2564,8 @@ const TicketService = {
   },
 
   processReleaseTicket(ticket) {
-    // Step 1: Validate ticket presence and approval
-    if (!ticket || ticket.status !== 'APPROVED') {
-      showToast('Invalid or unapproved ticket.', 'error');
+    if (!ticket || !ticket.referenceNumber) {
+      showToast('Missing issuance reference.', 'error');
       return false;
     }
 
@@ -2146,8 +2664,178 @@ const TicketService = {
     showToast(`Toner release ${ticket.referenceNumber} processed successfully! Stock decremented.`, 'success');
     pushNotification('success', 'Toner Released', `Ticket ${ticket.referenceNumber} processed. Toner stock decremented.`, { source: 'action' });
     return true;
+  },
+
+  /**
+   * Flag a completed issuance ticket as defective return.
+   * Does NOT restock usable inventory.
+   */
+  processDefectiveReturn(issuanceRef, notes) {
+    const ref = normalizeRefNumber(issuanceRef);
+    if (!ref) {
+      showToast('Enter an issuance ticket number.', 'warning');
+      return false;
+    }
+
+    // Must already be a processed RELEASE
+    const released = AppState.transactions.filter(
+      t => t.type === 'RELEASED' && normalizeRefNumber(t.referenceNumber) === ref
+    );
+    if (released.length === 0) {
+      showToast('No completed issuance found for this ticket.', 'error');
+      return false;
+    }
+
+    // Already flagged?
+    const already = AppState.transactions.some(
+      t => t.type === 'DEFECTIVE' && normalizeRefNumber(t.referenceNumber) === ref
+    );
+    if (already) {
+      showToast('This issuance was already flagged as defective.', 'warning');
+      return false;
+    }
+
+    const primary = released[0];
+    const executionTime = new Date().toISOString();
+
+    // Mark original release rows
+    const updated = AppState.transactions.map(t => {
+      if (t.type === 'RELEASED' && normalizeRefNumber(t.referenceNumber) === ref) {
+        return { ...t, defective: true, defectiveAt: executionTime, defectiveNotes: notes || '' };
+      }
+      return t;
+    });
+
+    const defTxn = {
+      id: (typeof generateTransactionId === 'function' ? generateTransactionId() : ('TXN-' + Date.now())) + '-DEF',
+      type: 'DEFECTIVE',
+      referenceNumber: primary.referenceNumber,
+      inkId: primary.inkId || '',
+      inkCode: primary.inkCode,
+      serialNumber: primary.serialNumber || 'N/A',
+      brand: primary.brand || '',
+      color: primary.color || '',
+      quantity: 1,
+      date: executionTime.split('T')[0],
+      supplier: '',
+      givenTo: primary.givenTo || '',
+      department: primary.department || '',
+      location: primary.location || '',
+      purpose: notes || 'Defective return',
+      status: 'DEFECTIVE',
+      defective: true,
+      createdAt: executionTime
+    };
+
+    const allTxns = [...updated, defTxn];
+    StorageService.saveTransactions(allTxns);
+    AppState.transactions = allTxns;
+
+    renderDashboard();
+    renderInventory();
+    renderTransactions();
+    renderCharts();
+    renderAlerts();
+
+    showToast(`Issuance ${ref} flagged as defective.`, 'success');
+    pushNotification('warning', 'Defective Return', `Ticket ${ref} (${primary.inkCode}) marked defective.`, { source: 'action' });
+    return true;
   }
 };
+
+
+// ==========================================
+// DEFECTIVE RETURN MODAL
+// ==========================================
+function resetDefectiveModal() {
+  document.getElementById('defective-step-search')?.classList.remove('hidden');
+  document.getElementById('defective-step-error')?.classList.add('hidden');
+  document.getElementById('defective-step-preview')?.classList.add('hidden');
+  document.getElementById('defective-step-success')?.classList.add('hidden');
+  AppState.activeDefectiveTxn = null;
+  const notes = document.getElementById('modal-def-notes');
+  if (notes) notes.value = '';
+}
+
+function openDefectiveModal() {
+  resetDefectiveModal();
+  const modal = document.getElementById('modal-defective');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
+  const input = document.getElementById('modal-def-ref');
+  if (input) { input.value = ''; setTimeout(() => input.focus(), 80); }
+}
+
+function closeDefectiveModal() {
+  const modal = document.getElementById('modal-defective');
+  if (modal) modal.classList.add('hidden');
+  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
+  AppState.activeDefectiveTxn = null;
+}
+
+function showDefectiveError(ref, title, desc) {
+  const er = document.getElementById('defective-error-ref');
+  const et = document.getElementById('defective-error-title');
+  const ed = document.getElementById('defective-error-desc');
+  if (er) er.textContent = ref || '—';
+  if (et) et.textContent = title || 'Not Found';
+  if (ed) ed.textContent = desc || '';
+  document.getElementById('defective-step-search')?.classList.remove('hidden');
+  document.getElementById('defective-step-error')?.classList.remove('hidden');
+  document.getElementById('defective-step-preview')?.classList.add('hidden');
+  document.getElementById('defective-step-success')?.classList.add('hidden');
+}
+
+function searchDefectiveIssuance(refNumber) {
+  const normalized = normalizeRefNumber(refNumber);
+  if (!normalized) {
+    showToast('Please enter an issuance ticket number.', 'warning');
+    return;
+  }
+
+  const released = AppState.transactions.filter(
+    t => t.type === 'RELEASED' && normalizeRefNumber(t.referenceNumber) === normalized
+  );
+
+  if (released.length === 0) {
+    showDefectiveError(
+      normalized,
+      'Issuance Not Found',
+      'No completed stock issuance matches this ticket. Process the release first, then flag it.'
+    );
+    return;
+  }
+
+  const already = AppState.transactions.some(
+    t => t.type === 'DEFECTIVE' && normalizeRefNumber(t.referenceNumber) === normalized
+  );
+  if (already) {
+    showDefectiveError(
+      normalized,
+      'Already Flagged',
+      'This issuance ticket was already marked as defective.'
+    );
+    return;
+  }
+
+  const primary = released[0];
+  AppState.activeDefectiveTxn = primary;
+
+  document.getElementById('m-def-ref').textContent = primary.referenceNumber;
+  document.getElementById('m-def-code').textContent = primary.inkCode || '—';
+  document.getElementById('m-def-dept').textContent = primary.department || '—';
+  document.getElementById('m-def-loc').textContent = primary.location || '—';
+  document.getElementById('m-def-qty').textContent = '1';
+  document.getElementById('m-def-date').textContent = formatDateTime(primary.createdAt || primary.date);
+
+  document.getElementById('defective-step-search')?.classList.remove('hidden');
+  document.getElementById('defective-step-error')?.classList.add('hidden');
+  document.getElementById('defective-step-preview')?.classList.remove('hidden');
+  document.getElementById('defective-step-success')?.classList.add('hidden');
+}
 
 // ==========================================
 // 12. RELEASE INK UI SEARCH & DISPLAY
@@ -2312,6 +3000,8 @@ function updateTxnTabUI() {
     if (active) {
       if (type === 'RECEIVED') {
         btn.className = 'txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-blue-700 bg-blue-50 border-b-2 border-blue-600 transition-colors';
+      } else if (type === 'DEFECTIVE') {
+        btn.className = 'txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-rose-700 bg-rose-50 border-b-2 border-rose-600 transition-colors';
       } else {
         btn.className = 'txn-main-tab flex-1 px-4 py-3 text-sm font-semibold text-emerald-700 bg-emerald-50 border-b-2 border-emerald-600 transition-colors';
       }
@@ -2335,10 +3025,13 @@ function updateTxnTabUI() {
 
   const receivedCount = AppState.transactions.filter(t => t.type === 'RECEIVED').length;
   const releasedCount = AppState.transactions.filter(t => t.type === 'RELEASED').length;
+  const defectiveCount = AppState.transactions.filter(t => t.type === 'DEFECTIVE').length;
   const elR = document.getElementById('txn-tab-count-received');
   const elL = document.getElementById('txn-tab-count-released');
+  const elD = document.getElementById('txn-tab-count-defective');
   if (elR) elR.textContent = receivedCount;
   if (elL) elL.textContent = releasedCount;
+  if (elD) elD.textContent = defectiveCount;
 }
 
 function renderTransactions() {
@@ -2347,6 +3040,7 @@ function renderTransactions() {
   if (!tbody) return;
 
   updateTxnTabUI();
+  syncTxnCustomRangeUI();
 
   const search = AppState.filters.transactionSearch.toLowerCase().trim();
   const typeFilter = AppState.filters.transactionType; // RECEIVED | RELEASED
@@ -2379,9 +3073,9 @@ function renderTransactions() {
     emptyState.classList.remove('hidden');
     const msg = document.getElementById('txns-empty-msg');
     if (msg) {
-      msg.textContent = typeFilter === 'RECEIVED'
-        ? 'No incoming delivery transactions yet.'
-        : (deptFilter === 'ALL' ? 'No release transactions yet.' : `No releases for ${deptFilter} yet.`);
+      if (typeFilter === 'RECEIVED') msg.textContent = 'No incoming delivery transactions yet.';
+      else if (typeFilter === 'DEFECTIVE') msg.textContent = 'No defective returns recorded yet.';
+      else msg.textContent = deptFilter === 'ALL' ? 'No release transactions yet.' : `No releases for ${deptFilter} yet.`;
     }
     return;
   }
@@ -2399,6 +3093,15 @@ function renderTransactions() {
         <th class="px-4 py-3.5 w-[20%]">Toner Code</th>
         <th class="px-4 py-3.5 w-[15%] text-right">Qty</th>
         <th class="px-4 py-3.5 w-[25%]">Supplier</th>`;
+    } else if (typeFilter === 'DEFECTIVE') {
+      theadRow.innerHTML = `
+        <th class="px-4 py-3.5 w-[16%]">Ticket Ref</th>
+        <th class="px-4 py-3.5 w-[16%]">Date</th>
+        <th class="px-4 py-3.5 w-[14%]">Toner Code</th>
+        <th class="px-4 py-3.5 w-[8%] text-right">Qty</th>
+        <th class="px-4 py-3.5 w-[14%]">Department</th>
+        <th class="px-4 py-3.5 w-[14%]">Location</th>
+        <th class="px-4 py-3.5 w-[18%]">Notes</th>`;
     } else {
       theadRow.innerHTML = `
         <th class="px-4 py-3.5 w-[18%]">Ticket Ref</th>
@@ -2409,6 +3112,8 @@ function renderTransactions() {
         <th class="px-4 py-3.5 w-[18%]">Location</th>`;
     }
   }
+
+  const isDefective = typeFilter === 'DEFECTIVE';
 
   tbody.innerHTML = [...filtered].reverse().map(t => {
     if (isReceived) {
@@ -2421,9 +3126,26 @@ function renderTransactions() {
           <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.supplier || '—')}</td>
         </tr>`;
     }
+    if (isDefective) {
+      return `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3.5 font-mono font-bold text-rose-700">${escapeHTML(t.referenceNumber)}</td>
+          <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
+          <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
+          <td class="px-4 py-3.5 text-right font-mono font-bold text-rose-600">1</td>
+          <td class="px-4 py-3.5">
+            <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
+          </td>
+          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.location || '—')}</td>
+          <td class="px-4 py-3.5 text-xs text-slate-500">${escapeHTML(t.purpose || '—')}</td>
+        </tr>`;
+    }
+    const defBadge = t.defective
+      ? ' <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-100 text-rose-700">DEFECTIVE</span>'
+      : '';
     return `
       <tr class="hover:bg-slate-50 transition-colors">
-        <td class="px-4 py-3.5 font-mono font-bold text-emerald-700">${escapeHTML(t.referenceNumber)}</td>
+        <td class="px-4 py-3.5 font-mono font-bold text-emerald-700">${escapeHTML(t.referenceNumber)}${defBadge}</td>
         <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
         <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
         <td class="px-4 py-3.5 text-right font-mono font-bold text-emerald-600">-${t.quantity}</td>
@@ -2976,14 +3698,191 @@ function closeLogoutModal() {
   if (backdrop && !anyOpen) backdrop.classList.add('hidden');
 }
 
+
+function getUniqueTonerCodes() {
+  const map = {};
+  (AppState.inks || []).forEach(i => {
+    const c = (i.inkCode || '').trim();
+    if (!c) return;
+    const k = c.toUpperCase();
+    if (!map[k]) map[k] = { code: c, qty: 0 };
+    map[k].qty += Number(i.quantity) || 0;
+  });
+  return Object.values(map).sort((a, b) => a.code.localeCompare(b.code));
+}
+
+function populateTonerSelect(selectId, includeStock) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const current = sel.value;
+  const list = getUniqueTonerCodes();
+  sel.innerHTML = '<option value="">— Select toner —</option>' +
+    list.map(t => `<option value="${escapeHTML(t.code)}" data-qty="${t.qty}">${escapeHTML(t.code)}${includeStock ? ` (${t.qty} on hand)` : ''}</option>`).join('');
+  if (current) sel.value = current;
+}
+
+function fillLocationsForDept(deptCode, selectId, autoWrapId, autoTextId) {
+  const select = document.getElementById(selectId);
+  const autoBox = document.getElementById(autoWrapId);
+  const autoText = document.getElementById(autoTextId);
+  if (!select) return;
+  select.innerHTML = '<option value="">— Select location —</option>';
+  select.classList.remove('hidden');
+  if (autoBox) autoBox.classList.add('hidden');
+  const code = (deptCode || '').toUpperCase();
+  const options = (typeof RELEASE_LOCATIONS !== 'undefined' ? RELEASE_LOCATIONS : []).filter(r => r.department === code);
+  if (!code) {
+    select.innerHTML = '<option value="">— Select department first —</option>';
+    return;
+  }
+  if (options.length === 0) {
+    select.innerHTML = '<option value="">— No locations mapped —</option>';
+    return;
+  }
+  if (options.length === 1) {
+    const only = options[0];
+    select.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = only.location;
+    opt.textContent = only.location;
+    select.appendChild(opt);
+    select.value = only.location;
+    select.classList.add('hidden');
+    if (autoBox) autoBox.classList.remove('hidden');
+    if (autoText) autoText.textContent = only.department + ' — ' + only.location;
+    return;
+  }
+  options.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.location;
+    opt.textContent = r.location;
+    select.appendChild(opt);
+  });
+}
+
+
+function recordManualDelivery() {
+  const ref = normalizeRefNumber(document.getElementById('modal-del-ref')?.value);
+  const toner = (document.getElementById('modal-del-toner')?.value || '').trim();
+  const qty = parseInt(document.getElementById('modal-del-qty')?.value, 10);
+  const date = document.getElementById('modal-del-date')?.value;
+  const supplier = (document.getElementById('modal-del-supplier')?.value || '').trim();
+
+  if (!ref) { showToast('Delivery reference is required.', 'warning'); return; }
+  if (!toner) { showToast('Select a toner code.', 'warning'); return; }
+  if (!qty || qty < 1) { showToast('Quantity must be at least 1.', 'warning'); return; }
+  if (!date) { showToast('Date is required.', 'warning'); return; }
+  if (!supplier) { showToast('Supplier is required.', 'warning'); return; }
+
+  if (TicketService.isAlreadyProcessed(ref)) {
+    openDuplicateModal(ref, 'DELIVERY');
+    return;
+  }
+
+  const matched = AppState.inks.find(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase());
+  const ticket = {
+    referenceNumber: ref,
+    type: 'DELIVERY',
+    status: 'RECORDED',
+    date,
+    supplier,
+    items: [{
+      inkCode: toner,
+      brand: matched?.brand || '',
+      printerModel: matched?.printerModel || '',
+      color: matched?.color || 'Black',
+      quantity: qty,
+      serialNumber: ''
+    }]
+  };
+
+  const ok = TicketService.processDeliveryTicket(ticket);
+  if (ok) {
+    document.getElementById('m-del-success-ref').textContent = ref;
+    document.getElementById('receive-step-form')?.classList.add('hidden');
+    document.getElementById('receive-step-success')?.classList.remove('hidden');
+  }
+}
+
+function recordManualIssuance() {
+  const ref = normalizeRefNumber(document.getElementById('modal-rel-ref')?.value);
+  const toner = (document.getElementById('modal-rel-toner')?.value || '').trim();
+  const dept = (document.getElementById('modal-rel-dept')?.value || '').trim();
+  const locSelect = document.getElementById('modal-rel-location');
+  const location = (locSelect?.value || '').trim();
+  // Issuance date is always the current day
+  const date = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('modal-rel-date');
+  if (dateInput) dateInput.value = date;
+
+  if (!ref) { showToast('Issuance reference is required.', 'warning'); return; }
+  if (!toner) { showToast('Select a toner code.', 'warning'); return; }
+  if (!dept) { showToast('Select a department.', 'warning'); return; }
+  if (!location) { showToast('Select a location.', 'warning'); return; }
+
+  if (TicketService.isAlreadyProcessed(ref)) {
+    openDuplicateModal(ref, 'RELEASE');
+    return;
+  }
+
+  const totalQty = AppState.inks
+    .filter(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase())
+    .reduce((s, i) => s + (Number(i.quantity) || 0), 0);
+  if (totalQty < 1) {
+    showToast(`Insufficient stock for ${toner} (0 on hand).`, 'error');
+    return;
+  }
+
+  const matched = AppState.inks.find(i =>
+    (i.inkCode || '').toUpperCase() === toner.toUpperCase() && (Number(i.quantity) || 0) > 0
+  ) || AppState.inks.find(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase());
+
+  AppState.selectedReleaseLocation = location;
+  AppState.selectedReleaseDepartment = dept;
+
+  const ticket = {
+    referenceNumber: ref,
+    type: 'RELEASE',
+    status: 'RECORDED',
+    date,
+    givenTo: '',
+    department: dept,
+    purpose: 'Stock issuance',
+    items: [{
+      inkCode: toner,
+      brand: matched?.brand || '',
+      printerModel: matched?.printerModel || '',
+      color: matched?.color || 'Black',
+      quantity: 1,
+      serialNumber: ''
+    }]
+  };
+
+  const ok = TicketService.processReleaseTicket(ticket);
+  if (ok) {
+    document.getElementById('m-rel-success-ref').textContent = ref;
+    document.getElementById('release-step-form')?.classList.add('hidden');
+    document.getElementById('release-step-success')?.classList.remove('hidden');
+  }
+}
+
 function openReceiveModal() {
-  resetReceiveModal();
+  document.getElementById('receive-step-form')?.classList.remove('hidden');
+  document.getElementById('receive-step-success')?.classList.add('hidden');
+  populateTonerSelect('modal-del-toner', false);
+  const ref = document.getElementById('modal-del-ref');
+  const qty = document.getElementById('modal-del-qty');
+  const sup = document.getElementById('modal-del-supplier');
+  const date = document.getElementById('modal-del-date');
+  if (ref) ref.value = '';
+  if (qty) qty.value = '1';
+  if (sup) sup.value = '';
+  if (date) date.value = new Date().toISOString().split('T')[0];
   const modal = document.getElementById('modal-receive');
   const backdrop = document.getElementById('modal-backdrop');
   if (backdrop) backdrop.classList.remove('hidden');
   if (modal) modal.classList.remove('hidden');
-  const input = document.getElementById('modal-del-ref');
-  if (input) { input.value = ''; setTimeout(() => input.focus(), 100); }
+  setTimeout(() => ref?.focus(), 80);
 }
 
 function closeReceiveModal() {
@@ -3004,13 +3903,23 @@ function resetReceiveModal() {
 }
 
 function openReleaseModal() {
-  resetReleaseModal();
+  document.getElementById('release-step-form')?.classList.remove('hidden');
+  document.getElementById('release-step-success')?.classList.add('hidden');
+  populateTonerSelect('modal-rel-toner', true);
+  const ref = document.getElementById('modal-rel-ref');
+  const dept = document.getElementById('modal-rel-dept');
+  const date = document.getElementById('modal-rel-date');
+  const hint = document.getElementById('modal-rel-stock-hint');
+  if (ref) ref.value = '';
+  if (dept) dept.value = '';
+  if (date) date.value = new Date().toISOString().split('T')[0];
+  if (hint) hint.textContent = '';
+  fillLocationsForDept('', 'modal-rel-location', 'm-rel-location-auto', 'm-rel-location-auto-text');
   const modal = document.getElementById('modal-release');
   const backdrop = document.getElementById('modal-backdrop');
   if (backdrop) backdrop.classList.remove('hidden');
   if (modal) modal.classList.remove('hidden');
-  const input = document.getElementById('modal-rel-ref');
-  if (input) { input.value = ''; setTimeout(() => input.focus(), 100); }
+  setTimeout(() => ref?.focus(), 80);
 }
 
 function closeReleaseModal() {
@@ -3392,8 +4301,59 @@ function setupEventListeners() {
   // ---------- Dashboard Quick Action Buttons → open modals ----------
   const quickReceive = document.getElementById('quick-btn-receive');
   const quickRelease = document.getElementById('quick-btn-release');
+  const quickDefective = document.getElementById('quick-btn-defective');
   if (quickReceive) quickReceive.addEventListener('click', openReceiveModal);
   if (quickRelease) quickRelease.addEventListener('click', openReleaseModal);
+  if (quickDefective) quickDefective.addEventListener('click', openDefectiveModal);
+
+  // Defective modal controls
+  const btnCloseDef = document.getElementById('btn-close-defective-modal');
+  const btnCancelDef = document.getElementById('btn-modal-cancel-def');
+  const btnSearchDef = document.getElementById('btn-modal-search-def');
+  const modalDefRef = document.getElementById('modal-def-ref');
+  const btnProcessDef = document.getElementById('btn-modal-process-def');
+  const btnDefDone = document.getElementById('btn-defective-done');
+  const btnDefErrBack = document.getElementById('btn-defective-error-back');
+  if (btnCloseDef) btnCloseDef.addEventListener('click', closeDefectiveModal);
+  if (btnCancelDef) btnCancelDef.addEventListener('click', closeDefectiveModal);
+  if (btnDefDone) btnDefDone.addEventListener('click', () => {
+    closeDefectiveModal();
+    AppState.filters.transactionType = 'DEFECTIVE';
+    navigateTo('transactions');
+  });
+  if (btnDefErrBack) btnDefErrBack.addEventListener('click', () => {
+    resetDefectiveModal();
+    const input = document.getElementById('modal-def-ref');
+    if (input) { input.value = ''; input.focus(); }
+  });
+  if (btnSearchDef && modalDefRef) {
+    btnSearchDef.addEventListener('click', () => searchDefectiveIssuance(modalDefRef.value));
+    modalDefRef.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); searchDefectiveIssuance(modalDefRef.value); }
+    });
+  }
+  document.querySelectorAll('.sample-def-ref').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ref = btn.getAttribute('data-ref');
+      const input = document.getElementById('modal-def-ref');
+      if (input) input.value = ref;
+      searchDefectiveIssuance(ref);
+    });
+  });
+  if (btnProcessDef) {
+    btnProcessDef.addEventListener('click', () => {
+      if (!AppState.activeDefectiveTxn) return;
+      const notes = document.getElementById('modal-def-notes')?.value || '';
+      const ok = TicketService.processDefectiveReturn(AppState.activeDefectiveTxn.referenceNumber, notes);
+      if (ok) {
+        document.getElementById('m-def-success-ref').textContent = AppState.activeDefectiveTxn.referenceNumber;
+        document.getElementById('defective-step-search')?.classList.add('hidden');
+        document.getElementById('defective-step-error')?.classList.add('hidden');
+        document.getElementById('defective-step-preview')?.classList.add('hidden');
+        document.getElementById('defective-step-success')?.classList.remove('hidden');
+      }
+    });
+  }
 
   // ---------- Notification bell ----------
   const btnNotif = document.getElementById('btn-notifications');
@@ -3505,21 +4465,7 @@ function setupEventListeners() {
   }
 
   if (btnModalProcessDel) {
-    btnModalProcessDel.addEventListener('click', () => {
-      if (!AppState.activeDeliveryTicket) return;
-      const success = TicketService.processDeliveryTicket(AppState.activeDeliveryTicket);
-      if (success) {
-        document.getElementById('m-del-success-ref').textContent = AppState.activeDeliveryTicket.referenceNumber;
-        document.getElementById('receive-step-search')?.classList.add('hidden');
-        document.getElementById('receive-step-error')?.classList.add('hidden');
-        document.getElementById('receive-step-preview')?.classList.add('hidden');
-        document.getElementById('receive-step-success')?.classList.remove('hidden');
-        // Refresh current view data
-        if (AppState.currentPage === 'dashboard') renderDashboard();
-        if (AppState.currentPage === 'inventory') renderInventory();
-        renderAlerts();
-      }
-    });
+    btnModalProcessDel.addEventListener('click', recordManualDelivery);
   }
 
   // ---------- Release Modal ----------
@@ -3566,31 +4512,27 @@ function setupEventListeners() {
   }
 
   if (btnModalProcessRel) {
-    btnModalProcessRel.addEventListener('click', () => {
-      if (!AppState.activeReleaseTicket) return;
-      const locSelect = document.getElementById('modal-rel-location');
-      const locValue = locSelect ? locSelect.value.trim() : '';
-      if (!locValue) {
-        showToast('Please select the location where the toner will be given.', 'warning');
-        if (locSelect) locSelect.focus();
-        return;
-      }
-      const selectedOpt = locSelect.options[locSelect.selectedIndex];
-      AppState.selectedReleaseLocation = locValue;
-      AppState.selectedReleaseDepartment = selectedOpt.getAttribute('data-dept') || '';
-      const success = TicketService.processReleaseTicket(AppState.activeReleaseTicket);
-      if (success) {
-        document.getElementById('m-rel-success-ref').textContent = AppState.activeReleaseTicket.referenceNumber;
-        document.getElementById('release-step-search')?.classList.add('hidden');
-        document.getElementById('release-step-error')?.classList.add('hidden');
-        document.getElementById('release-step-preview')?.classList.add('hidden');
-        document.getElementById('release-step-success')?.classList.remove('hidden');
-        if (AppState.currentPage === 'dashboard') renderDashboard();
-        if (AppState.currentPage === 'inventory') renderInventory();
-        renderAlerts();
-      }
+    btnModalProcessRel.addEventListener('click', recordManualIssuance);
+  }
+
+  const modalRelDept = document.getElementById('modal-rel-dept');
+  if (modalRelDept) {
+    modalRelDept.addEventListener('change', () => {
+      fillLocationsForDept(modalRelDept.value, 'modal-rel-location', 'm-rel-location-auto', 'm-rel-location-auto-text');
     });
   }
+  const modalRelToner = document.getElementById('modal-rel-toner');
+  if (modalRelToner) {
+    modalRelToner.addEventListener('change', () => {
+      const opt = modalRelToner.options[modalRelToner.selectedIndex];
+      const hint = document.getElementById('modal-rel-stock-hint');
+      if (hint && opt && opt.value) {
+        const q = opt.getAttribute('data-qty') || '0';
+        hint.textContent = `${opt.value}: ${q} unit(s) on hand · issuance uses 1 unit`;
+      } else if (hint) hint.textContent = '';
+    });
+  }
+
 
 
   // Close action modals when clicking the shared backdrop (but not the cards themselves)
@@ -3748,6 +4690,42 @@ function setupEventListeners() {
     });
   }
 
+
+  // Stock card: click inventory row
+  const invTbody = document.getElementById('inventory-tbody');
+  if (invTbody) {
+    invTbody.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('.btn-remove-toner');
+      if (removeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const code = removeBtn.getAttribute('data-ink-code');
+        if (code) openRemoveTonerModal(code);
+        return;
+      }
+      const row = e.target.closest('tr.inventory-row');
+      if (!row) return;
+      const code = row.getAttribute('data-ink-code');
+      if (code) openStockCard(code);
+    });
+  }
+  const btnAddToner = document.getElementById('btn-add-toner');
+  if (btnAddToner) btnAddToner.addEventListener('click', openAddTonerModal);
+  const btnCloseAddToner = document.getElementById('btn-close-add-toner');
+  const btnCancelAddToner = document.getElementById('btn-cancel-add-toner');
+  const btnSaveAddToner = document.getElementById('btn-save-add-toner');
+  if (btnCloseAddToner) btnCloseAddToner.addEventListener('click', closeAddTonerModal);
+  if (btnCancelAddToner) btnCancelAddToner.addEventListener('click', closeAddTonerModal);
+  if (btnSaveAddToner) btnSaveAddToner.addEventListener('click', saveNewToner);
+  const btnCancelRemoveToner = document.getElementById('btn-cancel-remove-toner');
+  const btnConfirmRemoveToner = document.getElementById('btn-confirm-remove-toner');
+  if (btnCancelRemoveToner) btnCancelRemoveToner.addEventListener('click', closeRemoveTonerModal);
+  if (btnConfirmRemoveToner) btnConfirmRemoveToner.addEventListener('click', confirmRemoveToner);
+  const btnCloseStock = document.getElementById('btn-close-stock-card');
+  const btnStockDone = document.getElementById('btn-stock-card-done');
+  if (btnCloseStock) btnCloseStock.addEventListener('click', closeStockCard);
+  if (btnStockDone) btnStockDone.addEventListener('click', closeStockCard);
+
   // Transactions Filters, Tabs & Export
   document.querySelectorAll('.txn-main-tab').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3778,6 +4756,42 @@ function setupEventListeners() {
   if (txnDate) {
     txnDate.addEventListener('change', (e) => {
       AppState.filters.transactionDate = e.target.value;
+      if (e.target.value !== 'CUSTOM') {
+        AppState.filters.transactionDateFrom = '';
+        AppState.filters.transactionDateTo = '';
+      }
+      renderTransactions();
+    });
+  }
+  const txnFrom = document.getElementById('filter-txn-from');
+  const txnTo = document.getElementById('filter-txn-to');
+  const btnTxnApplyRange = document.getElementById('btn-txn-apply-range');
+  if (txnFrom) {
+    txnFrom.addEventListener('change', () => {
+      AppState.filters.transactionDateFrom = txnFrom.value || '';
+    });
+  }
+  if (txnTo) {
+    txnTo.addEventListener('change', () => {
+      AppState.filters.transactionDateTo = txnTo.value || '';
+    });
+  }
+  if (btnTxnApplyRange) {
+    btnTxnApplyRange.addEventListener('click', () => {
+      AppState.filters.transactionDate = 'CUSTOM';
+      AppState.filters.transactionDateFrom = document.getElementById('filter-txn-from')?.value || '';
+      AppState.filters.transactionDateTo = document.getElementById('filter-txn-to')?.value || '';
+      const sel = document.getElementById('filter-txn-date');
+      if (sel) sel.value = 'CUSTOM';
+      if (!AppState.filters.transactionDateFrom && !AppState.filters.transactionDateTo) {
+        showToast('Select a From and/or To date for the custom range.', 'warning');
+        return;
+      }
+      if (AppState.filters.transactionDateFrom && AppState.filters.transactionDateTo
+          && AppState.filters.transactionDateFrom > AppState.filters.transactionDateTo) {
+        showToast('From date cannot be after To date.', 'warning');
+        return;
+      }
       renderTransactions();
     });
   }
