@@ -3088,11 +3088,11 @@ function renderTransactions() {
   if (theadRow) {
     if (isReceived) {
       theadRow.innerHTML = `
-        <th class="px-4 py-3.5 w-[20%]">Ticket Ref</th>
-        <th class="px-4 py-3.5 w-[20%]">Date</th>
-        <th class="px-4 py-3.5 w-[20%]">Toner Code</th>
-        <th class="px-4 py-3.5 w-[15%] text-right">Qty</th>
-        <th class="px-4 py-3.5 w-[25%]">Supplier</th>`;
+        <th class="px-4 py-3.5" style="width:20%">Ticket Ref</th>
+        <th class="px-4 py-3.5" style="width:20%">Date</th>
+        <th class="px-4 py-3.5" style="width:20%">Toner Code</th>
+        <th class="px-4 py-3.5 text-center" style="width:20%">Qty</th>
+        <th class="px-4 py-3.5" style="width:20%">Supplier</th>`;
     } else if (typeFilter === 'DEFECTIVE') {
       theadRow.innerHTML = `
         <th class="px-4 py-3.5 w-[16%]">Ticket Ref</th>
@@ -3103,13 +3103,13 @@ function renderTransactions() {
         <th class="px-4 py-3.5 w-[14%]">Location</th>
         <th class="px-4 py-3.5 w-[18%]">Notes</th>`;
     } else {
+      // Releases — no Qty column (always 1 unit per ticket)
       theadRow.innerHTML = `
-        <th class="px-4 py-3.5 w-[18%]">Ticket Ref</th>
-        <th class="px-4 py-3.5 w-[18%]">Date</th>
-        <th class="px-4 py-3.5 w-[18%]">Toner Code</th>
-        <th class="px-4 py-3.5 w-[10%] text-right">Qty</th>
-        <th class="px-4 py-3.5 w-[18%]">Department</th>
-        <th class="px-4 py-3.5 w-[18%]">Location</th>`;
+        <th class="px-4 py-3.5 w-[25%]">Ticket Ref</th>
+        <th class="px-4 py-3.5 w-[20%]">Date</th>
+        <th class="px-4 py-3.5 w-[20%]">Toner Code</th>
+        <th class="px-4 py-3.5 w-[17.5%]">Department</th>
+        <th class="px-4 py-3.5 w-[17.5%]">Location</th>`;
     }
   }
 
@@ -3119,18 +3119,18 @@ function renderTransactions() {
     if (isReceived) {
       return `
         <tr class="hover:bg-slate-50 transition-colors">
-          <td class="px-4 py-3.5 font-mono font-bold text-blue-700">${escapeHTML(t.referenceNumber)}</td>
-          <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
-          <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
-          <td class="px-4 py-3.5 text-right font-mono font-bold text-blue-600">+${t.quantity}</td>
-          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.supplier || '—')}</td>
+          <td class="px-4 py-3.5 font-mono font-bold text-blue-700" style="width:20%">${escapeHTML(t.referenceNumber)}</td>
+          <td class="px-4 py-3.5 text-xs text-slate-600" style="width:20%">${formatDate(t.date || t.createdAt)}</td>
+          <td class="px-4 py-3.5 font-mono font-semibold text-slate-900" style="width:20%">${escapeHTML(t.inkCode)}</td>
+          <td class="px-4 py-3.5 text-center font-mono font-bold text-blue-600" style="width:20%">+${t.quantity}</td>
+          <td class="px-4 py-3.5 text-sm text-slate-700" style="width:20%">${escapeHTML(t.supplier || '—')}</td>
         </tr>`;
     }
     if (isDefective) {
       return `
         <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-4 py-3.5 font-mono font-bold text-rose-700">${escapeHTML(t.referenceNumber)}</td>
-          <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
+          <td class="px-4 py-3.5 text-xs text-slate-600">${formatDate(t.date || t.createdAt)}</td>
           <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
           <td class="px-4 py-3.5 text-right font-mono font-bold text-rose-600">1</td>
           <td class="px-4 py-3.5">
@@ -3146,9 +3146,8 @@ function renderTransactions() {
     return `
       <tr class="hover:bg-slate-50 transition-colors">
         <td class="px-4 py-3.5 font-mono font-bold text-emerald-700">${escapeHTML(t.referenceNumber)}${defBadge}</td>
-        <td class="px-4 py-3.5 text-xs text-slate-600">${formatDateTime(t.createdAt || t.date)}</td>
+        <td class="px-4 py-3.5 text-xs text-slate-600">${formatDate(t.date || t.createdAt)}</td>
         <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
-        <td class="px-4 py-3.5 text-right font-mono font-bold text-emerald-600">-${t.quantity}</td>
         <td class="px-4 py-3.5">
           <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
         </td>
