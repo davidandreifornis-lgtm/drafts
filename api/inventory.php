@@ -20,7 +20,6 @@ try {
         $qty = max(0, (int)($in['quantity'] ?? 0));
         $reorder = max(0, (int)($in['reorderLevel'] ?? 3));
         $brand = trim($in['brand'] ?? '');
-        $color = trim($in['color'] ?? 'Black');
 
         if ($code === '') fail('Toner code is required.');
         if ($printer === '') fail('Compatible printer(s) are required.');
@@ -30,11 +29,12 @@ try {
         $check->execute([$code]);
         if ($check->fetch()) fail("Toner {$code} already exists.", 409);
 
+        // 6 columns → 6 placeholders (no color)
         $stmt = $pdo->prepare(
-            'INSERT INTO inventory (ink_code, brand, printer_model, color, quantity, reorder_level, supplier)
-             VALUES (?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO inventory (ink_code, brand, printer_model, quantity, reorder_level, supplier)
+             VALUES (?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$code, $brand, $printer, $color, $qty, $reorder, $supplier]);
+        $stmt->execute([$code, $brand, $printer, $qty, $reorder, $supplier]);
         $id = (int)$pdo->lastInsertId();
         $row = $pdo->query("SELECT * FROM inventory WHERE id = {$id}")->fetch();
         ok(['item' => map_inventory_row($row)], 201);
@@ -59,9 +59,8 @@ function map_inventory_row(array $r): array {
     return [
         'id' => 'TNR-' . $r['id'],
         'inkCode' => $r['ink_code'],
-        'brand' => $r['brand'],
+        'brand' => $r['brand'] ?? '',
         'printerModel' => $r['printer_model'],
-        'color' => $r['color'],
         'quantity' => (int)$r['quantity'],
         'reorderLevel' => (int)$r['reorder_level'],
         'supplier' => $r['supplier'],

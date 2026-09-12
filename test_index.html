@@ -1,21 +1,6 @@
-<?php
-/**
- * Toner Inventory — single entry file (index.php only, no index.html needed)
- * Place this file in htdocs/toner-system/ together with api/ and config/ folders.
- */
-$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
-$scriptDir = rtrim($scriptDir, '/');
-$apiBase = ($scriptDir === '' || $scriptDir === '.') ? '/api' : ($scriptDir . '/api');
-
-header('Content-Type: text/html; charset=UTF-8');
-header('Cache-Control: no-store, no-cache, must-revalidate');
-?>
-
 <!doctype html>
 <html lang="en">
 <head>
-  <script>window.TONER_API_BASE=<?php echo json_encode($apiBase); ?>;console.info('[Toner] API base =', window.TONER_API_BASE);</script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Printer Toner & Ink Inventory Management System</title>
@@ -1558,88 +1543,6 @@ const AppState = {
 // ==========================================
 // Centralized persistence interface. Future PHP/MySQL backend migration replaces
 // these methods with standard Fetch API calls without altering calling business logic.
-
-// ==========================================
-// BACKEND API LAYER (PHP + MySQL)
-// Falls back to localStorage if API is offline
-// ==========================================
-const API_BASE = (window.TONER_API_BASE || (function(){ var p=location.pathname.replace(/\/[^/]*$/, ''); return (p||'') + '/api'; })()).replace(/\/$/, '');
-AppState.useBackend = false;
-
-async function apiRequest(path, options = {}) {
-  const base = (window.TONER_API_BASE || API_BASE || 'api').replace(/\/$/, '');
-  const url = `${base}/${path.replace(/^\//, '')}`;
-  console.info('[Toner] API', options.method || 'GET', url);
-  const opts = {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options,
-  };
-  if (opts.body && typeof opts.body === 'object') {
-    opts.body = JSON.stringify(opts.body);
-  }
-  let res;
-  try {
-    res = await fetch(url, opts);
-  } catch (networkErr) {
-    const err = new Error('Cannot reach API at ' + url + ' — is Apache running?');
-    err.cause = networkErr;
-    throw err;
-  }
-  let data = null;
-  try { data = await res.json(); } catch (_) { data = null; }
-  if (!res.ok || (data && data.ok === false)) {
-    const err = new Error((data && data.error) || `Request failed (${res.status}) at ${url}`);
-    err.status = res.status;
-    err.data = data;
-    throw err;
-  }
-  return data;
-}
-
-async function detectBackend() {
-  try {
-    const data = await apiRequest('health.php');
-    AppState.useBackend = !!(data && data.ok);
-  } catch (_) {
-    AppState.useBackend = false;
-  }
-  return AppState.useBackend;
-}
-
-async function loadFromBackend() {
-  const [inv, tx] = await Promise.all([
-    apiRequest('inventory.php'),
-    apiRequest('transactions.php'),
-  ]);
-  AppState.inks = inv.items || [];
-  AppState.transactions = tx.transactions || [];
-  AppState.tickets = [];
-}
-
-async function apiAddToner(payload) {
-  return apiRequest('inventory.php', { method: 'POST', body: payload });
-}
-
-async function apiRemoveToner(inkCode) {
-  return apiRequest('inventory.php', {
-    method: 'DELETE',
-    body: { inkCode },
-  });
-}
-
-async function apiRecordDelivery(payload) {
-  return apiRequest('delivery.php', { method: 'POST', body: payload });
-}
-
-async function apiRecordRelease(payload) {
-  return apiRequest('release.php', { method: 'POST', body: payload });
-}
-
-async function apiRecordDefective(payload) {
-  return apiRequest('defective.php', { method: 'POST', body: payload });
-}
-
-
 const StorageService = {
   getInks() {
     // FUTURE BACKEND INTEGRATION:
@@ -2322,39 +2225,15 @@ function saveNewToner() {
     updatedAt: now
   };
 
-  (async () => {
-    try {
-      // Always try MySQL API first (even if health check failed earlier)
-      try {
-        await apiAddToner({
-          inkCode: code,
-          printerModel: item.printerModel,
-          supplier,
-          quantity: qty,
-          reorderLevel: reorder,
-          brand: '',
-          color: 'Black'
-        });
-        AppState.useBackend = true;
-        await loadFromBackend();
-        renderInventory();
-        renderDashboard();
-        renderAlerts();
-        closeAddTonerModal();
-        showToast(`Toner ${code} saved to database.`, 'success');
-        pushNotification('success', 'Toner Added', `${code} was saved to MySQL inventory.`, { source: 'action' });
-        return;
-      } catch (apiErr) {
-        console.error('[Toner] API add failed:', apiErr);
-        // If explicitly offline mode preference after API failure, fall back with warning
-        showToast((apiErr && apiErr.message) ? apiErr.message : 'Database save failed.', 'error');
-        // Do NOT silently write only to localStorage — user expects DB
-        return;
-      }
-    } catch (e) {
-      showToast(e.message || 'Failed to add toner.', 'error');
-    }
-  })();
+  const inks = [...AppState.inks, item];
+  StorageService.saveInks(inks);
+  AppState.inks = inks;
+  renderInventory();
+  renderDashboard();
+  renderAlerts();
+  closeAddTonerModal();
+  showToast(`Toner ${code} added to inventory.`, 'success');
+  pushNotification('success', 'Toner Added', `${code} was added to the master inventory.`, { source: 'action' });
 }
 
 function openRemoveTonerModal(inkCode) {
@@ -2386,25 +2265,14 @@ function confirmRemoveToner() {
     closeRemoveTonerModal();
     return;
   }
-  (async () => {
-    try {
-      if (AppState.useBackend) {
-        await apiRemoveToner(code);
-        await loadFromBackend();
-      } else {
-        StorageService.saveInks(inks);
-        AppState.inks = inks;
-      }
-      renderInventory();
-      renderDashboard();
-      renderAlerts();
-      closeRemoveTonerModal();
-      showToast(`Toner ${code} removed from inventory.`, 'success');
-      pushNotification('warning', 'Toner Removed', `${code} was removed from the master inventory.`, { source: 'action' });
-    } catch (e) {
-      showToast(e.message || 'Failed to remove toner.', 'error');
-    }
-  })();
+  StorageService.saveInks(inks);
+  AppState.inks = inks;
+  renderInventory();
+  renderDashboard();
+  renderAlerts();
+  closeRemoveTonerModal();
+  showToast(`Toner ${code} removed from inventory.`, 'success');
+  pushNotification('warning', 'Toner Removed', `${code} was removed from the master inventory.`, { source: 'action' });
 }
 
 function closeStockCard() {
@@ -3900,30 +3768,12 @@ function recordManualDelivery() {
     }]
   };
 
-  (async () => {
-    try {
-      if (AppState.useBackend) {
-        await apiRecordDelivery({ referenceNumber: ref, inkCode: toner, quantity: qty, date, supplier });
-        await loadFromBackend();
-        renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
-        document.getElementById('m-del-success-ref').textContent = ref;
-        document.getElementById('receive-step-form')?.classList.add('hidden');
-        document.getElementById('receive-step-success')?.classList.remove('hidden');
-        showToast(`Delivery ${ref} recorded.`, 'success');
-        pushNotification('success', 'Delivery Received', `Ticket ${ref} processed. Stock incremented.`, { source: 'action' });
-      } else {
-        const ok = TicketService.processDeliveryTicket(ticket);
-        if (ok) {
-          document.getElementById('m-del-success-ref').textContent = ref;
-          document.getElementById('receive-step-form')?.classList.add('hidden');
-          document.getElementById('receive-step-success')?.classList.remove('hidden');
-        }
-      }
-    } catch (e) {
-      if (e.data && e.data.duplicate) openDuplicateModal(ref, 'DELIVERY');
-      else showToast(e.message || 'Failed to record delivery.', 'error');
-    }
-  })();
+  const ok = TicketService.processDeliveryTicket(ticket);
+  if (ok) {
+    document.getElementById('m-del-success-ref').textContent = ref;
+    document.getElementById('receive-step-form')?.classList.add('hidden');
+    document.getElementById('receive-step-success')?.classList.remove('hidden');
+  }
 }
 
 function recordManualIssuance() {
@@ -3980,35 +3830,12 @@ function recordManualIssuance() {
     }]
   };
 
-  (async () => {
-    try {
-      if (AppState.useBackend) {
-        await apiRecordRelease({
-          referenceNumber: ref,
-          inkCode: toner,
-          department: dept,
-          location
-        });
-        await loadFromBackend();
-        renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
-        document.getElementById('m-rel-success-ref').textContent = ref;
-        document.getElementById('release-step-form')?.classList.add('hidden');
-        document.getElementById('release-step-success')?.classList.remove('hidden');
-        showToast(`Issuance ${ref} recorded.`, 'success');
-        pushNotification('success', 'Toner Released', `Ticket ${ref} processed. Toner stock decremented.`, { source: 'action' });
-      } else {
-        const ok = TicketService.processReleaseTicket(ticket);
-        if (ok) {
-          document.getElementById('m-rel-success-ref').textContent = ref;
-          document.getElementById('release-step-form')?.classList.add('hidden');
-          document.getElementById('release-step-success')?.classList.remove('hidden');
-        }
-      }
-    } catch (e) {
-      if (e.data && e.data.duplicate) openDuplicateModal(ref, 'RELEASE');
-      else showToast(e.message || 'Failed to record issuance.', 'error');
-    }
-  })();
+  const ok = TicketService.processReleaseTicket(ticket);
+  if (ok) {
+    document.getElementById('m-rel-success-ref').textContent = ref;
+    document.getElementById('release-step-form')?.classList.add('hidden');
+    document.getElementById('release-step-success')?.classList.remove('hidden');
+  }
 }
 
 function openReceiveModal() {
@@ -4489,28 +4316,14 @@ function setupEventListeners() {
     btnProcessDef.addEventListener('click', () => {
       if (!AppState.activeDefectiveTxn) return;
       const notes = document.getElementById('modal-def-notes')?.value || '';
-      const refNum = AppState.activeDefectiveTxn.referenceNumber;
-      (async () => {
-        try {
-          if (AppState.useBackend) {
-            await apiRecordDefective({ referenceNumber: refNum, notes });
-            await loadFromBackend();
-            renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
-            showToast(`Issuance ${refNum} flagged as defective.`, 'success');
-            pushNotification('warning', 'Defective Return', `Ticket ${refNum} marked defective.`, { source: 'action' });
-          } else {
-            const ok = TicketService.processDefectiveReturn(refNum, notes);
-            if (!ok) return;
-          }
-          document.getElementById('m-def-success-ref').textContent = refNum;
-          document.getElementById('defective-step-search')?.classList.add('hidden');
-          document.getElementById('defective-step-error')?.classList.add('hidden');
-          document.getElementById('defective-step-preview')?.classList.add('hidden');
-          document.getElementById('defective-step-success')?.classList.remove('hidden');
-        } catch (e) {
-          showToast(e.message || 'Failed to flag defective.', 'error');
-        }
-      })();
+      const ok = TicketService.processDefectiveReturn(AppState.activeDefectiveTxn.referenceNumber, notes);
+      if (ok) {
+        document.getElementById('m-def-success-ref').textContent = AppState.activeDefectiveTxn.referenceNumber;
+        document.getElementById('defective-step-search')?.classList.add('hidden');
+        document.getElementById('defective-step-error')?.classList.add('hidden');
+        document.getElementById('defective-step-preview')?.classList.add('hidden');
+        document.getElementById('defective-step-success')?.classList.remove('hidden');
+      }
     });
   }
 
@@ -5008,25 +4821,10 @@ function setupEventListeners() {
 // ==========================================
 // 21. APPLICATION INITIALIZATION
 // ==========================================
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+  initializeDataSafely();
   setupEventListeners();
-  const online = await detectBackend();
-  if (online) {
-    try {
-      await loadFromBackend();
-      console.info('[Toner] Connected to PHP/MySQL backend');
-    } catch (e) {
-      console.warn('[Toner] Backend load failed, using local demo', e);
-      AppState.useBackend = false;
-      initializeDataSafely();
-    }
-  } else {
-    console.warn('[Toner] Backend offline — localStorage demo mode. Open api/health.php to debug.');
-    showToast('Database offline — changes will NOT save to MySQL.', 'warning');
-    initializeDataSafely();
-  }
   navigateTo('dashboard');
-  renderAlerts();
 });
 
 
