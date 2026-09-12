@@ -1,7 +1,16 @@
 <?php
 /**
- * Shared bootstrap: PDO, CORS, JSON helpers.
+ * Shared bootstrap: PDO, CORS, JSON helpers + admin session for API.
  */
+require_once __DIR__ . '/auth_lib.php';
+auth_start();
+
+function auth_require_api(): void {
+    if (!auth_is_logged_in()) {
+        fail('Unauthorized. Please log in.', 401);
+    }
+}
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -66,3 +75,6 @@ function new_txn_code(PDO $pdo): string {
     $n = (int)$pdo->query('SELECT COUNT(*) FROM transactions')->fetchColumn() + 1;
     return 'TXN-' . str_pad((string)$n, 5, '0', STR_PAD_LEFT) . '-' . strtoupper(bin2hex(random_bytes(2)));
 }
+
+// Require admin session for all API calls
+auth_require_api();

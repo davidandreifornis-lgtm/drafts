@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/config/auth_lib.php';
+auth_require_login(); // Admin only — redirect to login.php if not signed in
+
 /**
  * Toner Inventory — single entry file (index.php only, no index.html needed)
  * Place this file in htdocs/toner-system/ together with api/ and config/ folders.
@@ -961,9 +964,17 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <input id="add-toner-code" type="text" required placeholder="e.g. CRG-737" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-printer">Compatible Printer(s) <span class="text-rose-500">*</span></label>
-          <input id="add-toner-printer" type="text" required placeholder="e.g. Canon MF237W" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <p class="text-[11px] text-slate-500 mt-1">Separate multiple printers with a comma</p>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-sm font-semibold text-slate-800">Compatible Printers <span class="text-rose-500">*</span></label>
+            <button type="button" id="btn-add-printer-row" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              Add printer
+            </button>
+          </div>
+          <div id="add-toner-printer-list" class="space-y-2">
+            <!-- rows injected by JS -->
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1.5">Add each compatible printer on its own row.</p>
         </div>
         <div>
           <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-supplier">Supplier <span class="text-rose-500">*</span></label>
@@ -2115,7 +2126,9 @@ function renderInventory() {
     byCode[key].quantity += Number(item.quantity) || 0;
     // Use the highest reorder level among lines (safer alert threshold)
     byCode[key].reorderLevel = Math.max(byCode[key].reorderLevel, Number(item.reorderLevel) || 0);
-    if (item.printerModel) byCode[key].printers.add(item.printerModel);
+    if (item.printerModel) {
+      String(item.printerModel).split(/[·,]/).map(s => s.trim()).filter(Boolean).forEach(p => byCode[key].printers.add(p));
+    }
     if (item.supplier) byCode[key].suppliers.add(item.supplier);
   });
 
@@ -2235,8 +2248,39 @@ function renderInventory() {
 // ==========================================
 // ADD / REMOVE TONER
 // ==========================================
+function renderAddPrinterRows(names) {
+  const list = document.getElementById('add-toner-printer-list');
+  if (!list) return;
+  const values = (names && names.length) ? names : [''];
+  list.innerHTML = values.map((name, idx) => `
+    <div class="flex gap-2 items-center add-printer-row">
+      <input type="text" class="add-printer-input flex-1 px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Canon MF237W" value="${escapeHTML(name || '')}">
+      <button type="button" class="btn-remove-printer-row p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors ${values.length === 1 ? 'invisible' : ''}" title="Remove printer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.btn-remove-printer-row').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rows = getAddPrinterValues();
+      const row = btn.closest('.add-printer-row');
+      const inputs = [...list.querySelectorAll('.add-printer-input')];
+      const idx = inputs.indexOf(row.querySelector('.add-printer-input'));
+      const next = rows.filter((_, i) => i !== idx);
+      renderAddPrinterRows(next.length ? next : ['']);
+    });
+  });
+}
+
+function getAddPrinterValues() {
+  return [...document.querySelectorAll('#add-toner-printer-list .add-printer-input')]
+    .map(el => (el.value || '').trim())
+    .filter(Boolean);
+}
+
 function openAddTonerModal() {
-  ['add-toner-code','add-toner-printer','add-toner-supplier'].forEach(id => {
+  ['add-toner-code','add-toner-supplier'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2244,6 +2288,7 @@ function openAddTonerModal() {
   const re = document.getElementById('add-toner-reorder');
   if (qty) qty.value = '0';
   if (re) re.value = '3';
+  renderAddPrinterRows(['']);
   const modal = document.getElementById('modal-add-toner');
   const backdrop = document.getElementById('modal-backdrop');
   if (backdrop) backdrop.classList.remove('hidden');
@@ -2261,7 +2306,7 @@ function closeAddTonerModal() {
 
 function saveNewToner() {
   const code = (document.getElementById('add-toner-code')?.value || '').trim().toUpperCase();
-  const printers = (document.getElementById('add-toner-printer')?.value || '').trim();
+  const printerList = getAddPrinterValues();
   const supplier = (document.getElementById('add-toner-supplier')?.value || '').trim();
   const qtyRaw = document.getElementById('add-toner-qty')?.value;
   const reorderRaw = document.getElementById('add-toner-reorder')?.value;
@@ -2271,9 +2316,9 @@ function saveNewToner() {
     document.getElementById('add-toner-code')?.focus();
     return;
   }
-  if (!printers) {
-    showToast('Compatible printer(s) are required.', 'warning');
-    document.getElementById('add-toner-printer')?.focus();
+  if (!printerList.length) {
+    showToast('Add at least one compatible printer.', 'warning');
+    document.querySelector('#add-toner-printer-list .add-printer-input')?.focus();
     return;
   }
   if (!supplier) {
@@ -2301,14 +2346,15 @@ function saveNewToner() {
   const qty = Math.max(0, parseInt(qtyRaw, 10) || 0);
   const reorder = Math.max(0, parseInt(reorderRaw, 10) || 0);
   const now = new Date().toISOString();
-  const printerList = printers.split(',').map(p => p.trim()).filter(Boolean);
-  const primaryPrinter = printerList[0] || printers;
+  // Store each printer separately in the string using " · " (UI chips already split on this)
+  const primaryPrinter = printerList[0];
+  const printerModelStored = printerList.join(' · ');
 
   const item = {
     id: generateInkId(),
     inkCode: code,
     brand: '',
-    printerModel: printerList.length > 1 ? printerList.join(', ') : primaryPrinter,
+    printerModel: printerModelStored,
     color: 'Black',
     department: '',
     serialNumbers: [],
@@ -2430,7 +2476,7 @@ function openStockCard(inkCode) {
   document.getElementById('stock-card-onhand').textContent = onHand;
   const printerEl = document.getElementById('stock-card-printer');
   const supplierEl = document.getElementById('stock-card-supplier');
-  const printerNames = printer === '—' ? [] : printer.split(',').map(s => s.trim()).filter(Boolean);
+  const printerNames = printer === '—' ? [] : printer.split(/[·,]/).map(s => s.trim()).filter(Boolean);
   const supplierNames = supplier === '—' ? [] : supplier.split(',').map(s => s.trim()).filter(Boolean);
   if (printerEl) {
     printerEl.innerHTML = printerNames.length
@@ -4582,12 +4628,8 @@ function setupEventListeners() {
   if (btnConfirmLogout) {
     btnConfirmLogout.addEventListener('click', () => {
       closeLogoutModal();
-      showToast('You have been logged out.', 'info');
-      // Demo: clear session-ish state and reload clean
-      setTimeout(() => {
-        // Keep inventory data; just simulate leave
-        window.location.reload();
-      }, 600);
+      showToast('Signing out…', 'info');
+      window.location.href = 'logout.php';
     });
   }
 
@@ -4900,6 +4942,16 @@ function setupEventListeners() {
   }
   const btnAddToner = document.getElementById('btn-add-toner');
   if (btnAddToner) btnAddToner.addEventListener('click', openAddTonerModal);
+  const btnAddPrinterRow = document.getElementById('btn-add-printer-row');
+  if (btnAddPrinterRow) {
+    btnAddPrinterRow.addEventListener('click', () => {
+      const current = [...document.querySelectorAll('#add-toner-printer-list .add-printer-input')].map(el => el.value || '');
+      current.push('');
+      renderAddPrinterRows(current);
+      const inputs = document.querySelectorAll('#add-toner-printer-list .add-printer-input');
+      inputs[inputs.length - 1]?.focus();
+    });
+  }
   const btnCloseAddToner = document.getElementById('btn-close-add-toner');
   const btnCancelAddToner = document.getElementById('btn-cancel-add-toner');
   const btnSaveAddToner = document.getElementById('btn-save-add-toner');
