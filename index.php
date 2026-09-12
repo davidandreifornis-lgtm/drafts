@@ -9,9 +9,7 @@ $apiBase = ($scriptDir === '' || $scriptDir === '.') ? '/api' : ($scriptDir . '/
 
 header('Content-Type: text/html; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
-?>
-
-<!doctype html>
+?><!doctype html>
 <html lang="en">
 <head>
   <script>window.TONER_API_BASE=<?php echo json_encode($apiBase); ?>;console.info('[Toner] API base =', window.TONER_API_BASE);</script>
@@ -494,9 +492,9 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Transaction History</h2>
             <p class="text-sm text-slate-500 mt-0.5">Separate logs for incoming deliveries and toner releases by department.</p>
           </div>
-          <button id="btn-export-txns" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-colors">
+          <button id="btn-export-txns" title="Exports only the rows matching the current tab and date filter" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-colors">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            Export to CSV
+            Export Filtered CSV
           </button>
         </div>
 
@@ -539,7 +537,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
                 <option value="ALL">All Time</option>
                 <option value="TODAY">Today</option>
                 <option value="WEEK">This Week</option>
-                <option value="MONTH">This Month</option>
+                <option value="MONTH" selected>This Month</option>
                 <option value="CUSTOM">Custom Range</option>
               </select>
             </div>
@@ -1544,7 +1542,7 @@ const AppState = {
     transactionSearch: "",
     transactionType: "RECEIVED",
     transactionBrand: "ALL",
-    transactionDate: "ALL",
+    transactionDate: "MONTH",
     transactionDateFrom: "",
     transactionDateTo: "",
     transactionDept: "ALL",
@@ -3266,44 +3264,76 @@ function renderTransactions() {
   }).join('');
 }
 
+function getFilteredTransactionsForExport() {
+  const typeFilter = AppState.filters.transactionType || 'RECEIVED';
+  const search = (AppState.filters.transactionSearch || '').toLowerCase().trim();
+  const dateFilter = AppState.filters.transactionDate || 'ALL';
+  const deptFilter = AppState.filters.transactionDept || 'ALL';
+
+  return (AppState.transactions || []).filter(t => {
+    if (typeFilter === 'RECEIVED' && t.type !== 'RECEIVED') return false;
+    if (typeFilter === 'RELEASED' && t.type !== 'RELEASED') return false;
+    if (typeFilter === 'DEFECTIVE' && t.type !== 'DEFECTIVE') return false;
+
+    if (!isDateInFilter(t.date || t.createdAt, dateFilter)) return false;
+
+    if (typeFilter === 'RELEASED' && deptFilter !== 'ALL') {
+      if ((t.department || '').toUpperCase() !== deptFilter.toUpperCase()) return false;
+    }
+
+    if (search) {
+      const hay = [
+        t.referenceNumber, t.inkCode, t.supplier, t.department, t.location, t.purpose, t.givenTo
+      ].join(' ').toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
 function exportTransactionsToCSV() {
-  const txns = AppState.transactions;
+  const txns = getFilteredTransactionsForExport();
   if (!txns || txns.length === 0) {
-    showToast('No transaction data to export.', 'warning');
+    showToast('No transactions match the current filters.', 'warning');
     return;
   }
 
-  const headers = ['Transaction ID', 'Reference Number', 'Type', 'Date', 'Ink Code', 'Brand', 'Color', 'Quantity', 'Serial Number', 'Supplier / Recipient', 'Department', 'Purpose', 'Status'];
+  const headers = [
+    'Transaction ID', 'Reference Number', 'Type', 'Date', 'Toner Code',
+    'Quantity', 'Supplier', 'Department', 'Location', 'Purpose', 'Status', 'Defective'
+  ];
   const rows = txns.map(t => [
     t.id,
     t.referenceNumber,
     t.type,
-    t.date,
+    t.date || (t.createdAt || '').split('T')[0],
     t.inkCode,
-    t.brand,
-    t.color,
     t.quantity,
-    t.serialNumber || '',
-    t.type === 'RECEIVED' ? t.supplier : t.givenTo,
+    t.supplier || '',
     t.department || '',
+    t.location || '',
     t.purpose || '',
-    t.status || 'APPROVED'
+    t.status || 'RECORDED',
+    t.defective ? 'YES' : ''
   ]);
 
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => row.map(val => `"${String(val || '').replace(/"/g, '""')}"`).join(','))
+    ...rows.map(row => row.map(val => `"${String(val ?? '').replace(/"/g, '""')}"`).join(','))
   ].join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
+  const dateTag = new Date().toISOString().split('T')[0];
+  const filterTag = (AppState.filters.transactionDate || 'ALL').toLowerCase();
   link.setAttribute('href', url);
-  link.setAttribute('download', `inventory_transactions_${new Date().toISOString().split('T')[0]}.csv`);
+  link.setAttribute('download', `transactions_${filterTag}_${dateTag}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast('Transactions exported to CSV successfully.', 'success');
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${txns.length} filtered transaction(s).`, 'success');
 }
 
 // ==========================================

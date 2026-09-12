@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/mailer.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     fail('Method not allowed', 405);
@@ -23,6 +24,7 @@ $pdo = db();
 try {
     $pdo->beginTransaction();
 
+    // Duplicate check (any transaction with same ref)
     $dup = $pdo->prepare('SELECT id FROM transactions WHERE reference_number = ? LIMIT 1');
     $dup->execute([$ref]);
     if ($dup->fetch()) {
@@ -51,6 +53,9 @@ try {
     $ins->execute([$txnCode, $ref, $inkCode, $qty, $date, $supplier, 'Stock delivery']);
 
     $pdo->commit();
+
+    try { notify_low_stock($pdo); } catch (Throwable $e) { /* ignore mail errors */ }
+
     ok([
         'message' => 'Delivery recorded',
         'referenceNumber' => $ref,

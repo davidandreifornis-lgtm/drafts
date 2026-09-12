@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/mailer.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     fail('Method not allowed', 405);
@@ -10,6 +11,7 @@ $ref = normalize_ref($in['referenceNumber'] ?? '');
 $inkCode = strtoupper(trim($in['inkCode'] ?? ''));
 $dept = strtoupper(trim($in['department'] ?? ''));
 $location = trim($in['location'] ?? '');
+// Always 1 unit, always today
 $qty = 1;
 $date = date('Y-m-d');
 
@@ -55,6 +57,10 @@ try {
     $ins->execute([$txnCode, $ref, $inkCode, $date, $dept, $location, 'Stock issuance']);
 
     $pdo->commit();
+
+    // Email admin if stock is now low/out
+    try { notify_low_stock($pdo); } catch (Throwable $e) { /* don't fail the release */ }
+
     ok([
         'message' => 'Issuance recorded',
         'referenceNumber' => $ref,

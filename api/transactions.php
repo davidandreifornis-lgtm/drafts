@@ -9,12 +9,25 @@ try {
     }
 
     $type = strtoupper(trim($_GET['type'] ?? ''));
-    $sql = 'SELECT * FROM transactions';
+    $from = trim($_GET['from'] ?? '');
+    $to = trim($_GET['to'] ?? '');
+
+    $sql = 'SELECT * FROM transactions WHERE 1=1';
     $params = [];
+
     if (in_array($type, ['RECEIVED', 'RELEASED', 'DEFECTIVE'], true)) {
-        $sql .= ' WHERE type = ?';
+        $sql .= ' AND type = ?';
         $params[] = $type;
     }
+    if ($from !== '') {
+        $sql .= ' AND txn_date >= ?';
+        $params[] = $from;
+    }
+    if ($to !== '') {
+        $sql .= ' AND txn_date <= ?';
+        $params[] = $to;
+    }
+
     $sql .= ' ORDER BY created_at ASC, id ASC';
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);

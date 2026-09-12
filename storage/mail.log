@@ -1,0 +1,37 @@
+[2026-09-12 08:48:11] to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention driver=mail
+Toner Inventory — Low Stock Alert
+Generated: 2026-09-12 08:48:11
+------------------------------------------------
+[LOW STOCK] CAN 045 HBK | On hand: 1 | Reorder at: 3 | Printer: Canon MF633DW | Supplier: INKRITE
+[LOW STOCK] CF280A | On hand: 3 | Reorder at: 3 | Printer: HP Color LaserJet Pro 400 MFP M425dn, HP LaserJet Pro M401n | Supplier: JMD
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-12 08:50:08] to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention driver=mail
+Toner Inventory — Low Stock Alert
+Generated: 2026-09-12 08:50:08
+------------------------------------------------
+[LOW STOCK] CAN 045 HBK | On hand: 1 | Reorder at: 3 | Printer: Canon MF633DW | Supplier: INKRITE
+[LOW STOCK] CF280A | On hand: 3 | Reorder at: 3 | Printer: HP Color LaserJet Pro 400 MFP M425dn, HP LaserJet Pro M401n | Supplier: JMD
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-12 09:10:54] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention
+Toner Inventory — Low Stock Alert
+Generated: 2026-09-12 09:10:54
+------------------------------------------------
+[LOW STOCK] CAN 045 HBK | On hand: 1 | Reorder at: 3 | Supplier: INKRITE
+[LOW STOCK] CF280A | On hand: 3 | Reorder at: 3 | Supplier: JMD
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-12 09:10:57] SMTP ERROR: STARTTLS crypto failed
+[2026-09-12 09:16:04] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention
+Toner Inventory — Low Stock Alert
+Generated: 2026-09-12 09:16:04
+------------------------------------------------
+[LOW STOCK] CAN 045 HBK | On hand: 1 | Reorder at: 3 | Supplier: INKRITE
+[LOW STOCK] CF280A | On hand: 3 | Reorder at: 3 | Supplier: JMD
+------------------------------------------------
+Please reorder the items above.
+---
