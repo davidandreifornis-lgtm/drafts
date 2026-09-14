@@ -929,7 +929,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold text-slate-900 truncate">Stock Card — <span id="stock-card-code" class="font-mono text-blue-700">—</span></h3>
-            <p class="text-xs text-slate-500 truncate" id="stock-card-meta">Movement history for this toner</p>
+            <p class="text-xs text-slate-500 truncate" id="stock-card-meta">Edit quantity, printers & supplier · view movement history</p>
           </div>
         </div>
         <button type="button" id="btn-close-stock-card" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 shrink-0">
@@ -937,7 +937,8 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         </button>
       </div>
 
-      <div class="px-6 py-3 border-b border-slate-100 bg-slate-50 space-y-2">
+      <div class="px-6 py-3 border-b border-slate-100 bg-slate-50 space-y-2 relative">
+        <input type="hidden" id="stock-card-ink-code" value="">
         <div class="flex flex-wrap items-center gap-3 text-sm">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-xs">
             <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">On hand</span>
@@ -951,6 +952,37 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         <div>
           <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Supplier(s)</div>
           <div id="stock-card-supplier" class="flex flex-wrap gap-1.5 text-sm"></div>
+        </div>
+
+        <!-- Edit popup (hidden until Edit is clicked) -->
+        <div id="stock-card-edit-panel" class="hidden absolute inset-x-4 top-2 z-30 rounded-xl border border-blue-200 bg-white shadow-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold text-slate-900">Edit inventory details</h4>
+            <button type="button" id="btn-stock-card-edit-cancel" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Cancel">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-qty">Quantity (on hand)</label>
+            <input id="stock-card-qty" type="number" min="0" step="1" class="w-full px-3 py-2 text-sm font-mono font-bold rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-supplier-input">Supplier</label>
+            <input id="stock-card-supplier-input" type="text" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-printers-input">Compatible printer(s)</label>
+            <textarea id="stock-card-printers-input" rows="3" placeholder="One printer per line" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <p class="text-[11px] text-slate-500 mt-1">One printer per line. Multiple lines = multiple printers.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-reorder">Reorder level</label>
+            <input id="stock-card-reorder" type="number" min="0" step="1" class="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" id="btn-stock-card-edit-cancel-2" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+            <button type="button" id="btn-stock-card-save" class="px-4 py-1.5 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg">Save</button>
+          </div>
         </div>
       </div>
 
@@ -975,7 +1007,8 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         <p id="stock-card-empty" class="hidden text-center text-sm text-slate-400 py-8">No movement history for this toner yet.</p>
       </div>
 
-      <div class="shrink-0 px-6 py-3 border-t border-slate-200 flex justify-end">
+      <div class="shrink-0 px-6 py-3 border-t border-slate-200 flex flex-wrap justify-end gap-2">
+        <button type="button" id="btn-stock-card-edit" class="px-4 py-2 text-sm font-semibold rounded-xl text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100">Edit</button>
         <button type="button" id="btn-stock-card-done" class="px-5 py-2 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl">Close</button>
       </div>
     </div>
@@ -1307,7 +1340,7 @@ const DEMO_INITIAL_INVENTORY = [
     id: "TNR-011",
     inkCode: "CF280A",
     brand: "HP",
-    printerModel: "HP Color Laserjet Pro 400 MFP 425dn/M401n",
+    printerModel: "HP Color LaserJet Pro 400 MFP M425dn",
     color: "Black",
     department: "QC",
     serialNumbers: [],
@@ -1707,6 +1740,9 @@ async function loadFromBackend() {
 
 async function apiAddToner(payload) {
   return apiRequest('inventory.php', { method: 'POST', body: payload });
+}
+async function apiUpdateToner(payload) {
+  return apiRequest('inventory.php', { method: 'PUT', body: payload });
 }
 
 async function apiRemoveToner(inkCode) {
@@ -2214,24 +2250,10 @@ function renderInventory() {
     if (item.supplier) byCode[key].suppliers.add(item.supplier);
   });
 
-  // Optional extra compatible printers by toner code (shared stock, not duplicated rows)
-  const EXTRA_COMPATIBLE = {
-    'CF280A': ['HP Color LaserJet Pro 400 MFP M425dn', 'HP LaserJet Pro M401n'],
-    'CRG-737': ['Canon MF237W'],
-    'CF276A': ['HP LaserJet Pro MFP M428fdn'],
-    'Q2612A': ['Canon LBP 2900'],
-    'CAN 045 HBK': ['Canon MF633DW'],
-    'CAN 045 HC': ['Canon MF633DW'],
-    'CAN 045 HY': ['Canon MF633DW'],
-    'CAN 045 HM': ['Canon MF633DW']
-  };
-
   let aggregated = Object.values(byCode).map(g => {
-    const fromStock = [...g.printers];
-    const extra = EXTRA_COMPATIBLE[(g.inkCode || '').toUpperCase()] || EXTRA_COMPATIBLE[g.inkCode] || [];
     const allPrinters = [];
     const seen = new Set();
-    [...fromStock, ...extra].forEach(p => {
+    [...g.printers].forEach(p => {
       const norm = (p || '').trim();
       if (!norm) return;
       const key = norm.toUpperCase();
@@ -2536,6 +2558,70 @@ function confirmRemoveToner() {
   })();
 }
 
+
+
+function showStockCardEditPanel() {
+  const panel = document.getElementById('stock-card-edit-panel');
+  if (panel) panel.classList.remove('hidden');
+  document.getElementById('stock-card-qty')?.focus();
+}
+
+function hideStockCardEditPanel() {
+  const panel = document.getElementById('stock-card-edit-panel');
+  if (panel) panel.classList.add('hidden');
+}
+
+async function saveStockCard() {
+  const code = (document.getElementById('stock-card-ink-code')?.value || document.getElementById('stock-card-code')?.textContent || '').trim();
+  if (!code) return;
+  const qty = Math.max(0, parseInt(document.getElementById('stock-card-qty')?.value, 10) || 0);
+  const reorder = Math.max(0, parseInt(document.getElementById('stock-card-reorder')?.value, 10) || 0);
+  const printersRaw = document.getElementById('stock-card-printers-input')?.value || '';
+  const printerList = printersRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
+  const printerModel = printerList.join(' · ');
+  const supplier = (document.getElementById('stock-card-supplier-input')?.value || '').trim();
+
+  if (!printerModel) {
+    showToast('Add at least one compatible printer.', 'warning');
+    return;
+  }
+  if (!supplier) {
+    showToast('Supplier is required.', 'warning');
+    return;
+  }
+
+  try {
+    if (AppState.useBackend) {
+      await apiUpdateToner({
+        inkCode: code,
+        quantity: qty,
+        reorderLevel: reorder,
+        printerModel,
+        supplier
+      });
+      await loadFromBackend();
+    } else {
+      const item = AppState.inks.find(i => (i.inkCode || '').toUpperCase() === code.toUpperCase());
+      if (item) {
+        item.quantity = qty;
+        item.reorderLevel = reorder;
+        item.printerModel = printerModel;
+        item.supplier = supplier;
+        item.updatedAt = new Date().toISOString();
+        if (typeof StorageService !== 'undefined') StorageService.saveInks(AppState.inks);
+      }
+    }
+    hideStockCardEditPanel();
+    showToast(`Stock card for ${code} saved.`, 'success');
+    renderInventory();
+    renderDashboard();
+    renderAlerts();
+    openStockCard(code);
+  } catch (e) {
+    showToast(e.message || 'Failed to save stock card.', 'error');
+  }
+}
+
 function closeStockCard() {
   const modal = document.getElementById('modal-stock-card');
   if (modal) modal.classList.add('hidden');
@@ -2547,32 +2633,48 @@ function closeStockCard() {
 function openStockCard(inkCode) {
   const code = (inkCode || '').trim();
   if (!code) return;
+  hideStockCardEditPanel();
 
   const items = AppState.inks.filter(i => (i.inkCode || '').toUpperCase() === code.toUpperCase());
   const onHand = items.reduce((s, i) => s + (Number(i.quantity) || 0), 0);
   const sample = items[0] || {};
-  const printer = [...new Set(items.map(i => i.printerModel).filter(Boolean))].join(', ') || sample.printerModel || '—';
+  const printer = [...new Set(items.flatMap(i => String(i.printerModel || '').split(/\s*·\s*/).map(s => s.trim()).filter(Boolean)))].join(' · ') || sample.printerModel || '—';
   const supplier = [...new Set(items.map(i => i.supplier).filter(Boolean))].join(', ') || sample.supplier || '—';
 
-  document.getElementById('stock-card-code').textContent = code;
+    document.getElementById('stock-card-code').textContent = code;
   document.getElementById('stock-card-meta').textContent = items.length > 1
     ? `${items.length} inventory lines · full movement history`
-    : 'Complete stock movement history';
-  document.getElementById('stock-card-onhand').textContent = onHand;
+    : 'Complete stock movement history — editable master data';
+  const codeEl = document.getElementById('stock-card-ink-code');
+  if (codeEl) codeEl.value = code;
+  const qtyEl = document.getElementById('stock-card-qty');
+  const reorderEl = document.getElementById('stock-card-reorder');
+  const printersInput = document.getElementById('stock-card-printers-input');
+  const supplierInput = document.getElementById('stock-card-supplier-input');
+  const onHandEl = document.getElementById('stock-card-onhand');
+  if (onHandEl) onHandEl.textContent = onHand;
+  if (qtyEl) qtyEl.value = onHand;
+  if (reorderEl) reorderEl.value = Number(sample.reorderLevel) || 0;
+  // Printers: show one per line for editing (split only on ·)
+  const printerNames = (printer && printer !== '—')
+    ? printer.split(/\s*·\s*/).map(s => s.trim()).filter(Boolean)
+    : [];
+  if (printersInput) printersInput.value = printerNames.join('\n');
+  if (supplierInput) supplierInput.value = (supplier && supplier !== '—') ? supplier.split(',')[0].trim() : '';
   const printerEl = document.getElementById('stock-card-printer');
   const supplierEl = document.getElementById('stock-card-supplier');
-  const printerNames = printer === '—' ? [] : printer.split(/\s*·\s*/).map(s => s.trim()).filter(Boolean);
-  const supplierNames = supplier === '—' ? [] : supplier.split(',').map(s => s.trim()).filter(Boolean);
   if (printerEl) {
     printerEl.innerHTML = printerNames.length
-      ? printerNames.map(p => `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-100"><svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg>${escapeHTML(p)}</span>`).join('')
+      ? printerNames.map(p => `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-100">${escapeHTML(p)}</span>`).join('')
       : '<span class="text-xs text-slate-400 italic">No printer listed</span>';
   }
   if (supplierEl) {
-    supplierEl.innerHTML = supplierNames.length
-      ? supplierNames.map(s => `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 border border-slate-200">${escapeHTML(s)}</span>`).join('')
-      : '<span class="text-xs text-slate-400">—</span>';
+    const sup = (supplier && supplier !== '—') ? supplier : '—';
+    supplierEl.innerHTML = sup === '—'
+      ? '<span class="text-xs text-slate-400">—</span>'
+      : `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 border border-slate-200">${escapeHTML(sup)}</span>`;
   }
+
 
   const txns = (AppState.transactions || [])
     .filter(t => (t.inkCode || '').toUpperCase() === code.toUpperCase())
@@ -5060,7 +5162,17 @@ function setupEventListeners() {
   if (btnCancelRemoveToner) btnCancelRemoveToner.addEventListener('click', closeRemoveTonerModal);
   if (btnConfirmRemoveToner) btnConfirmRemoveToner.addEventListener('click', confirmRemoveToner);
   const btnCloseStock = document.getElementById('btn-close-stock-card');
+  
+  const btnStockEdit = document.getElementById('btn-stock-card-edit');
+  if (btnStockEdit) btnStockEdit.addEventListener('click', showStockCardEditPanel);
+  const btnStockEditCancel = document.getElementById('btn-stock-card-edit-cancel');
+  const btnStockEditCancel2 = document.getElementById('btn-stock-card-edit-cancel-2');
+  if (btnStockEditCancel) btnStockEditCancel.addEventListener('click', hideStockCardEditPanel);
+  if (btnStockEditCancel2) btnStockEditCancel2.addEventListener('click', hideStockCardEditPanel);
+
   const btnStockDone = document.getElementById('btn-stock-card-done');
+  const btnStockSave = document.getElementById('btn-stock-card-save');
+  if (btnStockSave) btnStockSave.addEventListener('click', saveStockCard);
   if (btnCloseStock) btnCloseStock.addEventListener('click', closeStockCard);
   if (btnStockDone) btnStockDone.addEventListener('click', closeStockCard);
 
