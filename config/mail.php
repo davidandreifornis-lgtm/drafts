@@ -28,5 +28,5 @@ return [
     'smtp_port'       => (int)(getenv('SMTP_PORT') ?: 587),
     'smtp_encryption' => getenv('SMTP_ENC') ?: 'tls', // tls or ssl
     'smtp_user'       => getenv('SMTP_USER') ?: 'davidandreifornis@gmail.com',
-    'smtp_pass'       => getenv('SMTP_PASS') ?: 'hvts qfok yecm qvbu',
+    'smtp_pass'       => getenv('SMTP_PASS') ?: 'YOUR_GMAIL_APP_PASSWORD_HERE',
 ];

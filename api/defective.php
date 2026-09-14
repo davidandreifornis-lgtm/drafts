@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/bootstrap.php';
+auth_require_api();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     fail('Method not allowed', 405);
@@ -17,7 +18,8 @@ try {
     $pdo->beginTransaction();
 
     $rel = $pdo->prepare(
-        "SELECT * FROM transactions WHERE reference_number = ? AND type = 'RELEASED' LIMIT 1 FOR UPDATE"
+        "SELECT * FROM dbo.toner_transactions WITH (UPDLOCK, ROWLOCK)
+         WHERE reference_number = ? AND type = 'RELEASED'"
     );
     $rel->execute([$ref]);
     $release = $rel->fetch();
@@ -27,7 +29,7 @@ try {
     }
 
     $already = $pdo->prepare(
-        "SELECT id FROM transactions WHERE reference_number = ? AND type = 'DEFECTIVE' LIMIT 1"
+        "SELECT id FROM dbo.toner_transactions WHERE reference_number = ? AND type = 'DEFECTIVE'"
     );
     $already->execute([$ref]);
     if ($already->fetch()) {
@@ -36,15 +38,17 @@ try {
     }
 
     $flag = $pdo->prepare(
-        'UPDATE transactions SET defective = 1, defective_at = NOW(), defective_notes = ? WHERE id = ?'
+        'UPDATE dbo.toner_transactions
+         SET defective = 1, defective_at = SYSUTCDATETIME(), defective_notes = ?
+         WHERE id = ?'
     );
     $flag->execute([$notes, $release['id']]);
 
     $txnCode = new_txn_code($pdo);
     $ins = $pdo->prepare(
-        "INSERT INTO transactions
-         (txn_code, type, reference_number, ink_code, quantity, txn_date, department, location, purpose, status, defective)
-         VALUES (?, 'DEFECTIVE', ?, ?, 1, CURDATE(), ?, ?, ?, 'DEFECTIVE', 1)"
+        "INSERT INTO dbo.toner_transactions
+         (txn_code, type, reference_number, ink_code, quantity, txn_date, department, location, purpose, status, defective, created_at)
+         VALUES (?, 'DEFECTIVE', ?, ?, 1, CAST(GETDATE() AS DATE), ?, ?, ?, 'DEFECTIVE', 1, SYSUTCDATETIME())"
     );
     $ins->execute([
         $txnCode,

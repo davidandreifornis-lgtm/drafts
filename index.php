@@ -118,6 +118,12 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
           Transaction History
         </button>
+
+        <button id="nav-users" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          User Management
+        </button>
+
       </div>
 
       <div class="p-4 border-t border-slate-100">
@@ -573,7 +579,40 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         </div>
       </section>
 
-        <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        
+      <!-- VIEW: USERS -->
+      <section id="view-users" class="page-view hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">User Management</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Create admin accounts. Email is the login username and low-stock notification address.</p>
+          </div>
+          <button type="button" id="btn-add-user" class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-xs transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Admin
+          </button>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm table-fixed">
+              <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3 w-[28%]">Email (login)</th>
+                  <th class="px-4 py-3 w-[24%]">Full Name</th>
+                  <th class="px-4 py-3 w-[12%]">Role</th>
+                  <th class="px-4 py-3 w-[14%]">Status</th>
+                  <th class="px-4 py-3 w-[22%]">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody" class="divide-y divide-slate-100 text-slate-700">
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-400">Loading users…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+<div id="modal-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <!-- Duplicate Warning Modal -->
     <div id="modal-duplicate" class="modal-card hidden bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 mb-4">
@@ -806,7 +845,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <input id="modal-def-ref" type="text" placeholder="e.g. REL-2026-00451" class="flex-1 px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500">
             <button id="btn-modal-search-def" type="button" class="px-5 py-2.5 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors">Search</button>
           </div>
-          <div class="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-100">
+          <div class="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-100 hidden" id="defective-sample-tickets" aria-hidden="true" style="display:none">
             <div class="text-xs font-semibold text-rose-800 mb-2">Sample issued tickets (click to load)</div>
             <div class="flex flex-wrap gap-2">
               <button type="button" class="sample-def-ref inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-semibold rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-100 transition-colors" data-ref="REL-2026-00451">
@@ -1019,6 +1058,46 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     </div>
 
     <!-- Logout Confirmation Modal -->
+    
+    <div id="modal-user" class="modal-card hidden bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+      <div class="shrink-0 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <div>
+          <h3 id="modal-user-title" class="text-lg font-bold text-slate-900">Add Admin</h3>
+          <p class="text-xs text-slate-500">Email is used to sign in and for low-stock alerts</p>
+        </div>
+        <button type="button" id="btn-close-user-modal" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 overflow-y-auto flex-1">
+        <input type="hidden" id="user-edit-id" value="">
+        <div>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="user-username">Email <span class="text-rose-500">*</span></label>
+          <input id="user-username" type="email" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="admin@company.com" autocomplete="off">
+          <p class="text-[11px] text-slate-500 mt-1">This email is the login username and notification address.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="user-fullname">Full Name</label>
+          <input id="user-fullname" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Optional">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="user-password">Password <span id="user-pass-req" class="text-rose-500">*</span></label>
+          <input id="user-password" type="password" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Min. 6 characters" autocomplete="new-password">
+          <p id="user-pass-hint" class="text-[11px] text-slate-500 mt-1 hidden">Leave blank to keep the current password</p>
+        </div>
+        <div id="user-active-wrap" class="hidden">
+          <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+            <input id="user-active" type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" checked>
+            Active (can sign in)
+          </label>
+        </div>
+      </div>
+      <div class="shrink-0 border-t border-slate-200 px-6 py-4 flex justify-end gap-2">
+        <button type="button" id="btn-cancel-user" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button type="button" id="btn-save-user" class="px-4 py-2 text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 rounded-xl">Save</button>
+      </div>
+    </div>
+
     <div id="modal-logout" class="modal-card hidden bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200">
       <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
@@ -1525,6 +1604,7 @@ const DEMO_INITIAL_TRANSACTIONS = [
 // 2. APPLICATION STATE
 // ==========================================
 const AppState = {
+  users: [],
   currentPage: "dashboard",
   inks: [],
   transactions: [],
@@ -1842,7 +1922,7 @@ function generateInkId() {
 // ==========================================
 function navigateTo(pageId) {
   AppState.currentPage = pageId;
-  const validPages = ['dashboard', 'inventory', 'transactions', 'reports'];
+  const validPages = ['dashboard', 'inventory', 'transactions', 'users'];
   if (!validPages.includes(pageId)) pageId = 'dashboard';
 
   // Toggle page sections
@@ -1879,6 +1959,8 @@ function navigateTo(pageId) {
     renderInventory();
   } else if (pageId === 'transactions') {
     renderTransactions();
+  } else if (pageId === 'users') {
+    loadUsers();
   } else if (pageId === 'reports') {
     renderReports();
   }
@@ -2127,7 +2209,7 @@ function renderInventory() {
     // Use the highest reorder level among lines (safer alert threshold)
     byCode[key].reorderLevel = Math.max(byCode[key].reorderLevel, Number(item.reorderLevel) || 0);
     if (item.printerModel) {
-      String(item.printerModel).split(/[·,]/).map(s => s.trim()).filter(Boolean).forEach(p => byCode[key].printers.add(p));
+      String(item.printerModel).split(/\s*·\s*/).map(s => s.trim()).filter(Boolean).forEach(p => byCode[key].printers.add(p));
     }
     if (item.supplier) byCode[key].suppliers.add(item.supplier);
   });
@@ -2209,9 +2291,12 @@ function renderInventory() {
         </td>
         <td class="px-4 py-3.5">
           <div class="flex flex-wrap gap-1.5">
-            ${(item.printerList && item.printerList.length
-              ? item.printerList.map(p => `<span class="inline-flex items-center gap-1 max-w-full px-2 py-1 rounded-lg text-[11px] font-medium bg-indigo-50 text-indigo-800 border border-indigo-100 shadow-xs" title="${escapeHTML(p)}"><svg class="w-3 h-3 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg><span class="truncate">${escapeHTML(p)}</span></span>`).join('')
-              : `<span class="text-xs text-slate-400 italic">No printer listed</span>`)}
+            ${(!item.printerList || !item.printerList.length)
+              ? `<span class="text-xs text-slate-400 italic">No printer listed</span>`
+              : (item.printerList.length === 1
+                  ? `<span class="text-sm text-slate-700" title="${escapeHTML(item.printerList[0])}">${escapeHTML(item.printerList[0])}</span>`
+                  : item.printerList.map(p => `<span class="inline-flex items-center gap-1 max-w-full px-2 py-1 rounded-lg text-[11px] font-medium bg-indigo-50 text-indigo-800 border border-indigo-100 shadow-xs" title="${escapeHTML(p)}"><svg class="w-3 h-3 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg><span class="truncate">${escapeHTML(p)}</span></span>`).join('')
+                )}
           </div>
         </td>
         <td class="px-4 py-3.5">
@@ -2476,7 +2561,7 @@ function openStockCard(inkCode) {
   document.getElementById('stock-card-onhand').textContent = onHand;
   const printerEl = document.getElementById('stock-card-printer');
   const supplierEl = document.getElementById('stock-card-supplier');
-  const printerNames = printer === '—' ? [] : printer.split(/[·,]/).map(s => s.trim()).filter(Boolean);
+  const printerNames = printer === '—' ? [] : printer.split(/\s*·\s*/).map(s => s.trim()).filter(Boolean);
   const supplierNames = supplier === '—' ? [] : supplier.split(',').map(s => s.trim()).filter(Boolean);
   if (printerEl) {
     printerEl.innerHTML = printerNames.length
@@ -4942,6 +5027,18 @@ function setupEventListeners() {
   }
   const btnAddToner = document.getElementById('btn-add-toner');
   if (btnAddToner) btnAddToner.addEventListener('click', openAddTonerModal);
+
+  const navUsers = document.getElementById('nav-users');
+  if (navUsers) navUsers.addEventListener('click', () => navigateTo('users'));
+  const btnAddUser = document.getElementById('btn-add-user');
+  if (btnAddUser) btnAddUser.addEventListener('click', () => openUserModal(null));
+  const btnCloseUser = document.getElementById('btn-close-user-modal');
+  const btnCancelUser = document.getElementById('btn-cancel-user');
+  const btnSaveUser = document.getElementById('btn-save-user');
+  if (btnCloseUser) btnCloseUser.addEventListener('click', closeUserModal);
+  if (btnCancelUser) btnCancelUser.addEventListener('click', closeUserModal);
+  if (btnSaveUser) btnSaveUser.addEventListener('click', saveUser);
+
   const btnAddPrinterRow = document.getElementById('btn-add-printer-row');
   if (btnAddPrinterRow) {
     btnAddPrinterRow.addEventListener('click', () => {
@@ -5090,13 +5187,152 @@ function setupEventListeners() {
 // ==========================================
 // 21. APPLICATION INITIALIZATION
 // ==========================================
+
+// ---------- User Management (API: users.php) ----------
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  try {
+    const data = await apiRequest('users.php');
+    AppState.users = data.users || [];
+    renderUsers();
+  } catch (e) {
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-rose-600 text-sm">${escapeHTML(e.message || 'Failed to load users')}</td></tr>`;
+    }
+  }
+}
+
+function renderUsers() {
+  const tbody = document.getElementById('users-tbody');
+  if (!tbody) return;
+  const users = AppState.users || [];
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-400">No admin users yet. Click Add Admin.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    const status = u.isActive
+      ? '<span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">Active</span>'
+      : '<span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-slate-100 text-slate-600">Inactive</span>';
+    return `<tr class="hover:bg-slate-50">
+      <td class="px-4 py-3 font-mono text-sm font-semibold text-slate-900">${escapeHTML(u.username)}</td>
+      <td class="px-4 py-3 text-slate-700">${escapeHTML(u.fullName || '—')}</td>
+      <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-blue-50 text-blue-700 border border-blue-100">${escapeHTML(u.role || 'admin')}</span></td>
+      <td class="px-4 py-3">${status}</td>
+      <td class="px-4 py-3">
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn-edit-user text-xs font-semibold text-blue-600 hover:underline" data-id="${u.id}">Edit</button>
+          <button type="button" class="btn-delete-user text-xs font-semibold text-rose-600 hover:underline" data-id="${u.id}" data-username="${escapeHTML(u.username)}">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.btn-edit-user').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      const u = (AppState.users || []).find(x => x.id === id);
+      if (u) openUserModal(u);
+    });
+  });
+  tbody.querySelectorAll('.btn-delete-user').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      const name = btn.getAttribute('data-username') || '';
+      if (!confirm(`Delete admin "${name}"? They will no longer be able to sign in.`)) return;
+      try {
+        await apiRequest('users.php', { method: 'DELETE', body: { id } });
+        showToast('User deleted.', 'success');
+        await loadUsers();
+      } catch (e) {
+        showToast(e.message || 'Delete failed', 'error');
+      }
+    });
+  });
+}
+
+function openUserModal(user) {
+  const modal = document.getElementById('modal-user');
+  const backdrop = document.getElementById('modal-backdrop');
+  const title = document.getElementById('modal-user-title');
+  const idEl = document.getElementById('user-edit-id');
+  const userEl = document.getElementById('user-username');
+  const nameEl = document.getElementById('user-fullname');
+  const passEl = document.getElementById('user-password');
+  const activeWrap = document.getElementById('user-active-wrap');
+  const activeEl = document.getElementById('user-active');
+  const passHint = document.getElementById('user-pass-hint');
+  const passReq = document.getElementById('user-pass-req');
+
+  if (user) {
+    title.textContent = 'Edit Admin';
+    idEl.value = user.id;
+    userEl.value = user.username;
+    userEl.disabled = true;
+    nameEl.value = user.fullName || '';
+    passEl.value = '';
+    passHint.classList.remove('hidden');
+    passReq.classList.add('hidden');
+    activeWrap.classList.remove('hidden');
+    activeEl.checked = !!user.isActive;
+  } else {
+    title.textContent = 'Add Admin';
+    idEl.value = '';
+    userEl.value = '';
+    userEl.disabled = false;
+    nameEl.value = '';
+    passEl.value = '';
+    passHint.classList.add('hidden');
+    passReq.classList.remove('hidden');
+    activeWrap.classList.add('hidden');
+  }
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeUserModal() {
+  const modal = document.getElementById('modal-user');
+  if (modal) modal.classList.add('hidden');
+  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
+}
+
+async function saveUser() {
+  const id = document.getElementById('user-edit-id')?.value;
+  const username = (document.getElementById('user-username')?.value || '').trim().toLowerCase();
+  const fullName = (document.getElementById('user-fullname')?.value || '').trim();
+  const password = document.getElementById('user-password')?.value || '';
+  const isActive = document.getElementById('user-active')?.checked;
+
+  try {
+    if (id) {
+      const body = { id: parseInt(id, 10), fullName, isActive };
+      if (password) body.password = password;
+      await apiRequest('users.php', { method: 'PUT', body });
+      showToast('User updated.', 'success');
+    } else {
+      if (!username) { showToast('Email is required.', 'warning'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) { showToast('Enter a valid email address.', 'warning'); return; }
+      if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'warning'); return; }
+      await apiRequest('users.php', { method: 'POST', body: { username, password, fullName, role: 'admin' } });
+      showToast('Admin created. They can sign in now.', 'success');
+    }
+    closeUserModal();
+    await loadUsers();
+  } catch (e) {
+    showToast(e.message || 'Save failed', 'error');
+  }
+}
+
+
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   const online = await detectBackend();
   if (online) {
     try {
       await loadFromBackend();
-      console.info('[Toner] Connected to PHP/MySQL backend');
+      console.info('[Toner] Connected to PHP/SQL Server backend');
     } catch (e) {
       console.warn('[Toner] Backend load failed, using local demo', e);
       AppState.useBackend = false;
@@ -5104,7 +5340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } else {
     console.warn('[Toner] Backend offline — localStorage demo mode. Open api/health.php to debug.');
-    showToast('Database offline — changes will NOT save to MySQL.', 'warning');
+    showToast('Database offline — changes will NOT save to SQL Server.', 'warning');
     initializeDataSafely();
   }
   navigateTo('dashboard');

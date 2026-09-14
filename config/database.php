@@ -1,13 +1,13 @@
-
 <?php
 /**
- * Database configuration — update for your environment.
+ * SQL Server — toner_inventory database (Navicat / VMAPPS2)
+ * Copy this file to your project config/ folder.
  */
 return [
-    'host'     => getenv('DB_HOST') ?: '127.0.0.1',
-    'port'     => getenv('DB_PORT') ?: '3306',
-    'dbname'   => getenv('DB_NAME') ?: 'toner_inventory',
-    'username' => getenv('DB_USER') ?: 'root',
-    'password' => getenv('DB_PASS') ?: '',
-    'charset'  => 'utf8mb4',
+    'driver'   => 'sqlsrv',
+    'server'   => 'VMAPPS2',
+    'database' => 'toner_inventory',   // MUST be toner_inventory (not wlms)
+    'username' => 'sa_dev',
+    'password' => 'D3fault',
+    'port'     => '',                  // set e.g. '1433' if required
 ];

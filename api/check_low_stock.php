@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/bootstrap.php';
 require_once __DIR__ . '/../config/mailer.php';
+auth_require_api();
 
 try {
     // Optional: ?force=1 clears cooldown so you can retest immediately

@@ -221,7 +221,7 @@ function notify_low_stock(?PDO $pdo = null): array {
 
     $stmt = $pdo->query(
         'SELECT ink_code, printer_model, quantity, reorder_level, supplier
-         FROM inventory ORDER BY quantity ASC, ink_code ASC'
+         FROM dbo.toner_inventory ORDER BY quantity ASC, ink_code ASC'
     );
     $rows = $stmt->fetchAll();
 

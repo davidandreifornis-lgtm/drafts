@@ -1,15 +1,25 @@
 <?php
 require_once __DIR__ . '/../config/bootstrap.php';
+auth_require_api();
 
-$method = $_SERVER['REQUEST_METHOD'];
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $pdo = db();
 
 try {
     if ($method === 'GET') {
-        $stmt = $pdo->query('SELECT * FROM inventory ORDER BY ink_code ASC');
-        $rows = $stmt->fetchAll();
-        $items = array_map('map_inventory_row', $rows);
-        ok(['items' => $items]);
+        $stmt = $pdo->query(
+            'SELECT id, ink_code, brand, printer_model, quantity, reorder_level, supplier, created_at, updated_at
+             FROM dbo.toner_inventory ORDER BY ink_code ASC'
+        );
+        $items = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $items[] = map_inventory_row($r);
+        }
+        ok([
+            'items' => $items,
+            'database' => 'toner_inventory',
+            'count' => count($items),
+        ]);
     }
 
     if ($method === 'POST') {
@@ -25,29 +35,45 @@ try {
         if ($printer === '') fail('Compatible printer(s) are required.');
         if ($supplier === '') fail('Supplier is required.');
 
-        $check = $pdo->prepare('SELECT id FROM inventory WHERE ink_code = ?');
+        $check = $pdo->prepare('SELECT id FROM dbo.toner_inventory WHERE ink_code = ?');
         $check->execute([$code]);
         if ($check->fetch()) fail("Toner {$code} already exists.", 409);
 
-        // 6 columns → 6 placeholders (no color)
         $stmt = $pdo->prepare(
-            'INSERT INTO inventory (ink_code, brand, printer_model, quantity, reorder_level, supplier)
-             VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO dbo.toner_inventory
+                (ink_code, brand, printer_model, quantity, reorder_level, supplier, created_at, updated_at)
+             OUTPUT INSERTED.id, INSERTED.ink_code, INSERTED.brand, INSERTED.printer_model,
+                    INSERTED.quantity, INSERTED.reorder_level, INSERTED.supplier,
+                    INSERTED.created_at, INSERTED.updated_at
+             VALUES (?, ?, ?, ?, ?, ?, SYSUTCDATETIME(), SYSUTCDATETIME())'
         );
         $stmt->execute([$code, $brand, $printer, $qty, $reorder, $supplier]);
-        $id = (int)$pdo->lastInsertId();
-        $row = $pdo->query("SELECT * FROM inventory WHERE id = {$id}")->fetch();
-        ok(['item' => map_inventory_row($row)], 201);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            $rowStmt = $pdo->prepare('SELECT * FROM dbo.toner_inventory WHERE ink_code = ?');
+            $rowStmt->execute([$code]);
+            $row = $rowStmt->fetch(PDO::FETCH_ASSOC);
+        }
+        if (!$row) {
+            fail('Insert ran but row not found in dbo.toner_inventory on database toner_inventory.', 500);
+        }
+
+        ok([
+            'item' => map_inventory_row($row),
+            'database' => 'toner_inventory',
+            'message' => 'Saved to dbo.toner_inventory',
+        ], 201);
     }
 
     if ($method === 'DELETE') {
         $in = json_input();
         $code = strtoupper(trim($in['inkCode'] ?? ($_GET['inkCode'] ?? '')));
         if ($code === '') fail('Toner code is required.');
-        $stmt = $pdo->prepare('DELETE FROM inventory WHERE ink_code = ?');
+        $stmt = $pdo->prepare('DELETE FROM dbo.toner_inventory WHERE ink_code = ?');
         $stmt->execute([$code]);
-        if ($stmt->rowCount() === 0) fail('Toner not found.', 404);
-        ok(['deleted' => $code]);
+        if ($stmt->rowCount() === 0) fail('Toner not found in dbo.toner_inventory.', 404);
+        ok(['deleted' => $code, 'database' => 'toner_inventory']);
     }
 
     fail('Method not allowed', 405);
@@ -56,18 +82,19 @@ try {
 }
 
 function map_inventory_row(array $r): array {
+    $r = array_change_key_case($r, CASE_LOWER);
     return [
-        'id' => 'TNR-' . $r['id'],
-        'inkCode' => $r['ink_code'],
-        'brand' => $r['brand'] ?? '',
-        'printerModel' => $r['printer_model'],
-        'quantity' => (int)$r['quantity'],
-        'reorderLevel' => (int)$r['reorder_level'],
-        'supplier' => $r['supplier'],
+        'id' => 'TNR-' . ($r['id'] ?? ''),
+        'inkCode' => (string)($r['ink_code'] ?? ''),
+        'brand' => (string)($r['brand'] ?? ''),
+        'printerModel' => (string)($r['printer_model'] ?? ''),
+        'quantity' => (int)($r['quantity'] ?? 0),
+        'reorderLevel' => (int)($r['reorder_level'] ?? 0),
+        'supplier' => (string)($r['supplier'] ?? ''),
         'department' => '',
         'location' => '',
         'serialNumbers' => [],
-        'createdAt' => $r['created_at'],
-        'updatedAt' => $r['updated_at'],
+        'createdAt' => (string)($r['created_at'] ?? ''),
+        'updatedAt' => (string)($r['updated_at'] ?? ''),
     ];
 }

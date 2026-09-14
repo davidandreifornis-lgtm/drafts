@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/bootstrap.php';
 require_once __DIR__ . '/../config/mailer.php';
+auth_require_api();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     fail('Method not allowed', 405);
@@ -11,8 +12,6 @@ $ref = normalize_ref($in['referenceNumber'] ?? '');
 $inkCode = strtoupper(trim($in['inkCode'] ?? ''));
 $dept = strtoupper(trim($in['department'] ?? ''));
 $location = trim($in['location'] ?? '');
-// Always 1 unit, always today
-$qty = 1;
 $date = date('Y-m-d');
 
 if ($ref === '') fail('Issuance reference is required.');
@@ -25,14 +24,14 @@ $pdo = db();
 try {
     $pdo->beginTransaction();
 
-    $dup = $pdo->prepare('SELECT id FROM transactions WHERE reference_number = ? LIMIT 1');
+    $dup = $pdo->prepare('SELECT id FROM dbo.toner_transactions WHERE reference_number = ?');
     $dup->execute([$ref]);
     if ($dup->fetch()) {
         $pdo->rollBack();
         fail('This reference was already recorded.', 409, ['duplicate' => true, 'referenceNumber' => $ref]);
     }
 
-    $inv = $pdo->prepare('SELECT * FROM inventory WHERE ink_code = ? FOR UPDATE');
+    $inv = $pdo->prepare('SELECT * FROM dbo.toner_inventory WITH (UPDLOCK, ROWLOCK) WHERE ink_code = ?');
     $inv->execute([$inkCode]);
     $row = $inv->fetch();
     if (!$row) {
@@ -45,21 +44,20 @@ try {
     }
 
     $newQty = (int)$row['quantity'] - 1;
-    $upd = $pdo->prepare('UPDATE inventory SET quantity = ?, updated_at = NOW() WHERE id = ?');
+    $upd = $pdo->prepare('UPDATE dbo.toner_inventory SET quantity = ?, updated_at = SYSUTCDATETIME() WHERE id = ?');
     $upd->execute([$newQty, $row['id']]);
 
     $txnCode = new_txn_code($pdo);
     $ins = $pdo->prepare(
-        'INSERT INTO transactions
-         (txn_code, type, reference_number, ink_code, quantity, txn_date, department, location, purpose, status)
-         VALUES (?, \'RELEASED\', ?, ?, 1, ?, ?, ?, ?, \'RECORDED\')'
+        'INSERT INTO dbo.toner_transactions
+         (txn_code, type, reference_number, ink_code, quantity, txn_date, department, location, purpose, status, created_at)
+         VALUES (?, \'RELEASED\', ?, ?, 1, ?, ?, ?, ?, \'RECORDED\', SYSUTCDATETIME())'
     );
     $ins->execute([$txnCode, $ref, $inkCode, $date, $dept, $location, 'Stock issuance']);
 
     $pdo->commit();
 
-    // Email admin if stock is now low/out
-    try { notify_low_stock($pdo); } catch (Throwable $e) { /* don't fail the release */ }
+    try { notify_low_stock($pdo); } catch (Throwable $e) { /* ignore */ }
 
     ok([
         'message' => 'Issuance recorded',
