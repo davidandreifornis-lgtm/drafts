@@ -256,7 +256,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               </div>
-              <input id="filter-inv-search" type="text" placeholder="Search by toner code..." class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <input id="filter-inv-search" type="text" placeholder="Search item code, description, supplier..." class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
           </div>
           <div class="w-44">
@@ -278,12 +278,13 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <table class="w-full text-left text-sm table-fixed">
               <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-4 py-3.5 w-[16%]">Toner Code</th>
-                  <th class="px-4 py-3.5 w-[30%]">Compatible Printer(s)</th>
-                  <th class="px-4 py-3.5 w-[16%]">Supplier</th>
-                  <th class="px-4 py-3.5 w-[12%] text-right">Quantity</th>
-                  <th class="px-4 py-3.5 w-[14%]">Stock Status</th>
-                  <th class="px-4 py-3.5 w-[12%] text-center">Actions</th>
+                  <th class="px-4 py-3.5 w-[14%]">Toner Code</th>
+                  <th class="px-4 py-3.5 w-[22%]">Description</th>
+                  <th class="px-4 py-3.5 w-[22%]">Compatible Printer(s)</th>
+                  <th class="px-4 py-3.5 w-[12%]">Supplier</th>
+                  <th class="px-4 py-3.5 w-[10%] text-right">Quantity</th>
+                  <th class="px-4 py-3.5 w-[10%]">Stock Status</th>
+                  <th class="px-4 py-3.5 w-[10%] text-center">Actions</th>
                 </tr>
               </thead>
               <tbody id="inventory-tbody" class="divide-y divide-slate-100 text-slate-700">
@@ -539,7 +540,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <!-- Search + date filters -->
           <div class="p-4 border-b border-slate-100 flex flex-wrap gap-3 items-center">
             <div class="flex-1 min-w-[200px]">
-              <input id="filter-txn-search" type="text" placeholder="Search ticket ref, toner code, location..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input id="filter-txn-search" type="text" placeholder="Search ref, item code, description, location, department..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="w-44">
               <select id="filter-txn-date" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -691,7 +692,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </div>
           <div>
             <h3 class="text-lg font-bold text-slate-900">Receive Delivery</h3>
-            <p class="text-xs text-slate-500">Enter ticket reference and delivery details manually</p>
+            <p class="text-xs text-slate-500">Look up MRR number from ERP, then confirm to post stock</p>
           </div>
         </div>
         <button type="button" id="btn-close-receive-modal" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
@@ -702,32 +703,47 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
         <div id="receive-step-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-ref">Delivery Reference No. <span class="text-rose-500">*</span></label>
-            <input id="modal-del-ref" type="text" placeholder="e.g. DEL-2026-00125" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-ref">MRR Number <span class="text-rose-500">*</span></label>
+            <div class="flex gap-2">
+              <input id="modal-del-ref" type="text" placeholder="e.g. MG009105" class="flex-1 px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button type="button" id="btn-modal-search-mrr" class="px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shrink-0">Search MRR</button>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1.5">Details are loaded from ERP (VM-EGNSERVER) using the MRR number.</p>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-toner">Toner Code <span class="text-rose-500">*</span></label>
-            <select id="modal-del-toner" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">— Select toner —</option>
-            </select>
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-qty">Quantity <span class="text-rose-500">*</span></label>
-              <input id="modal-del-qty" type="number" min="1" value="1" class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+          <div id="mrr-lookup-status" class="hidden text-sm px-3 py-2 rounded-xl border"></div>
+
+          <div id="mrr-preview" class="hidden space-y-3">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 border border-blue-100 font-semibold">MRR <span id="mrr-preview-no" class="font-mono"></span></span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200">Date <span id="mrr-preview-date" class="font-semibold"></span></span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200">Lines <span id="mrr-preview-lines" class="font-semibold"></span></span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 border border-slate-200">Total qty <span id="mrr-preview-qty" class="font-semibold font-mono"></span></span>
+            </div>
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th class="px-3 py-2">Item code</th>
+                    <th class="px-3 py-2">Description</th>
+                    <th class="px-3 py-2 text-right">Qty</th>
+                    <th class="px-3 py-2 text-right">On hand</th>
+                    <th class="px-3 py-2 text-right">After</th>
+                  </tr>
+                </thead>
+                <tbody id="mrr-preview-tbody" class="divide-y divide-slate-100"></tbody>
+              </table>
             </div>
             <div>
-              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-date">Date <span class="text-rose-500">*</span></label>
-              <input id="modal-del-date" type="date" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-supplier">Supplier <span class="text-slate-400 font-normal">(optional)</span></label>
+              <input id="modal-del-supplier" type="text" placeholder="Optional — leave blank if not needed" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
+            <p id="mrr-already-warn" class="hidden text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">This MRR was already posted in toner inventory.</p>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-del-supplier">Supplier <span class="text-rose-500">*</span></label>
-            <input id="modal-del-supplier" type="text" placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="btn-modal-cancel-del" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
-            <button type="button" id="btn-modal-process-del" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl">Record Delivery</button>
+
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" id="btn-cancel-receive" class="px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
+            <button type="button" id="btn-modal-process-del" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed" disabled>Confirm &amp; Post Stock</button>
           </div>
         </div>
 
@@ -767,7 +783,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <input id="modal-rel-ref" type="text" placeholder="e.g. AMEC-006353" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-toner">Toner Code <span class="text-rose-500">*</span></label>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-toner">Item (Description) <span class="text-rose-500">*</span></label>
             <select id="modal-rel-toner" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
               <option value="">— Select toner —</option>
             </select>
@@ -954,37 +970,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <div id="stock-card-supplier" class="flex flex-wrap gap-1.5 text-sm"></div>
         </div>
 
-        <!-- Edit popup (hidden until Edit is clicked) -->
-        <div id="stock-card-edit-panel" class="hidden absolute inset-x-4 top-2 z-30 rounded-xl border border-blue-200 bg-white shadow-xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <h4 class="text-sm font-bold text-slate-900">Edit inventory details</h4>
-            <button type="button" id="btn-stock-card-edit-cancel" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Cancel">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-qty">Quantity (on hand)</label>
-            <input id="stock-card-qty" type="number" min="0" step="1" class="w-full px-3 py-2 text-sm font-mono font-bold rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-supplier-input">Supplier</label>
-            <input id="stock-card-supplier-input" type="text" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-printers-input">Compatible printer(s)</label>
-            <textarea id="stock-card-printers-input" rows="3" placeholder="One printer per line" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <p class="text-[11px] text-slate-500 mt-1">One printer per line. Multiple lines = multiple printers.</p>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" for="stock-card-reorder">Reorder level</label>
-            <input id="stock-card-reorder" type="number" min="0" step="1" class="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div class="flex justify-end gap-2 pt-1">
-            <button type="button" id="btn-stock-card-edit-cancel-2" class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-            <button type="button" id="btn-stock-card-save" class="px-4 py-1.5 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg">Save</button>
-          </div>
-        </div>
-      </div>
+              </div>
 
       <div class="p-4 overflow-y-auto flex-1 min-h-0">
         <div class="overflow-x-auto rounded-xl border border-slate-200">
@@ -1008,11 +994,84 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       </div>
 
       <div class="shrink-0 px-6 py-3 border-t border-slate-200 flex flex-wrap justify-end gap-2">
-        <button type="button" id="btn-stock-card-edit" class="px-4 py-2 text-sm font-semibold rounded-xl text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100">Edit</button>
+        <button type="button" id="btn-stock-card-edit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          Edit details
+        </button>
         <button type="button" id="btn-stock-card-done" class="px-5 py-2 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-xl">Close</button>
       </div>
     </div>
 
+
+    
+    <!-- STOCK CARD EDIT — full-screen pop-out with blur -->
+    <div id="stock-card-edit-panel" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6">
+      <!-- blurred dim backdrop -->
+      <div id="stock-card-edit-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-md"></div>
+      <!-- dialog -->
+      <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden ring-1 ring-black/5">
+        <div class="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-blue-50 via-white to-white flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-600/25">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-base font-bold text-slate-900">Edit item details</h4>
+            <p class="text-xs text-slate-500">Changes save to toner inventory</p>
+          </div>
+          <button type="button" id="btn-stock-card-edit-cancel" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors" title="Close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <div class="px-5 py-4 space-y-4 max-h-[min(60vh,28rem)] overflow-y-auto">
+          <div class="rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5 flex items-center justify-between gap-2">
+            <div>
+              <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Item code</div>
+              <div id="stock-card-edit-code-display" class="font-mono font-bold text-slate-900 text-sm mt-0.5">—</div>
+            </div>
+            <span class="text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded-md bg-slate-200/80 text-slate-600">Read-only</span>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-description-input">Description</label>
+            <input id="stock-card-description-input" type="text" placeholder="e.g. INK CRG-737 - CANON" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-qty">Quantity on hand</label>
+              <input id="stock-card-qty" type="number" min="0" step="1" class="w-full px-3.5 py-2.5 text-sm font-mono font-bold rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-reorder">Reorder level</label>
+              <input id="stock-card-reorder" type="number" min="0" step="1" class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-supplier-input">Supplier <span class="text-slate-400 font-normal">(optional)</span></label>
+            <input id="stock-card-supplier-input" type="text" placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-printers-input">Compatible printer(s) <span class="text-slate-400 font-normal">(optional)</span></label>
+            <textarea id="stock-card-printers-input" rows="2" placeholder="One printer per line" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 resize-none"></textarea>
+          </div>
+
+          <p class="text-[11px] text-amber-900 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 leading-relaxed">
+            Changing <strong>quantity</strong> records a stock adjustment in transaction history.
+          </p>
+        </div>
+
+        <div class="px-5 py-3.5 border-t border-slate-100 bg-slate-50/90 flex justify-end gap-2">
+          <button type="button" id="btn-stock-card-edit-cancel-2" class="px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-white border border-slate-200 rounded-xl transition-colors">Cancel</button>
+          <button type="button" id="btn-stock-card-save" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-xl shadow-md shadow-blue-600/20 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Save changes
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ===================== ADD TONER MODAL ===================== -->
     <div id="modal-add-toner" class="modal-card hidden bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col">
@@ -1031,36 +1090,30 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         </button>
       </div>
       <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+        <p class="text-xs text-slate-500 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+          Same fields as an <strong>MRR line</strong> (except dates). Saved to <code class="font-mono text-[11px]">dbo.toner_inventory</code>.
+        </p>
         <div>
-          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-code">Toner Code <span class="text-rose-500">*</span></label>
-          <input id="add-toner-code" type="text" required placeholder="e.g. CRG-737" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-code">Item Code <span class="text-rose-500">*</span></label>
+          <input id="add-toner-code" type="text" required placeholder="e.g. OS00000251" class="w-full px-3.5 py-2.5 text-sm font-mono uppercase rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-[11px] text-slate-500 mt-1">Same as MRR <span class="font-mono">Item_code</span> → column <span class="font-mono">item_code</span>.</p>
         </div>
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-sm font-semibold text-slate-800">Compatible Printers <span class="text-rose-500">*</span></label>
-            <button type="button" id="btn-add-printer-row" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-              Add printer
-            </button>
-          </div>
-          <div id="add-toner-printer-list" class="space-y-2">
-            <!-- rows injected by JS -->
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1.5">Add each compatible printer on its own row.</p>
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-description">Description <span class="text-rose-500">*</span></label>
+          <input id="add-toner-description" type="text" required placeholder="e.g. INK CRG-737 - CANON" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-[11px] text-slate-500 mt-1">Same as MRR <span class="font-mono">Item_Desc</span> → column <span class="font-mono">description</span>.</p>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-supplier">Supplier <span class="text-rose-500">*</span></label>
-          <input id="add-toner-supplier" type="text" required placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-qty">Quantity <span class="text-rose-500">*</span></label>
+          <input id="add-toner-qty" type="number" min="0" value="0" required class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-[11px] text-slate-500 mt-1">Same as MRR <span class="font-mono">MRR_Qty</span> → column <span class="font-mono">quantity</span>.</p>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-qty">Starting Qty <span class="text-rose-500">*</span></label>
-            <input id="add-toner-qty" type="number" min="0" value="0" required class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="add-toner-reorder">Reorder Level <span class="text-rose-500">*</span></label>
-            <input id="add-toner-reorder" type="number" min="0" value="3" required class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
+        <!-- Hidden defaults (not on MRR; system defaults) -->
+        <input type="hidden" id="add-toner-supplier" value="">
+        <input type="hidden" id="add-toner-brand" value="">
+        <input type="hidden" id="add-toner-reorder" value="3">
+        <div id="add-toner-printer-list" class="hidden">
+          <input type="text" class="add-printer-input" value="">
         </div>
       </div>
       <div class="shrink-0 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
@@ -1637,6 +1690,7 @@ const DEMO_INITIAL_TRANSACTIONS = [
 // 2. APPLICATION STATE
 // ==========================================
 const AppState = {
+  activeMrrLookup: null,
   users: [],
   currentPage: "dashboard",
   inks: [],
@@ -1666,7 +1720,7 @@ const AppState = {
     transactionSearch: "",
     transactionType: "RECEIVED",
     transactionBrand: "ALL",
-    transactionDate: "MONTH",
+    transactionDate: "ALL",
     transactionDateFrom: "",
     transactionDateTo: "",
     transactionDept: "ALL",
@@ -1693,6 +1747,7 @@ async function apiRequest(path, options = {}) {
   const url = `${base}/${path.replace(/^\//, '')}`;
   console.info('[Toner] API', options.method || 'GET', url);
   const opts = {
+    credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
   };
@@ -2150,16 +2205,28 @@ function renderDashboard() {
 // ==========================================
 // 9. DATE FILTERING
 // ==========================================
+function parseLocalDate(dateStr) {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim();
+  // Prefer YYYY-MM-DD as local calendar date (avoid UTC shift that drops rows from "This Month")
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
 function isDateInFilter(dateStr, filterType) {
   if (!filterType || filterType === 'ALL') return true;
-  if (!dateStr) return false;
+  if (!dateStr) return true; // keep rows with missing dates visible
 
-  const itemDate = new Date(dateStr);
-  if (Number.isNaN(itemDate.getTime())) return false;
+  const itemDay = parseLocalDate(dateStr);
+  if (!itemDay) return true;
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const itemDay = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
 
   if (filterType === 'TODAY') {
     return itemDay.getTime() === today.getTime();
@@ -2172,23 +2239,22 @@ function isDateInFilter(dateStr, filterType) {
   }
 
   if (filterType === 'MONTH') {
-    return itemDate.getFullYear() === now.getFullYear() && itemDate.getMonth() === now.getMonth();
+    return itemDay.getFullYear() === now.getFullYear() && itemDay.getMonth() === now.getMonth();
   }
 
   if (filterType === 'CUSTOM') {
     const fromStr = AppState.filters.transactionDateFrom;
     const toStr = AppState.filters.transactionDateTo;
-    // If range not set yet, show all (until user applies)
     if (!fromStr && !toStr) return true;
 
     let ok = true;
     if (fromStr) {
-      const fromDay = new Date(fromStr + 'T00:00:00');
-      ok = ok && itemDay >= fromDay;
+      const fromDay = parseLocalDate(fromStr);
+      ok = ok && fromDay && itemDay >= fromDay;
     }
     if (toStr) {
-      const toDay = new Date(toStr + 'T00:00:00');
-      ok = ok && itemDay <= toDay;
+      const toDay = parseLocalDate(toStr);
+      ok = ok && toDay && itemDay <= toDay;
     }
     return ok;
   }
@@ -2233,6 +2299,8 @@ function renderInventory() {
     if (!byCode[key]) {
       byCode[key] = {
         inkCode: code,
+        description: item.description || '',
+        brand: item.brand || '',
         printerModel: item.printerModel || '',
         supplier: item.supplier || '',
         quantity: 0,
@@ -2242,6 +2310,8 @@ function renderInventory() {
       };
     }
     byCode[key].quantity += Number(item.quantity) || 0;
+    if (!byCode[key].description && item.description) byCode[key].description = item.description;
+    if (!byCode[key].brand && item.brand) byCode[key].brand = item.brand;
     // Use the highest reorder level among lines (safer alert threshold)
     byCode[key].reorderLevel = Math.max(byCode[key].reorderLevel, Number(item.reorderLevel) || 0);
     if (item.printerModel) {
@@ -2263,6 +2333,8 @@ function renderInventory() {
     });
     return {
       inkCode: g.inkCode,
+      description: g.description || '',
+      brand: g.brand || '',
       printerModel: allPrinters.length ? allPrinters.join(' · ') : (g.printerModel || '—'),
       printerList: allPrinters.length ? allPrinters : [],
       supplier: [...g.suppliers].join(', ') || g.supplier || '—',
@@ -2275,7 +2347,10 @@ function renderInventory() {
   const filtered = aggregated.filter(item => {
     if (search) {
       const matchCode = (item.inkCode || '').toLowerCase().includes(search);
-      if (!matchCode) return false;
+      const matchDesc = (item.description || '').toLowerCase().includes(search);
+      const matchSupplier = (item.supplier || '').toLowerCase().includes(search);
+      const matchPrinter = (item.printerModel || '').toLowerCase().includes(search);
+      if (!matchCode && !matchDesc && !matchSupplier && !matchPrinter) return false;
     }
     const status = getStockStatus(item.quantity, item.reorderLevel);
     if (statusFilter === 'IN_STOCK' && status !== STOCK_STATUS.IN_STOCK) return false;
@@ -2310,6 +2385,9 @@ function renderInventory() {
             ${escapeHTML(item.inkCode)}
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </span>
+        </td>
+        <td class="px-4 py-3.5 text-slate-700 text-sm">
+          ${escapeHTML(item.description || '—')}
         </td>
         <td class="px-4 py-3.5">
           <div class="flex flex-wrap gap-1.5">
@@ -2387,7 +2465,7 @@ function getAddPrinterValues() {
 }
 
 function openAddTonerModal() {
-  ['add-toner-code','add-toner-supplier'].forEach(id => {
+  ['add-toner-code','add-toner-description'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2413,54 +2491,43 @@ function closeAddTonerModal() {
 
 function saveNewToner() {
   const code = (document.getElementById('add-toner-code')?.value || '').trim().toUpperCase();
-  const printerList = getAddPrinterValues();
-  const supplier = (document.getElementById('add-toner-supplier')?.value || '').trim();
+  const description = (document.getElementById('add-toner-description')?.value || '').trim();
+  const brand = '';
+  const supplier = '';
   const qtyRaw = document.getElementById('add-toner-qty')?.value;
-  const reorderRaw = document.getElementById('add-toner-reorder')?.value;
+  const reorder = 3;
 
   if (!code) {
-    showToast('Toner code is required.', 'warning');
+    showToast('Item code is required (same as MRR Item_code).', 'warning');
     document.getElementById('add-toner-code')?.focus();
     return;
   }
-  if (!printerList.length) {
-    showToast('Add at least one compatible printer.', 'warning');
-    document.querySelector('#add-toner-printer-list .add-printer-input')?.focus();
-    return;
-  }
-  if (!supplier) {
-    showToast('Supplier is required.', 'warning');
-    document.getElementById('add-toner-supplier')?.focus();
+  if (!description) {
+    showToast('Description is required (same as MRR Item_Desc).', 'warning');
+    document.getElementById('add-toner-description')?.focus();
     return;
   }
   if (qtyRaw === '' || qtyRaw === null || qtyRaw === undefined) {
-    showToast('Starting quantity is required.', 'warning');
+    showToast('Quantity is required (same as MRR_Qty).', 'warning');
     document.getElementById('add-toner-qty')?.focus();
-    return;
-  }
-  if (reorderRaw === '' || reorderRaw === null || reorderRaw === undefined) {
-    showToast('Reorder level is required.', 'warning');
-    document.getElementById('add-toner-reorder')?.focus();
     return;
   }
 
   const exists = AppState.inks.some(i => (i.inkCode || '').toUpperCase() === code);
   if (exists) {
-    showToast(`Toner ${code} already exists in inventory.`, 'warning');
+    showToast(`Item ${code} already exists in inventory.`, 'warning');
     return;
   }
 
   const qty = Math.max(0, parseInt(qtyRaw, 10) || 0);
-  const reorder = Math.max(0, parseInt(reorderRaw, 10) || 0);
   const now = new Date().toISOString();
-  // Store each printer separately in the string using " · " (UI chips already split on this)
-  const primaryPrinter = printerList[0];
-  const printerModelStored = printerList.join(' · ');
+  const printerModelStored = '';
 
   const item = {
     id: generateInkId(),
     inkCode: code,
-    brand: '',
+    brand: brand,
+    description: description,
     printerModel: printerModelStored,
     color: 'Black',
     department: '',
@@ -2479,12 +2546,12 @@ function saveNewToner() {
       try {
         await apiAddToner({
           inkCode: code,
-          printerModel: item.printerModel,
-          supplier,
+          itemCode: code,
+          description,
+          printerModel: '',
+          supplier: '',
           quantity: qty,
-          reorderLevel: reorder,
-          brand: '',
-          color: 'Black'
+          reorderLevel: 3
         });
         AppState.useBackend = true;
         await loadFromBackend();
@@ -2562,13 +2629,17 @@ function confirmRemoveToner() {
 
 function showStockCardEditPanel() {
   const panel = document.getElementById('stock-card-edit-panel');
-  if (panel) panel.classList.remove('hidden');
-  document.getElementById('stock-card-qty')?.focus();
+  if (panel) {
+    panel.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+  setTimeout(() => document.getElementById('stock-card-description-input')?.focus(), 50);
 }
 
 function hideStockCardEditPanel() {
   const panel = document.getElementById('stock-card-edit-panel');
   if (panel) panel.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
 }
 
 async function saveStockCard() {
@@ -2576,24 +2647,18 @@ async function saveStockCard() {
   if (!code) return;
   const qty = Math.max(0, parseInt(document.getElementById('stock-card-qty')?.value, 10) || 0);
   const reorder = Math.max(0, parseInt(document.getElementById('stock-card-reorder')?.value, 10) || 0);
+  const description = (document.getElementById('stock-card-description-input')?.value || '').trim();
   const printersRaw = document.getElementById('stock-card-printers-input')?.value || '';
   const printerList = printersRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
   const printerModel = printerList.join(' · ');
   const supplier = (document.getElementById('stock-card-supplier-input')?.value || '').trim();
 
-  if (!printerModel) {
-    showToast('Add at least one compatible printer.', 'warning');
-    return;
-  }
-  if (!supplier) {
-    showToast('Supplier is required.', 'warning');
-    return;
-  }
-
   try {
     if (AppState.useBackend) {
       await apiUpdateToner({
         inkCode: code,
+        itemCode: code,
+        description,
         quantity: qty,
         reorderLevel: reorder,
         printerModel,
@@ -2607,6 +2672,7 @@ async function saveStockCard() {
         item.reorderLevel = reorder;
         item.printerModel = printerModel;
         item.supplier = supplier;
+        item.description = description;
         item.updatedAt = new Date().toISOString();
         if (typeof StorageService !== 'undefined') StorageService.saveInks(AppState.inks);
       }
@@ -2647,6 +2713,10 @@ function openStockCard(inkCode) {
     : 'Complete stock movement history — editable master data';
   const codeEl = document.getElementById('stock-card-ink-code');
   if (codeEl) codeEl.value = code;
+  const editCodeDisp = document.getElementById('stock-card-edit-code-display');
+  if (editCodeDisp) editCodeDisp.textContent = code;
+  const descInput = document.getElementById('stock-card-description-input');
+  if (descInput) descInput.value = sample.description || '';
   const qtyEl = document.getElementById('stock-card-qty');
   const reorderEl = document.getElementById('stock-card-reorder');
   const printersInput = document.getElementById('stock-card-printers-input');
@@ -3402,7 +3472,11 @@ function renderTransactions() {
       const matchLoc = (t.location || '').toLowerCase().includes(search);
       const matchSupplier = (t.supplier || '').toLowerCase().includes(search);
       const matchDept = (t.department || '').toLowerCase().includes(search);
-      if (!matchRef && !matchInk && !matchLoc && !matchSupplier && !matchDept) return false;
+      const matchPurpose = (t.purpose || '').toLowerCase().includes(search);
+      // Match description via inventory master list
+      const inv = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === (t.inkCode || '').toUpperCase());
+      const matchDesc = inv ? (inv.description || '').toLowerCase().includes(search) : false;
+      if (!matchRef && !matchInk && !matchLoc && !matchSupplier && !matchDept && !matchPurpose && !matchDesc) return false;
     }
 
     if (!isDateInFilter(t.date || t.createdAt, dateFilter)) return false;
@@ -4069,13 +4143,26 @@ function closeLogoutModal() {
 function getUniqueTonerCodes() {
   const map = {};
   (AppState.inks || []).forEach(i => {
-    const c = (i.inkCode || '').trim();
+    const c = (i.inkCode || i.itemCode || '').trim();
     if (!c) return;
     const k = c.toUpperCase();
-    if (!map[k]) map[k] = { code: c, qty: 0 };
+    if (!map[k]) {
+      map[k] = {
+        code: c,
+        description: (i.description || '').trim(),
+        qty: 0
+      };
+    }
+    if (!map[k].description && i.description) {
+      map[k].description = String(i.description).trim();
+    }
     map[k].qty += Number(i.quantity) || 0;
   });
-  return Object.values(map).sort((a, b) => a.code.localeCompare(b.code));
+  return Object.values(map).sort((a, b) => {
+    const da = (a.description || a.code).toLowerCase();
+    const db = (b.description || b.code).toLowerCase();
+    return da.localeCompare(db);
+  });
 }
 
 function populateTonerSelect(selectId, includeStock) {
@@ -4083,8 +4170,16 @@ function populateTonerSelect(selectId, includeStock) {
   if (!sel) return;
   const current = sel.value;
   const list = getUniqueTonerCodes();
-  sel.innerHTML = '<option value="">— Select toner —</option>' +
-    list.map(t => `<option value="${escapeHTML(t.code)}" data-qty="${t.qty}">${escapeHTML(t.code)}${includeStock ? ` (${t.qty} on hand)` : ''}</option>`).join('');
+  // Label = description (easier to distinguish); value stays item_code for posting
+  sel.innerHTML = '<option value="">— Select item —</option>' +
+    list.map(t => {
+      const label = t.description
+        ? `${t.description}`
+        : t.code;
+      const stock = includeStock ? ` (${t.qty} on hand)` : '';
+      const title = t.description ? `${t.description} · ${t.code}` : t.code;
+      return `<option value="${escapeHTML(t.code)}" data-qty="${t.qty}" title="${escapeHTML(title)}">${escapeHTML(label)}${escapeHTML(stock)}</option>`;
+    }).join('');
   if (current) sel.value = current;
 }
 
@@ -4129,64 +4224,143 @@ function fillLocationsForDept(deptCode, selectId, autoWrapId, autoTextId) {
 
 
 function recordManualDelivery() {
-  const ref = normalizeRefNumber(document.getElementById('modal-del-ref')?.value);
-  const toner = (document.getElementById('modal-del-toner')?.value || '').trim();
-  const qty = parseInt(document.getElementById('modal-del-qty')?.value, 10);
-  const date = document.getElementById('modal-del-date')?.value;
+  const inputRef = normalizeRefNumber(document.getElementById('modal-del-ref')?.value);
   const supplier = (document.getElementById('modal-del-supplier')?.value || '').trim();
+  const mrrData = AppState.activeMrrLookup || null;
 
-  if (!ref) { showToast('Delivery reference is required.', 'warning'); return; }
-  if (!toner) { showToast('Select a toner code.', 'warning'); return; }
-  if (!qty || qty < 1) { showToast('Quantity must be at least 1.', 'warning'); return; }
-  if (!date) { showToast('Date is required.', 'warning'); return; }
-  if (!supplier) { showToast('Supplier is required.', 'warning'); return; }
+  // Prefer MRR from successful lookup, then input field
+  const ref = normalizeRefNumber(
+    (mrrData && (mrrData.mrr || mrrData.referenceNumber)) || inputRef || ''
+  );
 
-  if (TicketService.isAlreadyProcessed(ref)) {
-    openDuplicateModal(ref, 'DELIVERY');
+  if (!ref) {
+    showToast('Enter an MRR number and click Search MRR first.', 'warning');
+    document.getElementById('modal-del-ref')?.focus();
+    return;
+  }
+  if (!mrrData || !Array.isArray(mrrData.lines) || !mrrData.lines.length) {
+    showToast('Search the MRR first so ERP lines can load, then confirm.', 'warning');
+    return;
+  }
+  if (mrrData.alreadyRecorded) {
+    showToast('This MRR was already recorded.', 'error');
     return;
   }
 
-  const matched = AppState.inks.find(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase());
-  const ticket = {
-    referenceNumber: ref,
-    type: 'DELIVERY',
-    status: 'RECORDED',
-    date,
-    supplier,
-    items: [{
-      inkCode: toner,
-      brand: matched?.brand || '',
-      printerModel: matched?.printerModel || '',
-      color: matched?.color || 'Black',
-      quantity: qty,
-      serialNumber: ''
-    }]
-  };
+  const lines = mrrData.lines.map(L => ({
+    itemCode: L.itemCode || L.inkCode,
+    inkCode: L.itemCode || L.inkCode,
+    quantity: L.quantity,
+    date: L.date || mrrData.mrrDate || new Date().toISOString().slice(0, 10),
+    description: L.description || ''
+  }));
 
   (async () => {
     try {
-      if (AppState.useBackend) {
-        await apiRecordDelivery({ referenceNumber: ref, inkCode: toner, quantity: qty, date, supplier });
-        await loadFromBackend();
-        renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
-        document.getElementById('m-del-success-ref').textContent = ref;
-        document.getElementById('receive-step-form')?.classList.add('hidden');
-        document.getElementById('receive-step-success')?.classList.remove('hidden');
-        showToast(`Delivery ${ref} recorded.`, 'success');
-        pushNotification('success', 'Delivery Received', `Ticket ${ref} processed. Stock incremented.`, { source: 'action' });
-      } else {
-        const ok = TicketService.processDeliveryTicket(ticket);
-        if (ok) {
-          document.getElementById('m-del-success-ref').textContent = ref;
-          document.getElementById('receive-step-form')?.classList.add('hidden');
-          document.getElementById('receive-step-success')?.classList.remove('hidden');
-        }
-      }
+      const btn = document.getElementById('btn-modal-process-del');
+      if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
+
+      // Send mrr + referenceNumber + lines so API never says "reference required"
+      await apiRecordDelivery({
+        mrr: ref,
+        mrrNo: ref,
+        referenceNumber: ref,
+        supplier: supplier,
+        lines: lines
+      });
+
+      await loadFromBackend();
+      // Show in Transaction History (Incoming) without date filter hiding MRR date
+      AppState.filters.transactionType = 'RECEIVED';
+      AppState.filters.transactionDate = 'ALL';
+      AppState.filters.transactionDateFrom = '';
+      AppState.filters.transactionDateTo = '';
+      const dateSel = document.getElementById('filter-txn-date');
+      if (dateSel) dateSel.value = 'ALL';
+      renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
+      const successRef = document.getElementById('m-del-success-ref');
+      if (successRef) successRef.textContent = ref;
+      document.getElementById('receive-step-form')?.classList.add('hidden');
+      document.getElementById('receive-step-success')?.classList.remove('hidden');
+      showToast(`MRR ${ref} posted — check Transaction History → Incoming.`, 'success');
+      pushNotification('success', 'Delivery Received', `MRR ${ref} processed from ERP.`, { source: 'action' });
+      AppState.activeMrrLookup = null;
     } catch (e) {
       if (e.data && e.data.duplicate) openDuplicateModal(ref, 'DELIVERY');
       else showToast(e.message || 'Failed to record delivery.', 'error');
+    } finally {
+      const btn = document.getElementById('btn-modal-process-del');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Confirm & Post Stock';
+      }
     }
   })();
+}
+
+async function searchMrrLookup() {
+  const ref = normalizeRefNumber(document.getElementById('modal-del-ref')?.value);
+  const status = document.getElementById('mrr-lookup-status');
+  const preview = document.getElementById('mrr-preview');
+  const tbody = document.getElementById('mrr-preview-tbody');
+  const postBtn = document.getElementById('btn-modal-process-del');
+  const already = document.getElementById('mrr-already-warn');
+
+  if (!ref) {
+    showToast('Enter an MRR number (e.g. MG009105).', 'warning');
+    return;
+  }
+  AppState.activeMrrLookup = null;
+  if (postBtn) postBtn.disabled = true;
+  if (preview) preview.classList.add('hidden');
+  if (already) already.classList.add('hidden');
+  if (status) {
+    status.classList.remove('hidden');
+    status.className = 'text-sm px-3 py-2 rounded-xl border border-blue-200 bg-blue-50 text-blue-800';
+    status.textContent = 'Looking up MRR in ERP…';
+  }
+
+  try {
+    const data = await apiRequest('mrr_lookup.php?mrr=' + encodeURIComponent(ref));
+    AppState.activeMrrLookup = data;
+
+    if (status) {
+      status.className = 'text-sm px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800';
+      status.textContent = `Found ${data.lineCount || (data.lines || []).length} line(s) for MRR ${data.mrr}.`;
+    }
+
+    document.getElementById('mrr-preview-no').textContent = data.mrr || ref;
+    document.getElementById('mrr-preview-date').textContent = data.mrrDate ? formatDate(data.mrrDate) : '—';
+    document.getElementById('mrr-preview-lines').textContent = String(data.lineCount || (data.lines || []).length);
+    document.getElementById('mrr-preview-qty').textContent = String(data.totalQty || 0);
+
+    if (tbody) {
+      tbody.innerHTML = (data.lines || []).map(L => `
+        <tr class="hover:bg-slate-50">
+          <td class="px-3 py-2 font-mono text-xs font-semibold text-slate-900">${escapeHTML(L.itemCode)}</td>
+          <td class="px-3 py-2 text-slate-700 text-xs">${escapeHTML(L.description || '—')}</td>
+          <td class="px-3 py-2 text-right font-mono font-bold">${L.quantity}</td>
+          <td class="px-3 py-2 text-right font-mono text-slate-600">${L.currentStock}</td>
+          <td class="px-3 py-2 text-right font-mono text-emerald-700 font-semibold">${L.projectedStock}</td>
+        </tr>
+      `).join('');
+    }
+
+    if (preview) preview.classList.remove('hidden');
+    if (data.alreadyRecorded) {
+      if (already) already.classList.remove('hidden');
+      if (postBtn) postBtn.disabled = true;
+    } else if (postBtn) {
+      postBtn.disabled = false;
+    }
+  } catch (e) {
+    if (status) {
+      status.className = 'text-sm px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-800';
+      status.textContent = (e.message || 'MRR lookup failed.') + (e.status ? ' (HTTP ' + e.status + ')' : '');
+    }
+    if (preview) preview.classList.add('hidden');
+    if (postBtn) postBtn.disabled = true;
+  }
 }
 
 function recordManualIssuance() {
@@ -4277,15 +4451,19 @@ function recordManualIssuance() {
 function openReceiveModal() {
   document.getElementById('receive-step-form')?.classList.remove('hidden');
   document.getElementById('receive-step-success')?.classList.add('hidden');
-  populateTonerSelect('modal-del-toner', false);
+  AppState.activeMrrLookup = null;
   const ref = document.getElementById('modal-del-ref');
-  const qty = document.getElementById('modal-del-qty');
   const sup = document.getElementById('modal-del-supplier');
-  const date = document.getElementById('modal-del-date');
+  const status = document.getElementById('mrr-lookup-status');
+  const preview = document.getElementById('mrr-preview');
+  const already = document.getElementById('mrr-already-warn');
+  const postBtn = document.getElementById('btn-modal-process-del');
   if (ref) ref.value = '';
-  if (qty) qty.value = '1';
   if (sup) sup.value = '';
-  if (date) date.value = new Date().toISOString().split('T')[0];
+  if (status) { status.classList.add('hidden'); status.textContent = ''; }
+  if (preview) preview.classList.add('hidden');
+  if (already) already.classList.add('hidden');
+  if (postBtn) { postBtn.disabled = true; postBtn.textContent = 'Confirm & Post Stock'; }
   const modal = document.getElementById('modal-receive');
   const backdrop = document.getElementById('modal-backdrop');
   if (backdrop) backdrop.classList.remove('hidden');
@@ -4872,18 +5050,29 @@ function setupEventListeners() {
     });
   }
 
-  if (btnModalSearchDel && modalDelRef) {
-    btnModalSearchDel.addEventListener('click', () => searchAndDisplayDeliveryModal(modalDelRef.value));
-    modalDelRef.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        searchAndDisplayDeliveryModal(modalDelRef.value);
-      }
-    });
+  // Legacy ticket search button removed — MRR search uses btn-modal-search-mrr
+  if (btnModalSearchDel) {
+    btnModalSearchDel.addEventListener('click', () => searchMrrLookup());
   }
 
   if (btnModalProcessDel) {
     btnModalProcessDel.addEventListener('click', recordManualDelivery);
+  }
+  // MRR search (Receive Delivery)
+  const btnSearchMrr = document.getElementById('btn-modal-search-mrr');
+  if (btnSearchMrr) {
+    btnSearchMrr.addEventListener('click', (e) => {
+      e.preventDefault();
+      searchMrrLookup();
+    });
+  }
+  if (modalDelRef) {
+    modalDelRef.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchMrrLookup();
+      }
+    });
   }
 
   // ---------- Release Modal ----------
@@ -5063,46 +5252,35 @@ function setupEventListeners() {
     });
   }
 
-  // Inventory Filters
-  const invSearch = document.getElementById('inv-search');
-  const invBrand = document.getElementById('inv-filter-brand');
-  const invColor = document.getElementById('inv-filter-color');
-  const invStatus = document.getElementById('inv-filter-status');
+  // Inventory Filters (IDs must match the HTML: filter-inv-search / filter-inv-status)
+  const invSearch = document.getElementById('filter-inv-search');
+  const invStatus = document.getElementById('filter-inv-status');
   const btnInvClear = document.getElementById('btn-inv-clear');
 
   if (invSearch) {
     invSearch.addEventListener('input', (e) => {
-      AppState.filters.inventorySearch = e.target.value;
+      AppState.filters.inventorySearch = e.target.value || '';
       renderInventory();
     });
-  }
-  if (invBrand) {
-    invBrand.addEventListener('change', (e) => {
-      AppState.filters.inventoryBrand = e.target.value;
-      renderInventory();
-    });
-  }
-  if (invColor) {
-    invColor.addEventListener('change', (e) => {
-      AppState.filters.inventoryColor = e.target.value;
-      renderInventory();
+    invSearch.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        invSearch.value = '';
+        AppState.filters.inventorySearch = '';
+        renderInventory();
+      }
     });
   }
   if (invStatus) {
     invStatus.addEventListener('change', (e) => {
-      AppState.filters.inventoryStatus = e.target.value;
+      AppState.filters.inventoryStatus = e.target.value || 'ALL';
       renderInventory();
     });
   }
   if (btnInvClear) {
     btnInvClear.addEventListener('click', () => {
       AppState.filters.inventorySearch = '';
-      AppState.filters.inventoryBrand = 'ALL';
-      AppState.filters.inventoryColor = 'ALL';
       AppState.filters.inventoryStatus = 'ALL';
       if (invSearch) invSearch.value = '';
-      if (invBrand) invBrand.value = 'ALL';
-      if (invColor) invColor.value = 'ALL';
       if (invStatus) invStatus.value = 'ALL';
       renderInventory();
     });
@@ -5165,6 +5343,12 @@ function setupEventListeners() {
   
   const btnStockEdit = document.getElementById('btn-stock-card-edit');
   if (btnStockEdit) btnStockEdit.addEventListener('click', showStockCardEditPanel);
+
+  const stockEditBackdrop = document.getElementById('stock-card-edit-backdrop');
+  if (stockEditBackdrop) {
+    stockEditBackdrop.addEventListener('click', hideStockCardEditPanel);
+  }
+
   const btnStockEditCancel = document.getElementById('btn-stock-card-edit-cancel');
   const btnStockEditCancel2 = document.getElementById('btn-stock-card-edit-cancel-2');
   if (btnStockEditCancel) btnStockEditCancel.addEventListener('click', hideStockCardEditPanel);
@@ -5198,10 +5382,13 @@ function setupEventListeners() {
   const btnTxnExport = document.getElementById('btn-export-txns');
 
   if (txnSearch) {
-    txnSearch.addEventListener('input', (e) => {
-      AppState.filters.transactionSearch = e.target.value;
+    const applyTxnSearch = () => {
+      AppState.filters.transactionSearch = txnSearch.value || '';
       renderTransactions();
-    });
+    };
+    txnSearch.addEventListener('input', applyTxnSearch);
+    txnSearch.addEventListener('keyup', applyTxnSearch);
+    txnSearch.addEventListener('search', applyTxnSearch);
   }
   if (txnDate) {
     txnDate.addEventListener('change', (e) => {

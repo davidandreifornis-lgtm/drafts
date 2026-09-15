@@ -211,28 +211,129 @@ function save_alert_cooldown(array $data): void {
     file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
 }
 
-function notify_low_stock(?PDO $pdo = null): array {
-    if (!$pdo) $pdo = db();
+
+/**
+ * Active admin emails from dbo.toner_users (+ fallback config admin_email).
+ * @return string[]
+ */
+function get_admin_notification_emails(?PDO $pdo = null): array {
     $cfg = mail_config();
-    $admin = $cfg['admin_email'];
+    $emails = [];
+
+    try {
+        if (!$pdo) {
+            if (function_exists('db')) {
+                $pdo = db();
+            } elseif (function_exists('db_only')) {
+                $pdo = db_only();
+            }
+        }
+        if ($pdo) {
+            // Username IS the notification email. No separate email column required.
+            try {
+                $stmt = $pdo->query(
+                    "SELECT username FROM dbo.toner_users WHERE is_active = 1 OR is_active = '1'"
+                );
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $row = array_change_key_case($row, CASE_LOWER);
+                    $em = strtolower(trim((string)($row['username'] ?? '')));
+                    if ($em !== '' && filter_var($em, FILTER_VALIDATE_EMAIL)) {
+                        $emails[$em] = true;
+                    }
+                }
+            } catch (Throwable $e) {
+                // Retry without is_active filter if column type differs
+                try {
+                    $stmt = $pdo->query("SELECT username FROM dbo.toner_users");
+                    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                        $row = array_change_key_case($row, CASE_LOWER);
+                        $em = strtolower(trim((string)($row['username'] ?? '')));
+                        if ($em !== '' && filter_var($em, FILTER_VALIDATE_EMAIL)) {
+                            $emails[$em] = true;
+                        }
+                    }
+                } catch (Throwable $e2) {
+                    mail_log('get_admin_notification_emails: ' . $e2->getMessage());
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        mail_log('get_admin_notification_emails db: ' . $e->getMessage());
+    }
+
+    $fallback = strtolower(trim((string)($cfg['admin_email'] ?? '')));
+    if ($fallback !== '' && filter_var($fallback, FILTER_VALIDATE_EMAIL)) {
+        $emails[$fallback] = true;
+    }
+
+    return array_keys($emails);
+}
+
+function notify_low_stock(?PDO $pdo = null): array {
+    if (!$pdo) {
+        $pdo = db();
+    }
+    $cfg = mail_config();
+    $recipients = get_admin_notification_emails($pdo);
+    if (count($recipients) === 0) {
+        return [
+            'sent' => false,
+            'reason' => 'no_recipients',
+            'error' => 'No admin emails found. User Management username must be a valid email, or set admin_email in config/mail.php.',
+            'low_count' => 0,
+            'out_count' => 0,
+        ];
+    }
+
     $cooldownHours = (int)($cfg['cooldown_hours'] ?? 12);
     $cooldown = load_alert_cooldown();
     $now = time();
 
-    $stmt = $pdo->query(
-        'SELECT ink_code, printer_model, quantity, reorder_level, supplier
-         FROM dbo.toner_inventory ORDER BY quantity ASC, ink_code ASC'
-    );
-    $rows = $stmt->fetchAll();
+    // Schema uses item_code (not ink_code)
+    try {
+        $stmt = $pdo->query(
+            'SELECT item_code, description, printer_model, quantity, reorder_level, supplier
+             FROM dbo.toner_inventory
+             ORDER BY quantity ASC, item_code ASC'
+        );
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        // Legacy fallback if someone still has ink_code
+        try {
+            $stmt = $pdo->query(
+                'SELECT ink_code AS item_code, description, printer_model, quantity, reorder_level, supplier
+                 FROM dbo.toner_inventory
+                 ORDER BY quantity ASC'
+            );
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e2) {
+            return [
+                'sent' => false,
+                'error' => 'Cannot read inventory for low-stock check: ' . $e2->getMessage(),
+                'low_count' => 0,
+                'out_count' => 0,
+            ];
+        }
+    }
 
     $low = [];
     $out = [];
     $toAlert = [];
 
     foreach ($rows as $r) {
-        $qty = (int)$r['quantity'];
-        $reorder = (int)$r['reorder_level'];
-        $code = $r['ink_code'];
+        $r = array_change_key_case($r, CASE_LOWER);
+        $code = strtoupper(trim((string)($r['item_code'] ?? $r['ink_code'] ?? '')));
+        if ($code === '') continue;
+        $qty = (int)($r['quantity'] ?? 0);
+        $reorder = (int)($r['reorder_level'] ?? 3);
+        if ($reorder < 0) $reorder = 3;
+
+        $r['item_code'] = $code;
+        $r['quantity'] = $qty;
+        $r['reorder_level'] = $reorder;
+        $r['description'] = (string)($r['description'] ?? '');
+        $r['supplier'] = (string)($r['supplier'] ?? '');
+
         if ($qty <= 0) {
             $out[] = $r;
             $status = 'OUT';
@@ -242,9 +343,10 @@ function notify_low_stock(?PDO $pdo = null): array {
         } else {
             continue;
         }
-        $last = isset($cooldown[$code]) ? (int)$cooldown[$code] : 0;
+
+        $last = (int)($cooldown[$code] ?? 0);
         if ($last > 0 && ($now - $last) < ($cooldownHours * 3600)) {
-            continue;
+            continue; // still in cooldown
         }
         $toAlert[] = ['row' => $r, 'status' => $status];
     }
@@ -252,31 +354,47 @@ function notify_low_stock(?PDO $pdo = null): array {
     if (count($toAlert) === 0) {
         return [
             'sent' => false,
-            'reason' => empty($low) && empty($out) ? 'all_ok' : 'cooldown',
+            'reason' => 'none_to_alert',
+            'to' => [],
+            'recipients' => $recipients,
+            'alerted' => 0,
             'low_count' => count($low),
             'out_count' => count($out),
-            'to' => $admin,
+            'message' => (count($low) + count($out)) === 0
+                ? 'No low or out-of-stock items.'
+                : 'Low items exist but all are within email cooldown (' . $cooldownHours . 'h). Use check_low_stock.php?force=1 to retest.',
+            'driver' => $cfg['driver'] ?? 'smtp',
+            'error' => null,
         ];
     }
 
-    $lines = ['Toner Inventory — Low Stock Alert', 'Generated: ' . date('Y-m-d H:i:s'), str_repeat('-', 48)];
+    $lines = [];
+    $lines[] = 'Toner Inventory — Low Stock Alert';
+    $lines[] = date('Y-m-d H:i:s');
+    $lines[] = str_repeat('-', 48);
     $rowsHtml = '';
     foreach ($toAlert as $item) {
         $r = $item['row'];
-        $label = $item['status'] === 'OUT' ? 'OUT OF STOCK' : 'LOW STOCK';
+        $status = $item['status'];
+        $label = $status === 'OUT' ? 'OUT OF STOCK' : 'LOW STOCK';
+        $name = $r['description'] !== '' ? $r['description'] : $r['item_code'];
         $lines[] = sprintf(
-            '[%s] %s | On hand: %d | Reorder at: %d | Supplier: %s',
-            $label, $r['ink_code'], (int)$r['quantity'], (int)$r['reorder_level'], $r['supplier'] ?: '—'
+            "%s | %s (%s) | qty=%d | reorder=%d | supplier=%s",
+            $label,
+            $name,
+            $r['item_code'],
+            (int)$r['quantity'],
+            (int)$r['reorder_level'],
+            $r['supplier'] !== '' ? $r['supplier'] : '—'
         );
-        $badge = $item['status'] === 'OUT'
-            ? '<span style="color:#b91c1c;font-weight:700;">OUT OF STOCK</span>'
-            : '<span style="color:#d97706;font-weight:700;">LOW STOCK</span>';
         $rowsHtml .= '<tr>'
-            . '<td style="padding:8px;border:1px solid #e2e8f0;">' . htmlspecialchars($r['ink_code']) . '</td>'
-            . '<td style="padding:8px;border:1px solid #e2e8f0;">' . $badge . '</td>'
+            . '<td style="padding:8px;border:1px solid #e2e8f0;">' . htmlspecialchars($name)
+            . '<br><span style="color:#64748b;font-size:12px;">' . htmlspecialchars($r['item_code']) . '</span></td>'
+            . '<td style="padding:8px;border:1px solid #e2e8f0;font-weight:bold;color:'
+            . ($status === 'OUT' ? '#be123c' : '#b45309') . ';">' . htmlspecialchars($label) . '</td>'
             . '<td style="padding:8px;border:1px solid #e2e8f0;text-align:right;">' . (int)$r['quantity'] . '</td>'
             . '<td style="padding:8px;border:1px solid #e2e8f0;text-align:right;">' . (int)$r['reorder_level'] . '</td>'
-            . '<td style="padding:8px;border:1px solid #e2e8f0;">' . htmlspecialchars($r['supplier'] ?: '—') . '</td>'
+            . '<td style="padding:8px;border:1px solid #e2e8f0;">' . htmlspecialchars($r['supplier'] !== '' ? $r['supplier'] : '—') . '</td>'
             . '</tr>';
     }
     $lines[] = str_repeat('-', 48);
@@ -287,7 +405,7 @@ function notify_low_stock(?PDO $pdo = null): array {
         . '<p style="color:#64748b">' . date('Y-m-d H:i:s') . '</p>'
         . '<table style="border-collapse:collapse;width:100%;max-width:640px;font-size:14px">'
         . '<thead><tr style="background:#f8fafc">'
-        . '<th style="padding:8px;border:1px solid #e2e8f0;text-align:left">Toner</th>'
+        . '<th style="padding:8px;border:1px solid #e2e8f0;text-align:left">Item</th>'
         . '<th style="padding:8px;border:1px solid #e2e8f0;text-align:left">Status</th>'
         . '<th style="padding:8px;border:1px solid #e2e8f0;text-align:right">On hand</th>'
         . '<th style="padding:8px;border:1px solid #e2e8f0;text-align:right">Reorder</th>'
@@ -296,22 +414,39 @@ function notify_low_stock(?PDO $pdo = null): array {
         . '<p style="margin-top:16px;">Please reorder the items above.</p></div>';
 
     $subject = ($cfg['subject_prefix'] ?? '[Toner Alert]') . ' ' . count($toAlert) . ' item(s) need attention';
-    $send = send_system_mail($admin, $subject, $bodyText, $bodyHtml);
+    $sentTo = [];
+    $errors = [];
+    $lastSend = ['ok' => false, 'driver' => $cfg['driver'] ?? 'smtp'];
 
-    if (!empty($send['ok'])) {
+    foreach ($recipients as $toEmail) {
+        $send = send_system_mail($toEmail, $subject, $bodyText, $bodyHtml);
+        $lastSend = $send;
+        if (!empty($send['ok'])) {
+            $sentTo[] = $toEmail;
+            mail_log("Low-stock alert sent to {$toEmail}");
+        } else {
+            $err = $send['error'] ?? 'failed';
+            $errors[] = $toEmail . ': ' . $err;
+            mail_log("Low-stock alert FAILED to {$toEmail}: {$err}");
+        }
+    }
+
+    $anyOk = count($sentTo) > 0;
+    if ($anyOk) {
         foreach ($toAlert as $item) {
-            $cooldown[$item['row']['ink_code']] = $now;
+            $cooldown[$item['row']['item_code']] = $now;
         }
         save_alert_cooldown($cooldown);
     }
 
     return [
-        'sent' => !empty($send['ok']),
-        'to' => $admin,
+        'sent' => $anyOk,
+        'to' => $sentTo,
+        'recipients' => $recipients,
         'alerted' => count($toAlert),
         'low_count' => count($low),
         'out_count' => count($out),
-        'driver' => $send['driver'] ?? $cfg['driver'],
-        'error' => $send['error'] ?? null,
+        'driver' => $lastSend['driver'] ?? $cfg['driver'],
+        'error' => $anyOk ? null : implode('; ', $errors),
     ];
 }

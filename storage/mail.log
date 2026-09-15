@@ -35,3 +35,32 @@ Generated: 2026-09-12 09:16:04
 ------------------------------------------------
 Please reorder the items above.
 ---
+[2026-09-15 03:57:06] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Generated: 2026-09-15 03:57:06
+------------------------------------------------
+[LOW STOCK] OS00000100 | On hand: 3 | Reorder at: 3 | Supplier: —
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-15 03:57:06] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-15 05:04:50] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention
+Toner Inventory — Low Stock Alert
+2026-09-15 05:04:50
+------------------------------------------------
+LOW STOCK | INK Q2612 - CANON (OS00000100) | qty=3 | reorder=3 | supplier=—
+LOW STOCK | INK CRG-737 - CANON (OS00000251) | qty=6 | reorder=10 | supplier=—
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-15 05:04:54] Low-stock alert sent to davidandreifornis@gmail.com
+[2026-09-15 06:11:10] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention
+Toner Inventory — Low Stock Alert
+2026-09-15 06:11:10
+------------------------------------------------
+LOW STOCK | INK Q2612 - CANON (OS00000100) | qty=3 | reorder=3 | supplier=JMD
+LOW STOCK | INK CRG-737 - CANON (OS00000251) | qty=5 | reorder=10 | supplier=—
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-15 06:11:15] Low-stock alert sent to davidandreifornis@gmail.com

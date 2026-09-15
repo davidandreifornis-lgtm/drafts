@@ -12,7 +12,7 @@ return [
     'from_email'     => getenv('MAIL_FROM') ?: 'davidandreifornis@gmail.com',
     'from_name'      => 'Toner Inventory System',
     'subject_prefix' => '[Toner Alert]',
-    'cooldown_hours' => 12,
+    'cooldown_hours' => 1,
     'cooldown_file'  => __DIR__ . '/../storage/low_stock_alerts.json',
 
     /**
@@ -25,8 +25,8 @@ return [
 
     // SMTP (Gmail example)
     'smtp_host'       => getenv('SMTP_HOST') ?: 'smtp.gmail.com',
-    'smtp_port'       => (int)(getenv('SMTP_PORT') ?: 587),
-    'smtp_encryption' => getenv('SMTP_ENC') ?: 'tls', // tls or ssl
+    'smtp_port'       => (int)(getenv('SMTP_PORT') ?: 465),
+    'smtp_encryption' => getenv('SMTP_ENC') ?: 'SSL', // tls or ssl
     'smtp_user'       => getenv('SMTP_USER') ?: 'davidandreifornis@gmail.com',
-    'smtp_pass'       => getenv('SMTP_PASS') ?: 'YOUR_GMAIL_APP_PASSWORD_HERE',
+    'smtp_pass'       => getenv('SMTP_PASS') ?: 'jjnn vwis bbtn adpb',
 ];
