@@ -19,7 +19,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Printer Toner & Ink Inventory Management System</title>
+  <title>Toner Inventory</title>
   <meta name="description" content="Approved ticket-driven printer toner and ink inventory management system with real-time tracking, serial verification, and audit logs." />
   <meta property="og:title" content="Printer Toner & Ink Inventory Management System" />
   <meta property="og:description" content="Approved ticket-driven printer toner and ink inventory management system with real-time tracking, serial verification, and audit logs." />
@@ -31,26 +31,204 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
           colors: {
             brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a'
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              500: '#0f172a',
+              600: '#0f172a',
+              700: '#020617',
+              800: '#020617',
+              900: '#020617'
             }
+          },
+          boxShadow: {
+            soft: '0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04)',
+            lift: '0 8px 30px rgba(15, 23, 42, 0.08)',
+          },
+          borderRadius: {
+            xl: '0.875rem',
+            '2xl': '1rem',
           }
         }
       }
     }
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --surface: #ffffff;
+      --canvas: #fafafa;
+      --line: #eef0f3;
+      --line-strong: #e5e7eb;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --accent: #0f172a;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--canvas);
+      color: var(--ink);
+      letter-spacing: -0.011em;
+    }
+    /* Quieter chrome */
+    #app-header {
+      background: rgba(255,255,255,0.86) !important;
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border-bottom-color: var(--line) !important;
+      box-shadow: none !important;
+    }
+    #sidebar {
+      background: #fff !important;
+      border-right-color: var(--line) !important;
+    }
+    .nav-link {
+      border-radius: 0.75rem !important;
+      font-weight: 500 !important;
+      letter-spacing: -0.01em;
+    }
+    .nav-link.bg-blue-50,
+    .nav-link.text-blue-700 {
+      background: #f4f4f5 !important;
+      color: #18181b !important;
+    }
+    /* Cards / panels */
+    .bg-white.rounded-xl.border,
+    .bg-white.rounded-2xl.border,
+    .bg-white.border.border-slate-200 {
+      border-color: var(--line) !important;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.03) !important;
+    }
+    /* Tables */
+    table thead {
+      background: #fafafa !important;
+    }
+    table thead th {
+      font-size: 0.6875rem !important;
+      letter-spacing: 0.06em;
+      font-weight: 600 !important;
+      color: #71717a !important;
+      text-transform: uppercase;
+      border-bottom-color: var(--line) !important;
+    }
+    table tbody td {
+      border-color: var(--line) !important;
+      vertical-align: middle;
+    }
+    table tbody tr:hover {
+      background: #fafafa !important;
+    }
+    /* Inputs */
+    input[type="text"], input[type="number"], input[type="date"], input[type="password"],
+    input[type="email"], select, textarea {
+      border-color: var(--line-strong) !important;
+      background: #fff !important;
+      border-radius: 0.75rem !important;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #a1a1aa !important;
+      box-shadow: 0 0 0 3px rgba(24,24,27,0.06) !important;
+      outline: none !important;
+      --tw-ring-color: transparent !important;
+    }
+    input:read-only, input[readonly] {
+      background: #fafafa !important;
+      color: #52525b !important;
+    }
+    /* Primary buttons — near-black minimal */
+    .bg-blue-600, .bg-emerald-600, .bg-rose-600, .bg-slate-800, .bg-slate-900 {
+      box-shadow: none !important;
+    }
+    button.bg-blue-600, a.bg-blue-600 {
+      background: #18181b !important;
+    }
+    button.bg-blue-600:hover, a.bg-blue-600:hover {
+      background: #09090b !important;
+    }
+    button.bg-emerald-600 {
+      background: #18181b !important;
+    }
+    button.bg-emerald-600:hover {
+      background: #09090b !important;
+    }
+    /* Keep rose for destructive/defective only slightly softer */
+    button.bg-rose-600 {
+      background: #e11d48 !important;
+    }
+    button.bg-rose-600:hover {
+      background: #be123c !important;
+    }
+    /* Soft secondary buttons */
+    .bg-blue-50 {
+      background: #f4f4f5 !important;
+      color: #27272a !important;
+      border-color: #e4e4e7 !important;
+    }
+    .text-blue-700, .text-blue-600, .font-mono.font-bold.text-blue-700 {
+      color: #27272a !important;
+    }
+    .text-emerald-700, .text-emerald-600 {
+      color: #3f3f46 !important;
+    }
+    /* KPI cards */
+    .text-3xl.font-bold {
+      letter-spacing: -0.03em;
+      font-weight: 600 !important;
+    }
+    /* Page titles */
+    h2.text-xl, h3.text-lg, h3.text-base {
+      letter-spacing: -0.02em;
+    }
+    /* Tabs minimal underline */
+    .txn-main-tab, .loc-sup-tab {
+      font-weight: 500 !important;
+    }
+    .border-b-2.border-blue-600,
+    .border-b-2.border-emerald-600,
+    .border-b-2.border-rose-600 {
+      border-color: #18181b !important;
+    }
+    .bg-blue-50.border-b-2,
+    .bg-emerald-50.border-b-2,
+    .bg-rose-50.border-b-2 {
+      background: transparent !important;
+    }
+    /* Badges quieter */
+    .rounded-full.bg-slate-100,
+    span.bg-slate-100 {
+      background: #f4f4f5 !important;
+      border-color: transparent !important;
+    }
+    /* Scrollbars */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #d4d4d8 transparent;
+    }
+    /* Modal polish */
+    .modal-card {
+      border-color: var(--line) !important;
+      box-shadow: 0 25px 50px -12px rgba(15,23,42,0.18) !important;
+    }
+    /* Main content breathing room */
+    main, #main-content, .page-view {
+      /* handled by existing padding */
+    }
+    #main-area, .flex-1.overflow-y-auto {
+      background: var(--canvas);
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-[#fafafa] text-slate-900 font-sans antialiased min-h-screen flex flex-col">
   <!-- Top App Navigation / Bar -->
-  <header id="app-header" class="fixed top-0 left-0 right-0 z-40 bg-white border-b border-slate-200 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header id="app-header" class="fixed top-0 left-0 right-0 z-40 bg-white/90 border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <button id="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -99,11 +277,11 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   </header>
 
   <!-- Spacer so content isn't hidden under fixed header -->
-  <div class="h-16 shrink-0" aria-hidden="true"></div>
+  <div class="h-14 shrink-0" aria-hidden="true"></div>
 
   <div class="flex-1 flex max-w-7xl w-full mx-auto">
     <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed top-16 bottom-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto transition-transform duration-200 ease-in-out flex flex-col justify-between">
+    <aside id="sidebar" class="fixed top-14 bottom-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto transition-transform duration-200 ease-in-out flex flex-col justify-between">
       <div class="p-4 space-y-1">
         <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Main Navigation</div>
         <button id="nav-dashboard" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors bg-blue-50 text-blue-700">
@@ -118,6 +296,10 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
           Transaction History
         </button>
+        <button id="nav-locations" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Locations &amp; Suppliers
+        </button>
 
         <button id="nav-users" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -127,17 +309,17 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       </div>
 
       <div class="p-4 border-t border-slate-100">
-        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div class="text-xs font-semibold text-slate-800">Operational Rule</div>
-          <p class="text-xs text-slate-500 mt-1">
-            Quantities are locked to verified reference tickets. No manual counts permitted.
+        <div class="p-3 rounded-xl border border-slate-100 bg-zinc-50/80">
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Note</div>
+          <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+            Stock moves from deliveries, issuances, and replacements — keep references accurate.
           </p>
         </div>
       </div>
     </aside>
 
     <!-- Sidebar Backdrop for Mobile -->
-    <div id="sidebar-backdrop" class="fixed inset-0 top-16 bg-slate-900/50 z-20 hidden lg:hidden"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 top-14 bg-slate-900/40 z-20 hidden lg:hidden"></div>
 
     <!-- Main Content Area -->
     <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
@@ -582,7 +764,124 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
         
       <!-- VIEW: USERS -->
-      <section id="view-users" class="page-view hidden space-y-6">
+      
+      <!-- ===================== LOCATIONS & PRINTERS ===================== -->
+      
+      <!-- ===================== LOCATIONS & SUPPLIERS ===================== -->
+      <section id="view-locations" class="page-view hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Locations, Printers &amp; Suppliers</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Department / location / printer for issuance, and suppliers for stock card edit.</p>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="flex border-b border-slate-200 bg-slate-50">
+            <button type="button" id="tab-locations" data-loc-tab="locations" class="loc-sup-tab flex-1 px-4 py-3 text-sm font-semibold text-blue-700 bg-white border-b-2 border-blue-600 transition-colors">
+              Locations &amp; Printers
+            </button>
+            <button type="button" id="tab-suppliers" data-loc-tab="suppliers" class="loc-sup-tab flex-1 px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-b-2 border-transparent transition-colors">
+              Suppliers
+            </button>
+          </div>
+
+          <!-- TAB: Locations -->
+          <div id="panel-locations" class="loc-sup-panel p-5 space-y-5">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Add location and printer</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Creates a new option for Stock Issuance. To change an existing row, use <strong>Edit</strong> in the table.</p>
+            </div>
+            <input type="hidden" id="page-loc-edit-id" value="">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-dept">Department <span class="text-rose-500">*</span></label>
+                <input id="page-loc-dept" type="text" placeholder="e.g. ACCT" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-location">Location <span class="text-rose-500">*</span></label>
+                <input id="page-loc-location" type="text" placeholder="e.g. Acctg Office" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-printer">Printer at location</label>
+                <input id="page-loc-printer" type="text" placeholder="e.g. Canon MF237W" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" id="btn-page-loc-save" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Add location
+              </button>
+              <button type="button" id="btn-page-loc-clear" class="px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl border border-slate-200">Clear</button>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-slate-900">All locations</h3>
+                <span id="page-loc-count" class="text-xs font-semibold text-slate-500">0</span>
+              </div>
+              <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-sm text-left">
+                  <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                    <tr>
+                      <th class="px-4 py-3 font-semibold">Department</th>
+                      <th class="px-4 py-3 font-semibold">Location</th>
+                      <th class="px-4 py-3 font-semibold">Printer</th>
+                      <th class="px-4 py-3 font-semibold w-36">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="page-locations-tbody" class="divide-y divide-slate-100 text-slate-700">
+                  </tbody>
+                </table>
+              </div>
+              <div id="page-locations-empty" class="hidden px-5 py-12 text-center text-slate-400 text-sm">
+                No locations yet. Add department, location, and optional printer above.
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: Suppliers -->
+          <div id="panel-suppliers" class="loc-sup-panel hidden p-5 space-y-5">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Add supplier</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Suppliers appear as a dropdown when you edit a stock card.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-end">
+              <div class="flex-1">
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-supplier-name">Supplier name <span class="text-rose-500">*</span></label>
+                <input id="page-supplier-name" type="text" placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <button type="button" id="btn-page-supplier-add" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-xs shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Add supplier
+              </button>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-slate-900">All suppliers</h3>
+                <span id="page-supplier-count" class="text-xs font-semibold text-slate-500">0</span>
+              </div>
+              <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-sm text-left">
+                  <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                    <tr>
+                      <th class="px-4 py-3 font-semibold">Supplier</th>
+                      <th class="px-4 py-3 font-semibold w-36">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="page-suppliers-tbody" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                </table>
+              </div>
+              <div id="page-suppliers-empty" class="hidden px-5 py-10 text-center text-slate-400 text-sm">No suppliers yet. Add one above.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+<section id="view-users" class="page-view hidden space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">User Management</h2>
@@ -598,15 +897,14 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <table class="w-full text-left text-sm table-fixed">
               <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-4 py-3 w-[28%]">Email (login)</th>
-                  <th class="px-4 py-3 w-[24%]">Full Name</th>
-                  <th class="px-4 py-3 w-[12%]">Role</th>
+                  <th class="px-4 py-3 w-[36%]">Email (login)</th>
+                  <th class="px-4 py-3 w-[28%]">Full Name</th>
                   <th class="px-4 py-3 w-[14%]">Status</th>
                   <th class="px-4 py-3 w-[22%]">Actions</th>
                 </tr>
               </thead>
               <tbody id="users-tbody" class="divide-y divide-slate-100 text-slate-700">
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-400">Loading users…</td></tr>
+                <tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Loading users…</td></tr>
               </tbody>
             </table>
           </div>
@@ -789,34 +1087,57 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             </select>
             <p id="modal-rel-stock-hint" class="text-xs text-slate-500 mt-1"></p>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-dept">Department <span class="text-rose-500">*</span></label>
-            <select id="modal-rel-dept" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="">— Select department —</option>
-              <option value="ACCT">ACCT</option>
-              <option value="BD">BD</option>
-              <option value="BMS">BMS</option>
-              <option value="LOGISTICS">LOGISTICS</option>
-              <option value="PRODUCTION">PRODUCTION</option>
-              <option value="PURCHASING">PURCHASING</option>
-              <option value="QC">QC</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-location">Location <span class="text-rose-500">*</span></label>
-            <select id="modal-rel-location" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <option value="">— Select department first —</option>
-            </select>
-            <div id="m-rel-location-auto" class="hidden mt-2">
-              <div class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-800" id="m-rel-location-auto-text">—</div>
-              <p class="text-xs text-slate-500 mt-1">Only location for this department — applied automatically.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-dept">Department <span class="text-rose-500">*</span></label>
+              <select id="modal-rel-dept" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="">— Select department —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-location">Location <span class="text-rose-500">*</span></label>
+              <select id="modal-rel-location" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="">— Select department first —</option>
+              </select>
+              <div id="m-rel-location-auto" class="hidden mt-2">
+                <div class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-800" id="m-rel-location-auto-text">—</div>
+                <p class="text-xs text-slate-500 mt-1">Only location for this department — applied automatically.</p>
+              </div>
             </div>
           </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-printer">Printer at this location</label>
+            <input id="modal-rel-printer" type="text" readonly class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-700" placeholder="Select location to see printer">
+            <p class="text-[11px] text-slate-500 mt-1">From Locations &amp; Suppliers (sidebar).</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-yield">Actual yield (pages before change) <span class="text-rose-500">*</span></label>
+            <input id="modal-rel-yield" type="number" min="0" step="1" placeholder="e.g. 4500" class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <p class="text-[11px] text-slate-500 mt-1">How many pages the previous toner printed before replacement.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-issued-by">Issued by (admin) <span class="text-rose-500">*</span></label>
+              <select id="modal-rel-issued-by" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option value="">— Select admin —</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1">Recorded by (logged in)</label>
+              <input id="modal-rel-recorded-by" type="text" readonly class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed" value="">
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-date">Date</label>
             <input id="modal-rel-date" type="date" readonly tabindex="-1" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed">
             <p class="text-[11px] text-slate-500 mt-1">Always set to today — not editable</p>
           </div>
+
+
           <p class="text-xs text-slate-500">Issuance is always <strong>1 unit</strong> per ticket.</p>
           <div class="flex justify-end gap-3 pt-2">
             <button type="button" id="btn-modal-cancel-rel" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
@@ -1034,7 +1355,8 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
           <div>
             <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-description-input">Description</label>
-            <input id="stock-card-description-input" type="text" placeholder="e.g. INK CRG-737 - CANON" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition">
+            <input id="stock-card-description-input" type="text" readonly tabindex="-1" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-xs" placeholder="—">
+            <p class="text-[11px] text-slate-500 mt-1">From MRR / master data — not editable here.</p>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -1049,13 +1371,21 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-supplier-input">Supplier <span class="text-slate-400 font-normal">(optional)</span></label>
-            <input id="stock-card-supplier-input" type="text" placeholder="e.g. INKRITE" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400">
+            <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-supplier-input">Supplier</label>
+            <select id="stock-card-supplier-input" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400">
+              <option value="">— Select supplier —</option>
+            </select>
+            <p class="text-[11px] text-slate-500 mt-1">Managed under <strong>Locations &amp; Suppliers</strong>.</p>
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1.5" for="stock-card-printers-input">Compatible printer(s) <span class="text-slate-400 font-normal">(optional)</span></label>
-            <textarea id="stock-card-printers-input" rows="2" placeholder="One printer per line" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 resize-none"></textarea>
+            <label class="block text-sm font-semibold text-slate-800 mb-1.5">Compatible printer(s)</label>
+            <div id="stock-card-printers-checkboxes" class="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-xs">
+              <p class="text-xs text-slate-400">Loading printers…</p>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1.5">Check all printers this toner works with. List comes from <strong>Locations &amp; Printers</strong>.</p>
+            <input type="hidden" id="stock-card-printers-input" value="">
+            <select id="stock-card-printers-select" class="hidden" multiple></select>
           </div>
 
           <p class="text-[11px] text-amber-900 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 leading-relaxed">
@@ -1069,6 +1399,45 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             Save changes
           </button>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- MANAGE LOCATIONS -->
+    <div id="modal-locations" class="modal-card hidden bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-slate-200 flex flex-col z-[90]">
+      <div class="shrink-0 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Departments, locations &amp; printers</h3>
+          <p class="text-xs text-slate-500">These options appear on Stock Issuance</p>
+        </div>
+        <button type="button" id="btn-close-locations" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-4 overflow-y-auto flex-1 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input id="loc-edit-dept" type="text" placeholder="Department e.g. ACCT" class="px-3 py-2 text-sm rounded-xl border border-slate-200 uppercase font-mono">
+          <input id="loc-edit-location" type="text" placeholder="Location e.g. Acctg Office" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
+          <input id="loc-edit-printer" type="text" placeholder="Printer name (optional)" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
+        </div>
+        <input type="hidden" id="loc-edit-id" value="">
+        <div class="flex gap-2">
+          <button type="button" id="btn-loc-save" class="px-4 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700">Add / Update</button>
+          <button type="button" id="btn-loc-clear" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl">Clear form</button>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-xs uppercase text-slate-500 border-b">
+              <tr>
+                <th class="px-3 py-2">Department</th>
+                <th class="px-3 py-2">Location</th>
+                <th class="px-3 py-2">Printer</th>
+                <th class="px-3 py-2 w-24">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="locations-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1691,6 +2060,10 @@ const DEMO_INITIAL_TRANSACTIONS = [
 // ==========================================
 const AppState = {
   activeMrrLookup: null,
+  releaseLocations: [],
+  suppliers: [],
+  adminUsers: [],
+  currentUser: null,
   users: [],
   currentPage: "dashboard",
   inks: [],
@@ -2013,7 +2386,7 @@ function generateInkId() {
 // ==========================================
 function navigateTo(pageId) {
   AppState.currentPage = pageId;
-  const validPages = ['dashboard', 'inventory', 'transactions', 'users'];
+  const validPages = ['dashboard', 'inventory', 'transactions', 'locations', 'users'];
   if (!validPages.includes(pageId)) pageId = 'dashboard';
 
   // Toggle page sections
@@ -2050,6 +2423,8 @@ function navigateTo(pageId) {
     renderInventory();
   } else if (pageId === 'transactions') {
     renderTransactions();
+  } else if (pageId === 'locations') {
+    loadLocationsPage();
   } else if (pageId === 'users') {
     loadUsers();
   } else if (pageId === 'reports') {
@@ -2627,13 +3002,73 @@ function confirmRemoveToner() {
 
 
 
-function showStockCardEditPanel() {
+
+function getLocationPrinterOptions() {
+  const names = [];
+  const seen = new Set();
+  (AppState.releaseLocations || []).forEach(r => {
+    const p = (r.printerName || '').trim();
+    if (!p) return;
+    const key = p.toUpperCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    names.push(p);
+  });
+  return names.sort((a, b) => a.localeCompare(b));
+}
+
+function populateStockCardPrinterSelect(selectedList) {
+  const box = document.getElementById('stock-card-printers-checkboxes');
+  if (!box) return;
+  const options = getLocationPrinterOptions();
+  const selected = new Set((selectedList || []).map(s => String(s).trim().toUpperCase()).filter(Boolean));
+  // Keep printers already on the item even if not in locations list
+  (selectedList || []).forEach(p => {
+    const name = String(p || '').trim();
+    if (!name) return;
+    if (!options.some(o => o.toUpperCase() === name.toUpperCase())) options.push(name);
+  });
+  options.sort((a, b) => a.localeCompare(b));
+
+  if (!options.length) {
+    box.innerHTML = '<p class="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-2">No printers saved yet. Add printers under <strong>Locations &amp; Printers</strong>.</p>';
+    return;
+  }
+
+  box.innerHTML = options.map((p, i) => {
+    const id = 'sc-printer-cb-' + i;
+    const checked = selected.has(p.toUpperCase()) ? ' checked' : '';
+    return `<label for="${id}" class="flex items-center gap-2.5 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-slate-50">
+      <input type="checkbox" id="${id}" class="stock-card-printer-cb w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" value="${escapeHTML(p)}"${checked}>
+      <span class="text-sm text-slate-800">${escapeHTML(p)}</span>
+    </label>`;
+  }).join('');
+}
+
+function getSelectedStockCardPrinters() {
+  return [...document.querySelectorAll('.stock-card-printer-cb:checked')].map(cb => cb.value).filter(Boolean);
+}
+
+async function showStockCardEditPanel() {
+  await loadReleaseLocations().catch(() => {});
+  await loadSuppliers().catch(() => {});
+  const code = (document.getElementById('stock-card-ink-code')?.value || '').trim();
+  const item = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === code.toUpperCase());
+  let printers = [];
+  if (item) {
+    if (Array.isArray(item.printerList) && item.printerList.length) printers = item.printerList;
+    else if (item.printerModel) {
+      printers = String(item.printerModel).split(/\s*·\s*/).map(s => s.trim()).filter(Boolean);
+    }
+  }
+  populateStockCardPrinterSelect(printers);
+  populateStockCardSupplierSelect(item ? (item.supplier || '') : '');
   const panel = document.getElementById('stock-card-edit-panel');
   if (panel) {
     panel.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
   }
-  setTimeout(() => document.getElementById('stock-card-description-input')?.focus(), 50);
+  setTimeout(() => document.getElementById('stock-card-qty')?.focus(), 50);
 }
 
 function hideStockCardEditPanel() {
@@ -2647,9 +3082,9 @@ async function saveStockCard() {
   if (!code) return;
   const qty = Math.max(0, parseInt(document.getElementById('stock-card-qty')?.value, 10) || 0);
   const reorder = Math.max(0, parseInt(document.getElementById('stock-card-reorder')?.value, 10) || 0);
+  // Description is read-only — keep existing master value
   const description = (document.getElementById('stock-card-description-input')?.value || '').trim();
-  const printersRaw = document.getElementById('stock-card-printers-input')?.value || '';
-  const printerList = printersRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
+  const printerList = getSelectedStockCardPrinters();
   const printerModel = printerList.join(' · ');
   const supplier = (document.getElementById('stock-card-supplier-input')?.value || '').trim();
 
@@ -3445,6 +3880,109 @@ function updateTxnTabUI() {
   if (elD) elD.textContent = defectiveCount;
 }
 
+function resolveTonerDescription(inkCode) {
+  const code = (inkCode || '').toUpperCase().trim();
+  if (!code) return '';
+  const inv = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === code);
+  if (inv && inv.description) return String(inv.description).trim();
+  return '';
+}
+
+function resolveTonerSupplier(inkCode) {
+  const code = (inkCode || '').toUpperCase().trim();
+  if (!code) return '';
+  const inv = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === code);
+  if (inv && inv.supplier) return String(inv.supplier).trim();
+  return '';
+}
+
+
+async function sendDefectiveToSupplier(ref) {
+  if (!ref) return;
+  if (!confirm(`Mark ${ref} as sent to the supplier for replacement?`)) return;
+  try {
+    await apiRequest('defective.php', {
+      method: 'POST',
+      body: { action: 'send_to_supplier', referenceNumber: ref }
+    });
+    await loadFromBackend();
+    renderTransactions();
+    renderInventory();
+    renderDashboard();
+    showToast(`${ref} marked as sent to supplier.`, 'success');
+  } catch (e) {
+    showToast(e.message || 'Failed to update.', 'error');
+  }
+}
+
+async function openReceiveReplacementModal(ref, code) {
+  await loadAdminUsersForIssuance().catch(() => {});
+  document.getElementById('def-replace-ref').value = ref || '';
+  document.getElementById('def-replace-code').value = code || '';
+  document.getElementById('def-replace-ref-label').textContent = ref || '—';
+  document.getElementById('def-replace-code-label').textContent = code || '—';
+  document.getElementById('def-replace-desc-label').textContent = resolveTonerDescription(code) || '—';
+  const me = AppState.currentUser;
+  const rec = document.getElementById('def-replace-recorded-by');
+  if (rec) rec.value = me ? (me.fullName ? `${me.fullName} (${me.username})` : me.username) : '';
+  const sel = document.getElementById('def-replace-accepted-by');
+  if (sel) {
+    const users = AppState.adminUsers || [];
+    const meUser = me?.username || '';
+    sel.innerHTML = '<option value="">— Select admin —</option>' +
+      users.map(u => {
+        const label = u.fullName ? `${u.fullName} (${u.username})` : u.username;
+        return `<option value="${escapeHTML(u.username)}">${escapeHTML(label)}</option>`;
+      }).join('');
+    if (meUser) sel.value = meUser;
+  }
+  const modal = document.getElementById('modal-defective-replace');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeReceiveReplacementModal() {
+  const modal = document.getElementById('modal-defective-replace');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+  document.body.classList.remove('overflow-hidden');
+}
+
+async function confirmReceiveReplacement() {
+  const ref = document.getElementById('def-replace-ref')?.value || '';
+  const acceptedBy = document.getElementById('def-replace-accepted-by')?.value || '';
+  if (!ref) return;
+  if (!acceptedBy) {
+    showToast('Select the admin who accepted the replacement.', 'warning');
+    return;
+  }
+  try {
+    const btn = document.getElementById('btn-confirm-def-replace');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    const res = await apiRequest('defective.php', {
+      method: 'POST',
+      body: { action: 'receive_replacement', referenceNumber: ref, acceptedBy }
+    });
+    closeReceiveReplacementModal();
+    await loadFromBackend();
+    renderTransactions();
+    renderInventory();
+    renderDashboard();
+    renderCharts();
+    showToast(res.message || 'Replacement received — stock +1.', 'success');
+  } catch (e) {
+    showToast(e.message || 'Failed to receive replacement.', 'error');
+  } finally {
+    const btn = document.getElementById('btn-confirm-def-replace');
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm & add to stock'; }
+  }
+}
+
 function renderTransactions() {
   const tbody = document.getElementById('txns-tbody');
   const emptyState = document.getElementById('txns-empty-state');
@@ -3473,10 +4011,10 @@ function renderTransactions() {
       const matchSupplier = (t.supplier || '').toLowerCase().includes(search);
       const matchDept = (t.department || '').toLowerCase().includes(search);
       const matchPurpose = (t.purpose || '').toLowerCase().includes(search);
-      // Match description via inventory master list
-      const inv = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === (t.inkCode || '').toUpperCase());
-      const matchDesc = inv ? (inv.description || '').toLowerCase().includes(search) : false;
-      if (!matchRef && !matchInk && !matchLoc && !matchSupplier && !matchDept && !matchPurpose && !matchDesc) return false;
+      const matchDesc = (resolveTonerDescription(t.inkCode) || t.description || '').toLowerCase().includes(search);
+      const matchIssued = (t.issuedBy || '').toLowerCase().includes(search);
+      const matchRecorded = (t.recordedBy || '').toLowerCase().includes(search);
+      if (!matchRef && !matchInk && !matchLoc && !matchSupplier && !matchDept && !matchPurpose && !matchDesc && !matchIssued && !matchRecorded) return false;
     }
 
     if (!isDateInFilter(t.date || t.createdAt, dateFilter)) return false;
@@ -3503,28 +4041,33 @@ function renderTransactions() {
   if (theadRow) {
     if (isReceived) {
       theadRow.innerHTML = `
-        <th class="px-4 py-3.5" style="width:20%">Ticket Ref</th>
-        <th class="px-4 py-3.5" style="width:20%">Date</th>
-        <th class="px-4 py-3.5" style="width:20%">Toner Code</th>
-        <th class="px-4 py-3.5 text-center" style="width:20%">Qty</th>
-        <th class="px-4 py-3.5" style="width:20%">Supplier</th>`;
+        <th class="px-4 py-3.5">Ticket Ref</th>
+        <th class="px-4 py-3.5">Date</th>
+        <th class="px-4 py-3.5">Toner Code</th>
+        <th class="px-4 py-3.5">Description</th>
+        <th class="px-4 py-3.5 text-center">Qty</th>
+        <th class="px-4 py-3.5">Supplier</th>`;
     } else if (typeFilter === 'DEFECTIVE') {
       theadRow.innerHTML = `
-        <th class="px-4 py-3.5 w-[16%]">Ticket Ref</th>
-        <th class="px-4 py-3.5 w-[16%]">Date</th>
-        <th class="px-4 py-3.5 w-[14%]">Toner Code</th>
-        <th class="px-4 py-3.5 w-[8%] text-right">Qty</th>
-        <th class="px-4 py-3.5 w-[14%]">Department</th>
-        <th class="px-4 py-3.5 w-[14%]">Location</th>
-        <th class="px-4 py-3.5 w-[18%]">Notes</th>`;
+        <th class="px-4 py-3.5">Ticket Ref</th>
+        <th class="px-4 py-3.5">Date</th>
+        <th class="px-4 py-3.5">Toner Code</th>
+        <th class="px-4 py-3.5">Description</th>
+        <th class="px-4 py-3.5">Status</th>
+        <th class="px-4 py-3.5">Department</th>
+        <th class="px-4 py-3.5">Location</th>
+        <th class="px-4 py-3.5">Notes</th>
+        <th class="px-4 py-3.5">Actions</th>`;
     } else {
-      // Releases — no Qty column (always 1 unit per ticket)
       theadRow.innerHTML = `
-        <th class="px-4 py-3.5 w-[25%]">Ticket Ref</th>
-        <th class="px-4 py-3.5 w-[20%]">Date</th>
-        <th class="px-4 py-3.5 w-[20%]">Toner Code</th>
-        <th class="px-4 py-3.5 w-[17.5%]">Department</th>
-        <th class="px-4 py-3.5 w-[17.5%]">Location</th>`;
+        <th class="px-4 py-3.5">Ticket Ref</th>
+        <th class="px-4 py-3.5">Date</th>
+        <th class="px-4 py-3.5">Toner Code</th>
+        <th class="px-4 py-3.5">Description</th>
+        <th class="px-4 py-3.5">Department</th>
+        <th class="px-4 py-3.5">Location</th>
+        <th class="px-4 py-3.5">Issued by</th>
+        <th class="px-4 py-3.5">Recorded by</th>`;
     }
   }
 
@@ -3532,29 +4075,53 @@ function renderTransactions() {
 
   tbody.innerHTML = [...filtered].reverse().map(t => {
     if (isReceived) {
+      const desc = resolveTonerDescription(t.inkCode) || t.description || '';
+      // Prefer current inventory (stock card) supplier so edits show immediately;
+      // fall back to what was stored on the transaction (e.g. old ADJ rows).
+      const supplier = resolveTonerSupplier(t.inkCode) || (t.supplier || '').trim() || '';
       return `
         <tr class="hover:bg-slate-50 transition-colors">
-          <td class="px-4 py-3.5 font-mono font-bold text-blue-700" style="width:20%">${escapeHTML(t.referenceNumber)}</td>
-          <td class="px-4 py-3.5 text-xs text-slate-600" style="width:20%">${formatDate(t.date || t.createdAt)}</td>
-          <td class="px-4 py-3.5 font-mono font-semibold text-slate-900" style="width:20%">${escapeHTML(t.inkCode)}</td>
-          <td class="px-4 py-3.5 text-center font-mono font-bold text-blue-600" style="width:20%">+${t.quantity}</td>
-          <td class="px-4 py-3.5 text-sm text-slate-700" style="width:20%">${escapeHTML(t.supplier || '—')}</td>
+          <td class="px-4 py-3.5 font-mono font-bold text-blue-700">${escapeHTML(t.referenceNumber)}</td>
+          <td class="px-4 py-3.5 text-xs text-slate-600">${formatDate(t.date || t.createdAt)}</td>
+          <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
+          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(desc || '—')}</td>
+          <td class="px-4 py-3.5 text-center font-mono font-bold text-blue-600">+${t.quantity}</td>
+          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(supplier || '—')}</td>
         </tr>`;
     }
-    if (isDefective) {
+        if (isDefective) {
+      const desc = resolveTonerDescription(t.inkCode) || t.description || '';
+      const st = String(t.status || 'DEFECTIVE').toUpperCase();
+      let statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-100 text-rose-800 border border-rose-200">DEFECTIVE</span>';
+      if (st === 'SENT_TO_SUPPLIER') {
+        statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-200">SENT TO SUPPLIER</span>';
+      } else if (st === 'REPLACED') {
+        statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">REPLACED</span>';
+      }
+      let actions = '<span class="text-xs text-slate-400">—</span>';
+      if (st === 'DEFECTIVE') {
+        actions = `<button type="button" class="btn-def-send text-xs font-semibold text-amber-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}">Send to supplier</button>`;
+      } else if (st === 'SENT_TO_SUPPLIER') {
+        actions = `<button type="button" class="btn-def-receive text-xs font-semibold text-emerald-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}" data-code="${escapeHTML(t.inkCode)}">Receive replacement</button>`;
+      } else if (st === 'REPLACED') {
+        actions = `<span class="text-xs text-slate-500">By ${escapeHTML(t.issuedBy || '—')}</span>`;
+      }
       return `
         <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-4 py-3.5 font-mono font-bold text-rose-700">${escapeHTML(t.referenceNumber)}</td>
           <td class="px-4 py-3.5 text-xs text-slate-600">${formatDate(t.date || t.createdAt)}</td>
           <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
-          <td class="px-4 py-3.5 text-right font-mono font-bold text-rose-600">1</td>
+          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(desc || '—')}</td>
+          <td class="px-4 py-3.5">${statusBadge}</td>
           <td class="px-4 py-3.5">
             <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
           </td>
           <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.location || '—')}</td>
           <td class="px-4 py-3.5 text-xs text-slate-500">${escapeHTML(t.purpose || '—')}</td>
+          <td class="px-4 py-3.5">${actions}</td>
         </tr>`;
     }
+    const desc = resolveTonerDescription(t.inkCode) || t.description || '';
     const defBadge = t.defective
       ? ' <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-100 text-rose-700">DEFECTIVE</span>'
       : '';
@@ -3563,10 +4130,13 @@ function renderTransactions() {
         <td class="px-4 py-3.5 font-mono font-bold text-emerald-700">${escapeHTML(t.referenceNumber)}${defBadge}</td>
         <td class="px-4 py-3.5 text-xs text-slate-600">${formatDate(t.date || t.createdAt)}</td>
         <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
+        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(desc || '—')}</td>
         <td class="px-4 py-3.5">
           <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
         </td>
         <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.location || '—')}</td>
+        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.issuedBy || '—')}</td>
+        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.recordedBy || '—')}</td>
       </tr>`;
   }).join('');
 }
@@ -3606,8 +4176,8 @@ function exportTransactionsToCSV() {
   }
 
   const headers = [
-    'Transaction ID', 'Reference Number', 'Type', 'Date', 'Toner Code',
-    'Quantity', 'Supplier', 'Department', 'Location', 'Purpose', 'Status', 'Defective'
+    'Transaction ID', 'Reference Number', 'Type', 'Date', 'Toner Code', 'Description',
+    'Quantity', 'Supplier', 'Department', 'Location', 'Issued By', 'Recorded By', 'Purpose', 'Status', 'Defective'
   ];
   const rows = txns.map(t => [
     t.id,
@@ -3615,10 +4185,13 @@ function exportTransactionsToCSV() {
     t.type,
     t.date || (t.createdAt || '').split('T')[0],
     t.inkCode,
+    resolveTonerDescription(t.inkCode) || t.description || '',
     t.quantity,
-    t.supplier || '',
+    resolveTonerSupplier(t.inkCode) || (t.supplier || '').trim() || '',
     t.department || '',
     t.location || '',
+    t.issuedBy || '',
+    t.recordedBy || '',
     t.purpose || '',
     t.status || 'RECORDED',
     t.defective ? 'YES' : ''
@@ -4183,44 +4756,6 @@ function populateTonerSelect(selectId, includeStock) {
   if (current) sel.value = current;
 }
 
-function fillLocationsForDept(deptCode, selectId, autoWrapId, autoTextId) {
-  const select = document.getElementById(selectId);
-  const autoBox = document.getElementById(autoWrapId);
-  const autoText = document.getElementById(autoTextId);
-  if (!select) return;
-  select.innerHTML = '<option value="">— Select location —</option>';
-  select.classList.remove('hidden');
-  if (autoBox) autoBox.classList.add('hidden');
-  const code = (deptCode || '').toUpperCase();
-  const options = (typeof RELEASE_LOCATIONS !== 'undefined' ? RELEASE_LOCATIONS : []).filter(r => r.department === code);
-  if (!code) {
-    select.innerHTML = '<option value="">— Select department first —</option>';
-    return;
-  }
-  if (options.length === 0) {
-    select.innerHTML = '<option value="">— No locations mapped —</option>';
-    return;
-  }
-  if (options.length === 1) {
-    const only = options[0];
-    select.innerHTML = '';
-    const opt = document.createElement('option');
-    opt.value = only.location;
-    opt.textContent = only.location;
-    select.appendChild(opt);
-    select.value = only.location;
-    select.classList.add('hidden');
-    if (autoBox) autoBox.classList.remove('hidden');
-    if (autoText) autoText.textContent = only.department + ' — ' + only.location;
-    return;
-  }
-  options.forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r.location;
-    opt.textContent = r.location;
-    select.appendChild(opt);
-  });
-}
 
 
 function recordManualDelivery() {
@@ -4369,15 +4904,25 @@ function recordManualIssuance() {
   const dept = (document.getElementById('modal-rel-dept')?.value || '').trim();
   const locSelect = document.getElementById('modal-rel-location');
   const location = (locSelect?.value || '').trim();
+  const locationPrinter = (document.getElementById('modal-rel-printer')?.value || '').trim();
+  const yieldRaw = document.getElementById('modal-rel-yield')?.value;
+  const issuedBy = (document.getElementById('modal-rel-issued-by')?.value || '').trim();
   // Issuance date is always the current day
   const date = new Date().toISOString().split('T')[0];
   const dateInput = document.getElementById('modal-rel-date');
   if (dateInput) dateInput.value = date;
 
   if (!ref) { showToast('Issuance reference is required.', 'warning'); return; }
-  if (!toner) { showToast('Select a toner code.', 'warning'); return; }
+  if (!toner) { showToast('Select an item.', 'warning'); return; }
   if (!dept) { showToast('Select a department.', 'warning'); return; }
   if (!location) { showToast('Select a location.', 'warning'); return; }
+  if (yieldRaw === '' || yieldRaw === null || yieldRaw === undefined) {
+    showToast('Enter actual yield (pages before change).', 'warning');
+    document.getElementById('modal-rel-yield')?.focus();
+    return;
+  }
+  const actualYield = Math.max(0, parseInt(yieldRaw, 10) || 0);
+  if (!issuedBy) { showToast('Select who issued this toner.', 'warning'); return; }
 
   if (TicketService.isAlreadyProcessed(ref)) {
     openDuplicateModal(ref, 'RELEASE');
@@ -4423,8 +4968,12 @@ function recordManualIssuance() {
         await apiRecordRelease({
           referenceNumber: ref,
           inkCode: toner,
+          itemCode: toner,
           department: dept,
-          location
+          location,
+          locationPrinter: locationPrinter === '—' ? '' : locationPrinter,
+          actualYield,
+          issuedBy
         });
         await loadFromBackend();
         renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
@@ -4488,18 +5037,26 @@ function resetReceiveModal() {
   AppState.activeDeliveryTicket = null;
 }
 
-function openReleaseModal() {
+async function openReleaseModal() {
   document.getElementById('release-step-form')?.classList.remove('hidden');
   document.getElementById('release-step-success')?.classList.add('hidden');
   populateTonerSelect('modal-rel-toner', true);
+  await loadReleaseLocations();
+  await loadAdminUsersForIssuance();
+  populateDeptSelect();
+  populateIssuedBySelect();
   const ref = document.getElementById('modal-rel-ref');
   const dept = document.getElementById('modal-rel-dept');
   const date = document.getElementById('modal-rel-date');
   const hint = document.getElementById('modal-rel-stock-hint');
+  const yieldEl = document.getElementById('modal-rel-yield');
+  const printerEl = document.getElementById('modal-rel-printer');
   if (ref) ref.value = '';
   if (dept) dept.value = '';
   if (date) date.value = new Date().toISOString().split('T')[0];
   if (hint) hint.textContent = '';
+  if (yieldEl) yieldEl.value = '';
+  if (printerEl) printerEl.value = '';
   fillLocationsForDept('', 'modal-rel-location', 'm-rel-location-auto', 'm-rel-location-auto-text');
   const modal = document.getElementById('modal-release');
   const backdrop = document.getElementById('modal-backdrop');
@@ -4934,7 +5491,7 @@ function setupEventListeners() {
       (async () => {
         try {
           if (AppState.useBackend) {
-            await apiRecordDefective({ referenceNumber: refNum, notes });
+            await apiRecordDefective({ action: 'flag', referenceNumber: refNum, notes });
             await loadFromBackend();
             renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
             showToast(`Issuance ${refNum} flagged as defective.`, 'success');
@@ -5120,6 +5677,27 @@ function setupEventListeners() {
 
   if (btnModalProcessRel) {
     btnModalProcessRel.addEventListener('click', recordManualIssuance);
+
+  const relDept = document.getElementById('modal-rel-dept');
+  if (relDept) {
+    relDept.addEventListener('change', () => {
+      fillLocationsForDept(relDept.value, 'modal-rel-location', 'm-rel-location-auto', 'm-rel-location-auto-text');
+    });
+  }
+  const relLoc = document.getElementById('modal-rel-location');
+  if (relLoc) relLoc.addEventListener('change', onReleaseLocationChange);
+  const btnCloseLoc = document.getElementById('btn-close-locations');
+  if (btnCloseLoc) btnCloseLoc.addEventListener('click', closeLocationsModal);
+  const btnLocSave = document.getElementById('btn-loc-save');
+  if (btnLocSave) btnLocSave.addEventListener('click', saveLocationRow);
+  const btnLocClear = document.getElementById('btn-loc-clear');
+  if (btnLocClear) btnLocClear.addEventListener('click', () => {
+    document.getElementById('loc-edit-id').value = '';
+    document.getElementById('loc-edit-dept').value = '';
+    document.getElementById('loc-edit-location').value = '';
+    document.getElementById('loc-edit-printer').value = '';
+  });
+
   }
 
   const modalRelDept = document.getElementById('modal-rel-dept');
@@ -5308,8 +5886,36 @@ function setupEventListeners() {
   const btnAddToner = document.getElementById('btn-add-toner');
   if (btnAddToner) btnAddToner.addEventListener('click', openAddTonerModal);
 
+  const navLocations = document.getElementById('nav-locations');
+  if (navLocations) navLocations.addEventListener('click', () => navigateTo('locations'));
   const navUsers = document.getElementById('nav-users');
   if (navUsers) navUsers.addEventListener('click', () => navigateTo('users'));
+  document.querySelectorAll('.loc-sup-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchLocSupTab(btn.getAttribute('data-loc-tab')));
+  });
+  const btnPageLocSave = document.getElementById('btn-page-loc-save');
+  if (btnPageLocSave) btnPageLocSave.addEventListener('click', savePageLocationRow);
+  const btnPageSupAdd = document.getElementById('btn-page-supplier-add');
+  if (btnPageSupAdd) btnPageSupAdd.addEventListener('click', addPageSupplier);
+  const pageSupInput = document.getElementById('page-supplier-name');
+  if (pageSupInput) pageSupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addPageSupplier(); } });
+
+  const btnCloseEditLoc = document.getElementById('btn-close-edit-location');
+  const btnCancelEditLoc = document.getElementById('btn-cancel-edit-location');
+  const btnSaveEditLoc = document.getElementById('btn-save-edit-location');
+  const editLocBackdrop = document.getElementById('modal-edit-location-backdrop');
+  if (btnCloseEditLoc) btnCloseEditLoc.addEventListener('click', closeEditLocationModal);
+  if (btnCancelEditLoc) btnCancelEditLoc.addEventListener('click', closeEditLocationModal);
+  if (btnSaveEditLoc) btnSaveEditLoc.addEventListener('click', saveEditLocationModal);
+  if (editLocBackdrop) editLocBackdrop.addEventListener('click', closeEditLocationModal);
+
+  const btnPageLocClear = document.getElementById('btn-page-loc-clear');
+  if (btnPageLocClear) btnPageLocClear.addEventListener('click', () => {
+    document.getElementById('page-loc-edit-id').value = '';
+    document.getElementById('page-loc-dept').value = '';
+    document.getElementById('page-loc-location').value = '';
+    document.getElementById('page-loc-printer').value = '';
+  });
   const btnAddUser = document.getElementById('btn-add-user');
   if (btnAddUser) btnAddUser.addEventListener('click', () => openUserModal(null));
   const btnCloseUser = document.getElementById('btn-close-user-modal');
@@ -5376,6 +5982,33 @@ function setupEventListeners() {
       renderTransactions();
     });
   });
+
+  
+  const txnsTbody = document.getElementById('txns-tbody');
+  if (txnsTbody && !txnsTbody._defActionsBound) {
+    txnsTbody._defActionsBound = true;
+    txnsTbody.addEventListener('click', (e) => {
+      const sendBtn = e.target.closest('.btn-def-send');
+      if (sendBtn) {
+        e.preventDefault();
+        sendDefectiveToSupplier(sendBtn.getAttribute('data-ref'));
+        return;
+      }
+      const recvBtn = e.target.closest('.btn-def-receive');
+      if (recvBtn) {
+        e.preventDefault();
+        openReceiveReplacementModal(recvBtn.getAttribute('data-ref'), recvBtn.getAttribute('data-code'));
+      }
+    });
+  }
+  const btnCloseDefRep = document.getElementById('btn-close-def-replace');
+  const btnCancelDefRep = document.getElementById('btn-cancel-def-replace');
+  const btnConfirmDefRep = document.getElementById('btn-confirm-def-replace');
+  const defRepBackdrop = document.getElementById('modal-defective-replace-backdrop');
+  if (btnCloseDefRep) btnCloseDefRep.addEventListener('click', closeReceiveReplacementModal);
+  if (btnCancelDefRep) btnCancelDefRep.addEventListener('click', closeReceiveReplacementModal);
+  if (btnConfirmDefRep) btnConfirmDefRep.addEventListener('click', confirmReceiveReplacement);
+  if (defRepBackdrop) defRepBackdrop.addEventListener('click', closeReceiveReplacementModal);
 
   const txnSearch = document.getElementById('filter-txn-search');
   const txnDate = document.getElementById('filter-txn-date');
@@ -5516,7 +6149,6 @@ function renderUsers() {
     return `<tr class="hover:bg-slate-50">
       <td class="px-4 py-3 font-mono text-sm font-semibold text-slate-900">${escapeHTML(u.username)}</td>
       <td class="px-4 py-3 text-slate-700">${escapeHTML(u.fullName || '—')}</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-blue-50 text-blue-700 border border-blue-100">${escapeHTML(u.role || 'admin')}</span></td>
       <td class="px-4 py-3">${status}</td>
       <td class="px-4 py-3">
         <div class="flex flex-wrap gap-2">
@@ -5625,8 +6257,466 @@ async function saveUser() {
 }
 
 
+
+// ---------- Locations (editable dept / location / printer) ----------
+async function loadReleaseLocations() {
+  try {
+    const data = await apiRequest('locations.php');
+    AppState.releaseLocations = data.locations || [];
+  } catch (e) {
+    console.warn('[Toner] locations load failed, using static list', e);
+    AppState.releaseLocations = (typeof RELEASE_LOCATIONS !== 'undefined' ? RELEASE_LOCATIONS : []).map((r, i) => ({
+      id: -(i + 1),
+      department: r.department,
+      location: r.location,
+      printerName: r.printerName || '',
+      isActive: true
+    }));
+  }
+}
+
+async function loadAdminUsersForIssuance() {
+  try {
+    const data = await apiRequest('users.php');
+    AppState.adminUsers = (data.users || []).filter(u => u.isActive !== false);
+  } catch (e) {
+    AppState.adminUsers = [];
+  }
+  try {
+    const me = await apiRequest('me.php');
+    AppState.currentUser = me;
+  } catch (e) {
+    AppState.currentUser = { username: 'admin', fullName: 'Admin' };
+  }
+}
+
+function populateDeptSelect() {
+  const sel = document.getElementById('modal-rel-dept');
+  if (!sel) return;
+  const current = sel.value;
+  const depts = [...new Set((AppState.releaseLocations || []).map(r => (r.department || '').toUpperCase()).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">— Select department —</option>' +
+    depts.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
+  if (current && depts.includes(current)) sel.value = current;
+}
+
+function populateIssuedBySelect() {
+  const sel = document.getElementById('modal-rel-issued-by');
+  const recorded = document.getElementById('modal-rel-recorded-by');
+  if (recorded) {
+    const me = AppState.currentUser;
+    recorded.value = me ? (me.fullName ? `${me.fullName} (${me.username})` : (me.username || '')) : '';
+  }
+  if (!sel) return;
+  const users = AppState.adminUsers || [];
+  const meUser = AppState.currentUser?.username || '';
+  sel.innerHTML = '<option value="">— Select admin —</option>' +
+    users.map(u => {
+      const label = u.fullName ? `${u.fullName} (${u.username})` : u.username;
+      return `<option value="${escapeHTML(u.username)}">${escapeHTML(label)}</option>`;
+    }).join('');
+  if (meUser) sel.value = meUser;
+}
+
+function fillLocationsForDept(deptCode, selectId, autoWrapId, autoTextId) {
+  const select = document.getElementById(selectId);
+  const autoBox = document.getElementById(autoWrapId);
+  const autoText = document.getElementById(autoTextId);
+  const printerEl = document.getElementById('modal-rel-printer');
+  if (!select) return;
+  select.innerHTML = '<option value="">— Select location —</option>';
+  select.classList.remove('hidden');
+  if (autoBox) autoBox.classList.add('hidden');
+  if (printerEl) printerEl.value = '';
+  const code = (deptCode || '').toUpperCase();
+  const options = (AppState.releaseLocations || []).filter(r => (r.department || '').toUpperCase() === code);
+  if (!code) {
+    select.innerHTML = '<option value="">— Select department first —</option>';
+    return;
+  }
+  if (options.length === 0) {
+    select.innerHTML = '<option value="">— No locations — add under Locations & Suppliers —</option>';
+    return;
+  }
+  if (options.length === 1) {
+    const only = options[0];
+    select.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = only.location;
+    opt.textContent = only.location;
+    opt.dataset.printer = only.printerName || '';
+    select.appendChild(opt);
+    select.value = only.location;
+    select.classList.add('hidden');
+    if (autoBox) autoBox.classList.remove('hidden');
+    if (autoText) autoText.textContent = only.department + ' — ' + only.location;
+    if (printerEl) printerEl.value = only.printerName || '—';
+    return;
+  }
+  options.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.location;
+    opt.textContent = r.location;
+    opt.dataset.printer = r.printerName || '';
+    select.appendChild(opt);
+  });
+}
+
+function onReleaseLocationChange() {
+  const locSel = document.getElementById('modal-rel-location');
+  const printerEl = document.getElementById('modal-rel-printer');
+  if (!locSel || !printerEl) return;
+  const opt = locSel.options[locSel.selectedIndex];
+  printerEl.value = (opt && opt.dataset.printer) ? opt.dataset.printer : '—';
+}
+
+function renderLocationsTable() {
+  const tbody = document.getElementById('locations-tbody');
+  if (!tbody) return;
+  const rows = AppState.releaseLocations || [];
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="px-3 py-6 text-center text-slate-400">No locations yet. Add one above.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-3 py-2 font-mono font-semibold">${escapeHTML(r.department)}</td>
+      <td class="px-3 py-2">${escapeHTML(r.location)}</td>
+      <td class="px-3 py-2 text-slate-600">${escapeHTML(r.printerName || '—')}</td>
+      <td class="px-3 py-2 space-x-2">
+        <button type="button" class="btn-loc-edit text-xs font-semibold text-blue-600 hover:underline" data-id="${r.id}">Edit</button>
+        <button type="button" class="btn-loc-del text-xs font-semibold text-rose-600 hover:underline" data-id="${r.id}">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('.btn-loc-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      const row = (AppState.releaseLocations || []).find(x => x.id === id);
+      if (!row) return;
+      document.getElementById('loc-edit-id').value = row.id;
+      document.getElementById('loc-edit-dept').value = row.department;
+      document.getElementById('loc-edit-location').value = row.location;
+      document.getElementById('loc-edit-printer').value = row.printerName || '';
+    });
+  });
+  tbody.querySelectorAll('.btn-loc-del').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      if (!confirm('Remove this location from issuance options?')) return;
+      try {
+        await apiRequest('locations.php', { method: 'DELETE', body: { id } });
+        await loadReleaseLocations();
+        renderLocationsTable();
+        populateDeptSelect();
+        showToast('Location removed.', 'success');
+      } catch (e) {
+        showToast(e.message || 'Delete failed', 'error');
+      }
+    });
+  });
+}
+
+async function openLocationsModal() {
+  await loadReleaseLocations();
+  renderLocationsTable();
+  document.getElementById('loc-edit-id').value = '';
+  document.getElementById('loc-edit-dept').value = '';
+  document.getElementById('loc-edit-location').value = '';
+  document.getElementById('loc-edit-printer').value = '';
+  const modal = document.getElementById('modal-locations');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeLocationsModal() {
+  const modal = document.getElementById('modal-locations');
+  if (modal) modal.classList.add('hidden');
+  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
+  populateDeptSelect();
+}
+
+async function saveLocationRow() {
+  const id = document.getElementById('loc-edit-id')?.value;
+  const department = (document.getElementById('loc-edit-dept')?.value || '').trim().toUpperCase();
+  const location = (document.getElementById('loc-edit-location')?.value || '').trim();
+  const printerName = (document.getElementById('loc-edit-printer')?.value || '').trim();
+  if (!department || !location) {
+    showToast('Department and location are required.', 'warning');
+    return;
+  }
+  try {
+    if (id) {
+      await apiRequest('locations.php', { method: 'PUT', body: { id: parseInt(id, 10), department, location, printerName } });
+      showToast('Location updated.', 'success');
+    } else {
+      await apiRequest('locations.php', { method: 'POST', body: { department, location, printerName } });
+      showToast('Location added.', 'success');
+    }
+    await loadReleaseLocations();
+    renderLocationsTable();
+    document.getElementById('loc-edit-id').value = '';
+    document.getElementById('loc-edit-dept').value = '';
+    document.getElementById('loc-edit-location').value = '';
+    document.getElementById('loc-edit-printer').value = '';
+    populateDeptSelect();
+  } catch (e) {
+    showToast(e.message || 'Save failed', 'error');
+  }
+}
+
+
+
+
+async function loadSuppliers() {
+  try {
+    const data = await apiRequest('suppliers.php');
+    AppState.suppliers = data.suppliers || [];
+  } catch (e) {
+    console.warn('[Toner] suppliers load failed', e);
+    AppState.suppliers = AppState.suppliers || [];
+  }
+}
+
+function populateStockCardSupplierSelect(current) {
+  const sel = document.getElementById('stock-card-supplier-input');
+  if (!sel) return;
+  const list = (AppState.suppliers || []).map(s => s.name).filter(Boolean);
+  const cur = (current || '').trim();
+  if (cur && !list.some(n => n.toUpperCase() === cur.toUpperCase())) list.push(cur);
+  list.sort((a, b) => a.localeCompare(b));
+  sel.innerHTML = '<option value="">— Select supplier —</option>' +
+    list.map(n => {
+      const selAttr = cur && n.toUpperCase() === cur.toUpperCase() ? ' selected' : '';
+      return `<option value="${escapeHTML(n)}"${selAttr}>${escapeHTML(n)}</option>`;
+    }).join('');
+}
+
+function renderPageSuppliersTable() {
+  const tbody = document.getElementById('page-suppliers-tbody');
+  const empty = document.getElementById('page-suppliers-empty');
+  const countEl = document.getElementById('page-supplier-count');
+  if (!tbody) return;
+  const rows = AppState.suppliers || [];
+  if (countEl) countEl.textContent = rows.length + (rows.length === 1 ? ' supplier' : ' suppliers');
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+  tbody.innerHTML = rows.map(r => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-5 py-3 font-semibold text-slate-900">${escapeHTML(r.name)}</td>
+      <td class="px-5 py-3">
+        <button type="button" class="btn-page-sup-del text-xs font-semibold text-rose-600 hover:underline" data-id="${r.id}">Remove</button>
+      </td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('.btn-page-sup-del').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      if (!confirm('Remove this supplier from the list?')) return;
+      try {
+        await apiRequest('suppliers.php', { method: 'DELETE', body: { id } });
+        await loadSuppliers();
+        renderPageSuppliersTable();
+        showToast('Supplier removed.', 'success');
+      } catch (e) {
+        showToast(e.message || 'Remove failed', 'error');
+      }
+    });
+  });
+}
+
+async function addPageSupplier() {
+  const name = (document.getElementById('page-supplier-name')?.value || '').trim();
+  if (!name) {
+    showToast('Supplier name is required.', 'warning');
+    return;
+  }
+  try {
+    await apiRequest('suppliers.php', { method: 'POST', body: { name } });
+    document.getElementById('page-supplier-name').value = '';
+    await loadSuppliers();
+    renderPageSuppliersTable();
+    showToast('Supplier added.', 'success');
+  } catch (e) {
+    showToast(e.message || 'Add failed', 'error');
+  }
+}
+
+
+function switchLocSupTab(tab) {
+  const isLoc = tab === 'locations';
+  const panelLoc = document.getElementById('panel-locations');
+  const panelSup = document.getElementById('panel-suppliers');
+  const tabLoc = document.getElementById('tab-locations');
+  const tabSup = document.getElementById('tab-suppliers');
+  if (panelLoc) panelLoc.classList.toggle('hidden', !isLoc);
+  if (panelSup) panelSup.classList.toggle('hidden', isLoc);
+  const active = 'flex-1 px-4 py-3 text-sm font-semibold text-blue-700 bg-white border-b-2 border-blue-600 transition-colors';
+  const idle = 'flex-1 px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-b-2 border-transparent transition-colors';
+  if (tabLoc) tabLoc.className = 'loc-sup-tab ' + (isLoc ? active : idle);
+  if (tabSup) tabSup.className = 'loc-sup-tab ' + (!isLoc ? active : idle);
+  if (!isLoc) renderPageSuppliersTable();
+  else renderPageLocationsTable();
+}
+
+async function loadLocationsPage() {
+  await loadReleaseLocations();
+  await loadSuppliers();
+  switchLocSupTab('locations');
+  renderPageLocationsTable();
+  renderPageSuppliersTable();
+}
+
+function renderPageLocationsTable() {
+  const tbody = document.getElementById('page-locations-tbody');
+  const empty = document.getElementById('page-locations-empty');
+  const countEl = document.getElementById('page-loc-count');
+  if (!tbody) return;
+  const rows = AppState.releaseLocations || [];
+  if (countEl) countEl.textContent = rows.length + (rows.length === 1 ? ' location' : ' locations');
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+  tbody.innerHTML = rows.map(r => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-5 py-3 font-mono font-semibold text-slate-900">${escapeHTML(r.department)}</td>
+      <td class="px-5 py-3">${escapeHTML(r.location)}</td>
+      <td class="px-5 py-3 text-slate-600">${escapeHTML(r.printerName || '—')}</td>
+      <td class="px-5 py-3 space-x-3">
+        <button type="button" class="btn-page-loc-edit text-xs font-semibold text-blue-600 hover:underline" data-id="${r.id}">Edit</button>
+        <button type="button" class="btn-page-loc-del text-xs font-semibold text-rose-600 hover:underline" data-id="${r.id}">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('.btn-page-loc-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      const row = (AppState.releaseLocations || []).find(x => x.id === id);
+      if (!row) return;
+      openEditLocationModal(row);
+    });
+  });
+  tbody.querySelectorAll('.btn-page-loc-del').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      if (!confirm('Remove this location from issuance options?')) return;
+      try {
+        await apiRequest('locations.php', { method: 'DELETE', body: { id } });
+        await loadReleaseLocations();
+        renderPageLocationsTable();
+        if (typeof renderLocationsTable === 'function') renderLocationsTable();
+        populateDeptSelect();
+        showToast('Location removed.', 'success');
+      } catch (e) {
+        showToast(e.message || 'Delete failed', 'error');
+      }
+    });
+  });
+}
+
+async function savePageLocationRow() {
+  const department = (document.getElementById('page-loc-dept')?.value || '').trim().toUpperCase();
+  const location = (document.getElementById('page-loc-location')?.value || '').trim();
+  const printerName = (document.getElementById('page-loc-printer')?.value || '').trim();
+  if (!department || !location) {
+    showToast('Department and location are required.', 'warning');
+    return;
+  }
+  try {
+    await apiRequest('locations.php', { method: 'POST', body: { department, location, printerName } });
+    showToast('Location added.', 'success');
+    document.getElementById('page-loc-edit-id').value = '';
+    document.getElementById('page-loc-dept').value = '';
+    document.getElementById('page-loc-location').value = '';
+    document.getElementById('page-loc-printer').value = '';
+    await loadReleaseLocations();
+    renderPageLocationsTable();
+    if (typeof renderLocationsTable === 'function') renderLocationsTable();
+    populateDeptSelect();
+  } catch (e) {
+    showToast(e.message || 'Save failed', 'error');
+  }
+}
+
+function openEditLocationModal(row) {
+  if (!row) return;
+  document.getElementById('edit-loc-id').value = String(row.id);
+  document.getElementById('edit-loc-dept').value = row.department || '';
+  document.getElementById('edit-loc-location').value = row.location || '';
+  document.getElementById('edit-loc-printer').value = row.printerName || '';
+  const modal = document.getElementById('modal-edit-location');
+  const dialog = document.getElementById('modal-edit-location-dialog');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  document.body.classList.add('overflow-hidden');
+  // Pop-in animation
+  requestAnimationFrame(() => {
+    if (dialog) {
+      dialog.style.transform = 'scale(1)';
+      dialog.style.opacity = '1';
+    }
+  });
+  setTimeout(() => document.getElementById('edit-loc-dept')?.focus(), 80);
+}
+
+function closeEditLocationModal() {
+  const modal = document.getElementById('modal-edit-location');
+  const dialog = document.getElementById('modal-edit-location-dialog');
+  if (dialog) {
+    dialog.style.transform = 'scale(0.96)';
+    dialog.style.opacity = '0';
+  }
+  setTimeout(() => {
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
+    document.body.classList.remove('overflow-hidden');
+  }, 150);
+}
+
+async function saveEditLocationModal() {
+  const id = parseInt(document.getElementById('edit-loc-id')?.value || '0', 10);
+  const department = (document.getElementById('edit-loc-dept')?.value || '').trim().toUpperCase();
+  const location = (document.getElementById('edit-loc-location')?.value || '').trim();
+  const printerName = (document.getElementById('edit-loc-printer')?.value || '').trim();
+  if (!id) { showToast('Missing location id.', 'error'); return; }
+  if (!department || !location) {
+    showToast('Department and location are required.', 'warning');
+    return;
+  }
+  try {
+    await apiRequest('locations.php', { method: 'PUT', body: { id, department, location, printerName } });
+    showToast('Location updated.', 'success');
+    closeEditLocationModal();
+    await loadReleaseLocations();
+    renderPageLocationsTable();
+    if (typeof renderLocationsTable === 'function') renderLocationsTable();
+    populateDeptSelect();
+  } catch (e) {
+    showToast(e.message || 'Update failed', 'error');
+  }
+}
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
+  loadReleaseLocations().catch(() => {});
+  loadSuppliers().catch(() => {});
+  loadAdminUsersForIssuance().catch(() => {});
   const online = await detectBackend();
   if (online) {
     try {
@@ -5648,6 +6738,92 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   </script>
+
+
+
+    
+    <!-- EDIT LOCATION MODAL — full-screen pop-out with blur -->
+    <div id="modal-edit-location" class="hidden" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem;">
+      <div id="modal-edit-location-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+      <div id="modal-edit-location-dialog" style="position:relative;z-index:1;width:100%;max-width:28rem;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);border:1px solid #e2e8f0;overflow:hidden;transform:scale(0.96);opacity:0;transition:transform 0.15s ease,opacity 0.15s ease;">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between" style="background:linear-gradient(to right,#eff6ff,#ffffff);">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            </div>
+            <div class="min-w-0">
+              <h3 class="text-base font-bold text-slate-900">Edit location</h3>
+              <p class="text-xs text-slate-500">Update department, location, or printer</p>
+            </div>
+          </div>
+          <button type="button" id="btn-close-edit-location" class="p-2 rounded-xl text-slate-400 hover:bg-white hover:text-slate-700 border border-transparent hover:border-slate-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <input type="hidden" id="edit-loc-id" value="">
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-dept">Department <span class="text-rose-500">*</span></label>
+            <input id="edit-loc-dept" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-location">Location <span class="text-rose-500">*</span></label>
+            <input id="edit-loc-location" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-printer">Printer at location</label>
+            <input id="edit-loc-printer" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div class="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+          <button type="button" id="btn-cancel-edit-location" class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-200 rounded-xl hover:bg-white">Cancel</button>
+          <button type="button" id="btn-save-edit-location" class="px-5 py-2 text-sm font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm">Save changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIVE DEFECTIVE REPLACEMENT -->
+    <div id="modal-defective-replace" class="hidden" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem;">
+      <div id="modal-defective-replace-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+      <div id="modal-defective-replace-dialog" style="position:relative;z-index:1;width:100%;max-width:28rem;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);border:1px solid #e2e8f0;overflow:hidden;">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3" style="background:linear-gradient(to right,#fff1f2,#ffffff);">
+          <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h3 class="text-base font-bold text-slate-900">Receive supplier replacement</h3>
+            <p class="text-xs text-slate-500">Stock will increase by 1 for this item</p>
+          </div>
+          <button type="button" id="btn-close-def-replace" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <input type="hidden" id="def-replace-ref" value="">
+          <input type="hidden" id="def-replace-code" value="">
+          <div class="rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5 space-y-1 text-sm">
+            <div><span class="text-slate-500">Reference:</span> <span id="def-replace-ref-label" class="font-mono font-bold text-rose-700"></span></div>
+            <div><span class="text-slate-500">Item:</span> <span id="def-replace-code-label" class="font-mono font-semibold"></span></div>
+            <div><span class="text-slate-500">Description:</span> <span id="def-replace-desc-label" class="text-slate-800"></span></div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1">Recorded by (logged in)</label>
+            <input id="def-replace-recorded-by" type="text" readonly class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="def-replace-accepted-by">Accepted by (admin) <span class="text-rose-500">*</span></label>
+            <select id="def-replace-accepted-by" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <option value="">— Select admin —</option>
+            </select>
+            <p class="text-[11px] text-slate-500 mt-1">Admin who received the good unit from the supplier.</p>
+          </div>
+        </div>
+        <div class="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+          <button type="button" id="btn-cancel-def-replace" class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-200 rounded-xl hover:bg-white">Cancel</button>
+          <button type="button" id="btn-confirm-def-replace" class="px-5 py-2 text-sm font-semibold bg-rose-600 text-white rounded-xl hover:bg-rose-700">Confirm &amp; add to stock</button>
+        </div>
+      </div>
+    </div>
 
 </body>
 </html>

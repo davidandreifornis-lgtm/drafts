@@ -64,3 +64,45 @@ LOW STOCK | INK CRG-737 - CANON (OS00000251) | qty=5 | reorder=10 | supplier=—
 Please reorder the items above.
 ---
 [2026-09-15 06:11:15] Low-stock alert sent to davidandreifornis@gmail.com
+[2026-09-16 07:50:17] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+2026-09-16 07:50:17
+------------------------------------------------
+LOW STOCK | INK CRG-737 - CANON (OS00000251) | qty=3 | reorder=3 | supplier=—
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-16 07:50:21] Low-stock alert sent to davidandreifornis@gmail.com
+[2026-09-16 07:51:13] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+2026-09-16 07:51:13
+------------------------------------------------
+LOW STOCK | INK Q2612 - CANON (OS00000100) | qty=3 | reorder=3 | supplier=JMD
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-16 07:51:18] Low-stock alert sent to davidandreifornis@gmail.com
+[2026-09-17 03:55:14] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 2 item(s) need attention
+Toner Inventory — Low Stock Alert
+2026-09-17 03:55:14
+------------------------------------------------
+LOW STOCK | INK CRG-737 - CANON (OS00000251) | qty=2 | reorder=3 | supplier=INKRITE
+LOW STOCK | INK Q2612 - CANON (OS00000100) | qty=3 | reorder=3 | supplier=JAN A
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-17 03:55:19] Low-stock alert sent to davidandreifornis@gmail.com
+[2026-09-17 04:22:23] driver=smtp to=davidandreifornis@gmail.com subject=[Toner Alert] 6 item(s) need attention
+Toner Inventory — Low Stock Alert
+2026-09-17 04:22:23
+------------------------------------------------
+LOW STOCK | TONER TN-450 - BROTHER (OS00001077) | qty=2 | reorder=3 | supplier=STANDARD PRINTING SUPPLIES
+LOW STOCK | TONER CE285A - HP (OS00000855) | qty=3 | reorder=3 | supplier=STANDARD PRINTING SUPPLIES
+LOW STOCK | TONER Q7553A - HP (OS00001300) | qty=3 | reorder=3 | supplier=INKMASTER TRADING
+LOW STOCK | TONER TN-3320 - BROTHER (OS00001522) | qty=3 | reorder=3 | supplier=JMD
+LOW STOCK | TONER CF283X - HP (OS00002188) | qty=3 | reorder=3 | supplier=STANDARD PRINTING SUPPLIES
+LOW STOCK | TONER TN-750 - BROTHER (OS00002744) | qty=3 | reorder=3 | supplier=QUALITY PRINT SUPPLIES
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-17 04:22:28] Low-stock alert sent to davidandreifornis@gmail.com

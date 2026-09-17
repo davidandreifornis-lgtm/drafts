@@ -14,7 +14,7 @@ try {
         $pdo->query('SELECT TOP 1 id FROM dbo.toner_transactions');
     } catch (Throwable $e) {
         fail(
-            "Table dbo.toner_transactions is missing or inaccessible. Run sql/schema_sqlserver.sql on database wlms. Detail: " . $e->getMessage(),
+            "Table dbo.toner_transactions is missing or inaccessible. Run sql/schema_sqlserver.sql on database toner_inventory. Detail: " . $e->getMessage(),
             500
         );
     }
@@ -23,9 +23,7 @@ try {
     $from = trim($_GET['from'] ?? '');
     $to = trim($_GET['to'] ?? '');
 
-    $sql = 'SELECT id, txn_code, type, reference_number, ink_code, quantity, txn_date,
-                   supplier, department, location, given_to, purpose, status, defective, created_at
-            FROM dbo.toner_transactions WHERE 1 = 1';
+    $sql = 'SELECT * FROM dbo.toner_transactions WHERE 1 = 1';
     $params = [];
 
     if (in_array($type, ['RECEIVED', 'RELEASED', 'DEFECTIVE'], true)) {
@@ -41,7 +39,7 @@ try {
         $params[] = $to;
     }
 
-    $sql .= ' ORDER BY created_at ASC, id ASC';
+    $sql .= ' ORDER BY created_at DESC, id DESC';
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -68,6 +66,10 @@ try {
             'status' => (string)($r['status'] ?? 'RECORDED'),
             'defective' => !empty($r['defective']),
             'createdAt' => (string)($r['created_at'] ?? ''),
+            'actualYield' => isset($r['actual_yield']) && $r['actual_yield'] !== null ? (int)$r['actual_yield'] : null,
+            'issuedBy' => (string)($r['issued_by'] ?? ''),
+            'recordedBy' => (string)($r['recorded_by'] ?? ''),
+            'locationPrinter' => (string)($r['location_printer'] ?? ''),
         ];
     }
 
