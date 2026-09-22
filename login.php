@@ -16,6 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Username and password are required.';
     } elseif (auth_check_credentials($user, $pass)) {
         auth_login($user);
+        try {
+            require_once __DIR__ . '/config/db_connect.php';
+            if (!function_exists('db')) {
+                function db(): PDO { return toner_pdo(); }
+            }
+            require_once __DIR__ . '/config/activity_log.php';
+            activity_log('login', 'Admin signed in', [
+                'details' => 'Successful login',
+            ], $user);
+        } catch (Throwable $e) { /* never block login */ }
         header('Location: index.php');
         exit;
     } else {
@@ -54,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         <?php endif; ?>
         <div>
-          <label class="block text-sm font-semibold text-slate-800 mb-1" for="username">Username</label>
-          <input id="username" name="username" type="text" required autofocus
+          <label class="block text-sm font-semibold text-slate-800 mb-1" for="username">Email</label>
+          <input id="username" name="username" type="email" required autofocus
             value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
             class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>

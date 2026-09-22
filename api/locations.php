@@ -3,6 +3,7 @@
  * CRUD for editable department / location / printer mappings.
  */
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/activity_log.php';
 auth_require_api();
 
 $pdo = db();
@@ -73,6 +74,9 @@ try {
             $q->execute([$dept, $loc]);
             $row = $q->fetch(PDO::FETCH_ASSOC);
         }
+        activity_log('add_location', 'Added location', [
+            'details' => $dept . ' / ' . $loc . ($printer !== '' ? ' — printer: ' . $printer : ''),
+        ]);
         ok(['location' => map_loc($row), 'message' => 'Location added'], 201);
     }
 
@@ -99,6 +103,9 @@ try {
         $q->execute([$id]);
         $row = $q->fetch(PDO::FETCH_ASSOC);
         if (!$row) fail('Location not found.', 404);
+        activity_log('edit_location', 'Edited location', [
+            'details' => $dept . ' / ' . $loc . ($printer !== '' ? ' — printer: ' . $printer : ''),
+        ]);
         ok(['location' => map_loc($row), 'message' => 'Location updated']);
     }
 
@@ -112,6 +119,9 @@ try {
         );
         $upd->execute([$id]);
         if ($upd->rowCount() === 0) fail('Location not found.', 404);
+        activity_log('remove_location', 'Removed location', [
+            'details' => 'Location id ' . $id,
+        ]);
         ok(['deleted' => $id]);
     }
 

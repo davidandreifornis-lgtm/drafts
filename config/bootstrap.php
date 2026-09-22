@@ -1,4 +1,7 @@
 <?php
+// Display and log times in Philippine Time
+date_default_timezone_set('Asia/Manila');
+
 /**
  * API bootstrap — SQL Server toner_inventory + session auth helpers.
  */

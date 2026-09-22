@@ -3,6 +3,7 @@
  * Stock Issuance — deduct 1 unit, log RELEASED with yield + issuer + location printer.
  */
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/activity_log.php';
 require_once __DIR__ . '/../config/mailer.php';
 auth_require_api();
 
@@ -113,9 +114,26 @@ try {
 
     $pdo->commit();
 
+    // If this toner is still low/out after issuance, email admins (reminder on issue)
+    $mailResult = null;
     try {
-        notify_low_stock($pdo);
-    } catch (Throwable $e) { /* ignore */ }
+        $reorder = (int)($row['reorder_level'] ?? 3);
+        if ($newQty <= $reorder) {
+            // Always email immediately when this issuance leaves the item low/out (bypass cooldown)
+            $mailResult = notify_low_stock($pdo, [
+                'force' => true,
+                'force_items' => [$inkCode],
+            ]);
+        }
+    } catch (Throwable $e) {
+        $mailResult = ['sent' => false, 'error' => $e->getMessage()];
+    }
+
+    activity_log('issue_toner', 'Issued toner', [
+        'reference' => $ref,
+        'itemCode' => $inkCode,
+        'details' => 'Issued 1 × ' . $inkCode . ' to ' . $dept . ' / ' . $location . ($issuedBy ? ' (by ' . $issuedBy . ')' : ''),
+    ]);
 
     ok([
         'message' => 'Issuance recorded',
@@ -123,6 +141,7 @@ try {
         'inkCode' => $inkCode,
         'itemCode' => $inkCode,
         'quantity' => 1,
+        'lowStockAlert' => $mailResult,
         'newStock' => $newQty,
         'department' => $dept,
         'location' => $location,

@@ -7,6 +7,7 @@
  *       — supplier returned good unit; stock +1; record acceptedBy + recordedBy
  */
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/activity_log.php';
 require_once __DIR__ . '/../config/mailer.php';
 auth_require_api();
 
@@ -39,13 +40,25 @@ function txn_col(PDO $pdo, string $col): bool {
 }
 
 function find_defective(PDO $pdo, string $ref): ?array {
+    $ref = strtoupper(trim($ref));
+    // Exact match first
     $st = $pdo->prepare(
         "SELECT * FROM dbo.toner_transactions WITH (UPDLOCK, ROWLOCK)
-         WHERE reference_number = ? AND type = 'DEFECTIVE'"
+         WHERE UPPER(LTRIM(RTRIM(reference_number))) = ? AND type = 'DEFECTIVE'"
     );
     $st->execute([$ref]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
-    return $row ? array_change_key_case($row, CASE_LOWER) : null;
+    if ($row) return array_change_key_case($row, CASE_LOWER);
+
+    // Fallback: any DEFECTIVE row whose ref contains the ticket (handles prefixes)
+    $st2 = $pdo->prepare(
+        "SELECT TOP 1 * FROM dbo.toner_transactions WITH (UPDLOCK, ROWLOCK)
+         WHERE type = 'DEFECTIVE' AND UPPER(LTRIM(RTRIM(reference_number))) LIKE ?
+         ORDER BY id DESC"
+    );
+    $st2->execute(['%' . $ref . '%']);
+    $row2 = $st2->fetch(PDO::FETCH_ASSOC);
+    return $row2 ? array_change_key_case($row2, CASE_LOWER) : null;
 }
 
 try {
@@ -106,6 +119,11 @@ try {
             'txnCode' => $txnCode,
             'status' => 'DEFECTIVE',
         ]);
+        activity_log('flag_defective', 'Flagged defective return', [
+            'reference' => $ref,
+            'itemCode' => $release['ink_code'] ?? '',
+            'details' => 'Issuance marked defective',
+        ]);
     }
 
     // ---------- SEND TO SUPPLIER ----------
@@ -125,21 +143,49 @@ try {
             $pdo->rollBack();
             fail('Replacement already received for this defective item.');
         }
-        $upd = $pdo->prepare(
-            "UPDATE dbo.toner_transactions
-             SET status = 'SENT_TO_SUPPLIER', purpose = CASE
-               WHEN purpose IS NULL OR purpose = '' THEN 'Sent to supplier for replacement'
-               ELSE purpose
-             END
-             WHERE id = ?"
-        );
-        $upd->execute([(int)$def['id']]);
+        $sentAt = gmdate('Y-m-d\TH:i:s\Z');
+        try {
+            $sentAt = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+        } catch (Throwable $e) {}
+        $prevNotes = (string)($def['defective_notes'] ?? '');
+        // Store structured timestamps in notes: keep human notes, append meta lines
+        $prevNotes = preg_replace('/\n?\[SENT_AT\].*$/m', '', $prevNotes);
+        $newNotes = trim($prevNotes);
+        if ($newNotes !== '') $newNotes .= "\n";
+        $newNotes .= '[SENT_AT] ' . $sentAt;
+        try {
+            $upd = $pdo->prepare(
+                "UPDATE dbo.toner_transactions
+                 SET status = 'SENT_TO_SUPPLIER',
+                     purpose = CASE
+                       WHEN purpose IS NULL OR purpose = '' THEN 'Sent to supplier for replacement'
+                       ELSE purpose
+                     END,
+                     defective_notes = ?
+                 WHERE id = ?"
+            );
+            $upd->execute([$newNotes, (int)$def['id']]);
+        } catch (Throwable $eNotes) {
+            // Fallback if notes column issue
+            $upd = $pdo->prepare(
+                "UPDATE dbo.toner_transactions
+                 SET status = 'SENT_TO_SUPPLIER',
+                     purpose = 'Sent to supplier for replacement'
+                 WHERE id = ?"
+            );
+            $upd->execute([(int)$def['id']]);
+        }
         $pdo->commit();
+        activity_log('send_to_supplier', 'Sent defective to supplier', [
+            'reference' => $ref,
+            'itemCode' => $def['ink_code'] ?? '',
+            'details' => 'Defective unit sent to supplier for replacement',
+        ]);
         ok([
             'message' => 'Marked as sent to supplier',
             'referenceNumber' => $ref,
             'status' => 'SENT_TO_SUPPLIER',
-            'inkCode' => $def['ink_code'],
+            'inkCode' => $def['ink_code'] ?? '',
         ]);
     }
 
@@ -165,6 +211,18 @@ try {
         $inkCode = strtoupper(trim((string)$def['ink_code']));
 
         // Update defective row
+        $recvAt = gmdate('Y-m-d\TH:i:s\Z');
+        try {
+            $recvAt = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+        } catch (Throwable $e) {}
+        $prevNotes = (string)($def['defective_notes'] ?? '');
+        $prevNotes = preg_replace('/\n?\[RECV_AT\].*$/m', '', $prevNotes);
+        $prevNotes = preg_replace('/\n?\[ACCEPTED_BY\].*$/m', '', $prevNotes);
+        $prevNotes = preg_replace('/\n?\[RECORDED_BY\].*$/m', '', $prevNotes);
+        $newNotes = trim($prevNotes);
+        if ($newNotes !== '') $newNotes .= "\n";
+        $newNotes .= '[RECV_AT] ' . $recvAt . "\n[ACCEPTED_BY] " . $acceptedBy . "\n[RECORDED_BY] " . $recordedBy;
+
         $sets = ["status = 'REPLACED'"];
         $params = [];
         if (txn_col($pdo, 'issued_by')) {
@@ -177,6 +235,10 @@ try {
         }
         $sets[] = "purpose = ?";
         $params[] = 'Replacement received from supplier';
+        if (txn_col($pdo, 'defective_notes')) {
+            $sets[] = 'defective_notes = ?';
+            $params[] = $newNotes;
+        }
         $params[] = (int)$def['id'];
         $pdo->prepare(
             'UPDATE dbo.toner_transactions SET ' . implode(', ', $sets) . ' WHERE id = ?'
@@ -239,6 +301,11 @@ try {
             'recordedBy' => $recordedBy,
             'status' => 'REPLACED',
             'txnCode' => $txnCode,
+        ]);
+        activity_log('receive_replacement', 'Received supplier replacement', [
+            'reference' => $ref,
+            'itemCode' => $inkCode,
+            'details' => 'Replacement accepted by ' . $acceptedBy . '; stock +1',
         ]);
     }
 

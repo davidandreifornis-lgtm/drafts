@@ -7,6 +7,8 @@
  * JSON still uses inkCode for the frontend (maps to item_code).
  */
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/activity_log.php';
+require_once __DIR__ . '/../config/mailer.php';
 auth_require_api();
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -72,6 +74,10 @@ try {
             fail('Insert ran but row not found. Check table dbo.toner_inventory uses column item_code.', 500);
         }
 
+        activity_log('add_toner', 'Added toner to inventory', [
+            'itemCode' => $code,
+            'details' => 'Qty ' . $qty . ($description !== '' ? ' · ' . $description : ''),
+        ]);
         ok([
             'item' => map_inventory_row($row),
             'database' => 'toner_inventory',
@@ -139,6 +145,11 @@ try {
         $rowStmt = $pdo->prepare('SELECT * FROM dbo.toner_inventory WHERE item_code = ?');
         $rowStmt->execute([$code]);
         $fresh = $rowStmt->fetch(PDO::FETCH_ASSOC);
+        activity_log('edit_inventory', 'Edited stock card', [
+            'itemCode' => $code ?? '',
+            'details' => 'Updated inventory details or quantity',
+        ]);
+        try { notify_low_stock($pdo); } catch (Throwable $e) { /* ignore mail */ }
         ok(['item' => map_inventory_row($fresh), 'message' => 'Stock card updated']);
     }
 
@@ -149,6 +160,10 @@ try {
         $stmt = $pdo->prepare('DELETE FROM dbo.toner_inventory WHERE item_code = ?');
         $stmt->execute([$code]);
         if ($stmt->rowCount() === 0) fail('Item not found in dbo.toner_inventory.', 404);
+        activity_log('remove_toner', 'Removed toner from inventory', [
+            'itemCode' => $code,
+            'details' => 'Deleted item ' . $code,
+        ]);
         ok(['deleted' => $code, 'database' => 'toner_inventory']);
     }
 

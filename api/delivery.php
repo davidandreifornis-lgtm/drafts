@@ -12,6 +12,7 @@
  *     { referenceNumber, inkCode, quantity, date, supplier }
  */
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/activity_log.php';
 require_once __DIR__ . '/../config/mailer.php';
 auth_require_api();
 
@@ -230,6 +231,11 @@ try {
     }
 
     $pdo->commit();
+
+    activity_log('receive_delivery', 'Received delivery', [
+        'reference' => isset($ref) ? $ref : (isset($mrr) ? $mrr : ''),
+        'details' => 'Posted stock from delivery/MRR',
+    ]);
 
     try { notify_low_stock($pdo); } catch (Throwable $e) { /* ignore */ }
 

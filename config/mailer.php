@@ -3,13 +3,164 @@
  * Mail helper: log / PHP mail / SMTP + low-stock alerts.
  */
 
-function mail_config(): array {
-    static $cfg = null;
-    if ($cfg === null) {
-        $cfg = require __DIR__ . '/mail.php';
+
+/**
+ * Secret for encrypting SMTP password at rest in dbo.toner_email_settings.
+ * Change ENC_SECRET in production (or set env TONER_MAIL_ENC_KEY).
+ */
+function mail_enc_key(): string {
+    $env = getenv('TONER_MAIL_ENC_KEY');
+    if (is_string($env) && strlen($env) >= 16) {
+        return hash('sha256', $env, true);
     }
-    return $cfg;
+    // App-specific secret (not the SMTP password itself)
+    return hash('sha256', 'toner-inventory-mail-enc-v1|' . (__DIR__), true);
 }
+
+/** Encrypt SMTP password for DB storage (reversible). Prefix enc:v1: */
+function mail_encrypt_pass(string $plain): string {
+    if ($plain === '') {
+        return '';
+    }
+    // Already encrypted
+    if (str_starts_with($plain, 'enc:v1:')) {
+        return $plain;
+    }
+    $key = mail_enc_key();
+    $iv = random_bytes(16);
+    $cipher = openssl_encrypt($plain, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+    if ($cipher === false) {
+        return $plain; // fallback store plain if openssl fails
+    }
+    return 'enc:v1:' . base64_encode($iv . $cipher);
+}
+
+/** Decrypt SMTP password from DB for actual SMTP AUTH */
+function mail_decrypt_pass(string $stored): string {
+    if ($stored === '') {
+        return '';
+    }
+    if (!str_starts_with($stored, 'enc:v1:')) {
+        return $stored; // legacy plaintext row
+    }
+    $raw = base64_decode(substr($stored, 7), true);
+    if ($raw === false || strlen($raw) < 17) {
+        return '';
+    }
+    $iv = substr($raw, 0, 16);
+    $cipher = substr($raw, 16);
+    $key = mail_enc_key();
+    $plain = openssl_decrypt($cipher, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+    return $plain === false ? '' : $plain;
+}
+
+function mail_defaults(): array {
+    $path = __DIR__ . '/mail.php';
+    if (is_file($path)) {
+        $base = require $path;
+        if (is_array($base)) {
+            return $base;
+        }
+    }
+    return [
+        'admin_email' => '',
+        'alert_recipient' => '',
+        'from_email' => '',
+        'from_name' => 'Toner Inventory System',
+        'subject_prefix' => '[Toner Alert]',
+        'cooldown_hours' => 12,
+        'driver' => 'smtp',
+        'smtp_host' => '',
+        'smtp_port' => 465,
+        'smtp_encryption' => 'ssl',
+        'smtp_user' => '',
+        'smtp_pass' => '',
+        'cooldown_file' => __DIR__ . '/../storage/low_stock_alerts.json',
+    ];
+}
+
+/**
+ * Email config from dbo.toner_email_settings (dynamic).
+ * Falls back to config/mail.php only if the table/row is missing.
+ */
+function mail_config(): array {
+    $base = mail_defaults();
+    $base['cooldown_file'] = __DIR__ . '/../storage/low_stock_alerts.json';
+
+    try {
+        if (!function_exists('db')) {
+            return $base;
+        }
+        $pdo = db();
+        $stmt = $pdo->query(
+            'SELECT TOP 1
+                admin_email, alert_recipient, from_email, from_name, subject_prefix, cooldown_hours,
+                driver, smtp_host, smtp_port, smtp_encryption, smtp_user, smtp_pass
+             FROM dbo.toner_email_settings
+             ORDER BY id ASC'
+        );
+        $row = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
+        if ($row) {
+            $row = array_change_key_case($row, CASE_LOWER);
+            $map = [
+                'admin_email' => 'admin_email',
+                'alert_recipient' => 'alert_recipient',
+                'from_email' => 'from_email',
+                'from_name' => 'from_name',
+                'subject_prefix' => 'subject_prefix',
+                'driver' => 'driver',
+                'smtp_host' => 'smtp_host',
+                'smtp_user' => 'smtp_user',
+                'smtp_pass' => 'smtp_pass',
+            ];
+            foreach ($map as $col => $key) {
+                if (array_key_exists($col, $row) && $row[$col] !== null && $row[$col] !== '') {
+                    $base[$key] = is_string($row[$col]) ? trim($row[$col]) : $row[$col];
+                }
+            }
+            if (isset($row['cooldown_hours']) && $row['cooldown_hours'] !== null) {
+                $base['cooldown_hours'] = (int)$row['cooldown_hours'];
+            }
+            if (isset($row['smtp_port']) && $row['smtp_port'] !== null) {
+                $base['smtp_port'] = (int)$row['smtp_port'];
+            }
+            if (!empty($row['smtp_encryption'])) {
+                $base['smtp_encryption'] = strtolower(trim((string)$row['smtp_encryption']));
+            }
+            // Allow empty smtp_pass only if DB has it set (including empty string still counts as set)
+            if (array_key_exists('smtp_pass', $row) && $row['smtp_pass'] !== null) {
+                $base['smtp_pass'] = mail_decrypt_pass((string)$row['smtp_pass']);
+            }
+        }
+    } catch (Throwable $e) {
+        // Table missing or DB down — keep defaults
+        if (function_exists('mail_log')) {
+            try { mail_log('mail_config DB: ' . $e->getMessage()); } catch (Throwable $e2) {}
+        }
+    }
+
+    if (!empty($base['smtp_encryption'])) {
+        $base['smtp_encryption'] = strtolower((string)$base['smtp_encryption']);
+    }
+    $base['driver'] = 'smtp'; // always use SMTP
+    if (empty($base['alert_recipient']) && !empty($base['admin_email'])) {
+        $base['alert_recipient'] = $base['admin_email'];
+    }
+    if (empty($base['from_email']) && !empty($base['smtp_user'])) {
+        $base['from_email'] = $base['smtp_user'];
+    }
+    if (empty($base['admin_email']) && !empty($base['smtp_user'])) {
+        $base['admin_email'] = $base['smtp_user'];
+    }
+    if (empty($base['from_name'])) {
+        $base['from_name'] = 'Toner Inventory System';
+    }
+    if (empty($base['subject_prefix'])) {
+        $base['subject_prefix'] = '[Toner Alert]';
+    }
+    return $base;
+}
+
 
 function mail_log(string $line): void {
     $file = __DIR__ . '/../storage/mail.log';
@@ -17,7 +168,13 @@ function mail_log(string $line): void {
     if (!is_dir($dir)) {
         @mkdir($dir, 0775, true);
     }
-    @file_put_contents($file, '[' . date('Y-m-d H:i:s') . '] ' . $line . "\n", FILE_APPEND);
+    try {
+        $stamp = (new DateTime('now', new DateTimeZone('Asia/Manila')))->format('Y-m-d H:i:sP');
+    } catch (Throwable $e) {
+        date_default_timezone_set('Asia/Manila');
+        $stamp = date('Y-m-d H:i:sP');
+    }
+    @file_put_contents($file, '[' . $stamp . '] ' . $line . "\n", FILE_APPEND);
 }
 
 /**
@@ -269,17 +426,41 @@ function get_admin_notification_emails(?PDO $pdo = null): array {
     return array_keys($emails);
 }
 
-function notify_low_stock(?PDO $pdo = null): array {
+/**
+ * Who receives low-stock alerts: prefer the currently logged-in admin email.
+ * Fallback: all active admins / SMTP username from Email Configuration.
+ */
+function get_low_stock_recipients(?PDO $pdo = null): array {
+    $cfg = mail_config();
+    // Primary: configured alert recipient (Email Configuration → registered admin email)
+    $to = strtolower(trim((string)($cfg['alert_recipient'] ?? '')));
+    if ($to === '') {
+        $to = strtolower(trim((string)($cfg['admin_email'] ?? '')));
+    }
+    if ($to !== '' && filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return [$to];
+    }
+    return [];
+}
+
+function notify_low_stock(?PDO $pdo = null, array $opts = []): array {
     if (!$pdo) {
         $pdo = db();
     }
     $cfg = mail_config();
-    $recipients = get_admin_notification_emails($pdo);
+    $force = !empty($opts['force']);
+    $forceItems = [];
+    foreach (($opts['force_items'] ?? []) as $fi) {
+        $fi = strtoupper(trim((string)$fi));
+        if ($fi !== '') $forceItems[$fi] = true;
+    }
+
+    $recipients = get_low_stock_recipients($pdo);
     if (count($recipients) === 0) {
         return [
             'sent' => false,
             'reason' => 'no_recipients',
-            'error' => 'No admin emails found. User Management username must be a valid email, or set admin_email in config/mail.php.',
+            'error' => 'No alert recipient configured. Set Alert recipient under Email Configuration (must be a registered admin email).',
             'low_count' => 0,
             'out_count' => 0,
         ];
@@ -345,7 +526,9 @@ function notify_low_stock(?PDO $pdo = null): array {
         }
 
         $last = (int)($cooldown[$code] ?? 0);
-        if ($last > 0 && ($now - $last) < ($cooldownHours * 3600)) {
+        // force = full bypass; force_items = always include those codes (e.g. just issued)
+        $mustInclude = $force || isset($forceItems[$code]);
+        if (!$mustInclude && $last > 0 && ($now - $last) < ($cooldownHours * 3600)) {
             continue; // still in cooldown
         }
         $toAlert[] = ['row' => $r, 'status' => $status];
@@ -370,7 +553,11 @@ function notify_low_stock(?PDO $pdo = null): array {
 
     $lines = [];
     $lines[] = 'Toner Inventory — Low Stock Alert';
-    $lines[] = date('Y-m-d H:i:s');
+    try {
+        $lines[] = (new DateTime('now', new DateTimeZone('Asia/Manila')))->format('M j, Y g:i A') . ' (Philippine Time)';
+    } catch (Throwable $e) {
+        $lines[] = date('Y-m-d H:i:s');
+    }
     $lines[] = str_repeat('-', 48);
     $rowsHtml = '';
     foreach ($toAlert as $item) {
@@ -450,3 +637,4 @@ function notify_low_stock(?PDO $pdo = null): array {
         'error' => $anyOk ? null : implode('; ', $errors),
     ];
 }
+

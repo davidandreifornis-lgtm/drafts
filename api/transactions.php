@@ -70,6 +70,9 @@ try {
             'issuedBy' => (string)($r['issued_by'] ?? ''),
             'recordedBy' => (string)($r['recorded_by'] ?? ''),
             'locationPrinter' => (string)($r['location_printer'] ?? ''),
+            'defectiveAt' => (string)($r['defective_at'] ?? ''),
+            'defectiveNotes' => (string)($r['defective_notes'] ?? ''),
+            'updatedAt' => (string)($r['updated_at'] ?? ''),
         ];
     }
 

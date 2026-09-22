@@ -1,6 +1,7 @@
 <?php
 /** CRUD for supplier master list (stock card dropdown). */
 require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../config/activity_log.php';
 auth_require_api();
 
 $pdo = db();
@@ -53,6 +54,7 @@ try {
             $q->execute([$name]);
             $row = $q->fetch(PDO::FETCH_ASSOC);
         }
+        activity_log('add_supplier', 'Added supplier', ['details' => $name]);
         ok(['supplier' => map_supplier($row), 'message' => 'Supplier added'], 201);
     }
 
@@ -70,6 +72,7 @@ try {
         $q->execute([$id]);
         $row = $q->fetch(PDO::FETCH_ASSOC);
         if (!$row) fail('Supplier not found.', 404);
+        activity_log('edit_supplier', 'Edited supplier', ['details' => $name]);
         ok(['supplier' => map_supplier($row), 'message' => 'Supplier updated']);
     }
 
@@ -82,6 +85,7 @@ try {
         );
         $upd->execute([$id]);
         if ($upd->rowCount() === 0) fail('Supplier not found.', 404);
+        activity_log('remove_supplier', 'Removed supplier', ['details' => 'Supplier id ' . $id]);
         ok(['deleted' => $id]);
     }
 

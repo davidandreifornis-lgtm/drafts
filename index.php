@@ -87,6 +87,12 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     #sidebar {
       background: #fff !important;
       border-right-color: var(--line) !important;
+      position: fixed !important;
+    }
+    @media (min-width: 1024px) {
+      #sidebar {
+        transform: translateX(0) !important;
+      }
     }
     .nav-link {
       border-radius: 0.75rem !important;
@@ -216,10 +222,6 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       border-color: var(--line) !important;
       box-shadow: 0 25px 50px -12px rgba(15,23,42,0.18) !important;
     }
-    /* Main content breathing room */
-    main, #main-content, .page-view {
-      /* handled by existing padding */
-    }
     #main-area, .flex-1.overflow-y-auto {
       background: var(--canvas);
     }
@@ -279,9 +281,9 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <!-- Spacer so content isn't hidden under fixed header -->
   <div class="h-14 shrink-0" aria-hidden="true"></div>
 
-  <div class="flex-1 flex max-w-7xl w-full mx-auto">
+  <div class="flex-1 flex max-w-7xl w-full mx-auto lg:pl-64">
     <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed top-14 bottom-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto transition-transform duration-200 ease-in-out flex flex-col justify-between">
+    <aside id="sidebar" class="fixed top-14 bottom-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col justify-between overflow-y-auto">
       <div class="p-4 space-y-1">
         <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Main Navigation</div>
         <button id="nav-dashboard" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors bg-blue-50 text-blue-700">
@@ -301,6 +303,14 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           Locations &amp; Suppliers
         </button>
 
+        <button id="nav-logs" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          System Logs
+        </button>
+        <button id="nav-email-config" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Email Configuration
+        </button>
         <button id="nav-users" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
           User Management
@@ -308,12 +318,17 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
       </div>
 
-      <div class="p-4 border-t border-slate-100">
+      <div class="p-4 border-t border-slate-100 mt-auto shrink-0">
         <div class="p-3 rounded-xl border border-slate-100 bg-zinc-50/80">
-          <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Note</div>
-          <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">
-            Stock moves from deliveries, issuances, and replacements — keep references accurate.
-          </p>
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Signed in as</div>
+          <div class="mt-2 flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-full bg-zinc-900 text-white flex items-center justify-center text-xs font-bold shrink-0" id="sidebar-user-avatar">—</div>
+            <div class="min-w-0">
+              <div id="sidebar-user-name" class="text-sm font-semibold text-zinc-900 truncate">Loading…</div>
+              <div id="sidebar-user-email" class="text-[11px] text-zinc-500 truncate"></div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] font-medium text-zinc-400 uppercase tracking-wider">Admin</div>
         </div>
       </div>
     </aside>
@@ -349,44 +364,65 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </div>
         </div>
 
+        <!-- Dashboard date filter -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs px-4 py-3 flex flex-wrap items-center gap-3">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Period</span>
+          <select id="filter-dash-date" class="py-2 px-3 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 min-w-[10rem]">
+            <option value="ALL">All time</option>
+            <option value="TODAY">Today</option>
+            <option value="WEEK">Last 7 days</option>
+            <option value="MONTH" selected>This month</option>
+            <option value="CUSTOM">Custom range</option>
+          </select>
+          <div id="dash-custom-range" class="hidden flex flex-wrap items-center gap-2">
+            <label class="text-xs font-semibold text-slate-500" for="filter-dash-from">From</label>
+            <input id="filter-dash-from" type="date" class="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white">
+            <label class="text-xs font-semibold text-slate-500" for="filter-dash-to">To</label>
+            <input id="filter-dash-to" type="date" class="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white">
+            <button type="button" id="btn-dash-apply-range" class="px-3 py-2 text-sm font-semibold rounded-xl bg-slate-900 text-white hover:bg-black">Apply</button>
+          </div>
+          <span id="dash-period-label" class="text-xs text-slate-500 ml-auto"></span>
+          <button type="button" id="btn-open-mail-log" class="text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50">Mail log</button>
+        </div>
+
         <!-- KPI Cards Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-300 transition-colors" data-kpi="skus" title="View details">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Toner SKUs</div>
             <div id="kpi-total-skus" class="text-3xl font-bold text-slate-900 mt-2">0</div>
             <div class="text-xs text-slate-500 mt-1">Toner models in master list</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-300 transition-colors" data-kpi="stock" title="View details">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Stock On-Hand</div>
             <div id="kpi-total-stock" class="text-3xl font-bold text-blue-600 mt-2">0</div>
             <div class="text-xs text-slate-500 mt-1">Available physical units</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-amber-200 transition-colors" data-kpi="low" title="View details">
             <div class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Low Stock Items</div>
             <div id="kpi-low-stock" class="text-3xl font-bold text-amber-600 mt-2">0</div>
             <div class="text-xs text-slate-500 mt-1">At or below reorder level</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-rose-200 transition-colors" data-kpi="out" title="View details">
             <div class="text-xs font-semibold text-rose-600 uppercase tracking-wider">Out of Stock</div>
             <div id="kpi-out-stock" class="text-3xl font-bold text-rose-600 mt-2">0</div>
             <div class="text-xs text-slate-500 mt-1">Zero units remaining</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Today's Deliveries</div>
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-300 transition-colors" data-kpi="deliveries" title="View details">
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Deliveries (period)</div>
             <div id="kpi-today-deliveries" class="text-2xl font-bold text-slate-900 mt-2">0 units</div>
             <div id="kpi-today-del-tickets" class="text-xs text-slate-500 mt-1">0 tickets processed</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Today's Releases</div>
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-300 transition-colors" data-kpi="releases" title="View details">
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Releases (period)</div>
             <div id="kpi-today-releases" class="text-2xl font-bold text-slate-900 mt-2">0 units</div>
             <div id="kpi-today-rel-tickets" class="text-xs text-slate-500 mt-1">0 tickets processed</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-300 transition-colors" data-kpi="tickets" title="View details">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tickets Processed</div>
             <div id="kpi-total-tickets" class="text-2xl font-bold text-slate-900 mt-2">0</div>
-            <div class="text-xs text-slate-500 mt-1">Total ticket references recorded</div>
+            <div class="text-xs text-slate-500 mt-1">Ticket refs in selected period</div>
           </div>
-          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="kpi-card bg-white p-5 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-300 transition-colors" data-kpi="last" title="View details">
             <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Last Processed Ticket</div>
             <div id="kpi-last-ticket" class="text-lg font-bold text-slate-900 mt-2 truncate">None</div>
             <div id="kpi-last-ticket-time" class="text-xs text-slate-500 mt-1">Awaiting first transaction</div>
@@ -412,6 +448,19 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <div class="relative h-72">
               <canvas id="chart-stock-status"></canvas>
             </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900">Average pages before toner change</h3>
+              <p class="text-xs text-slate-500">Mean actual yield (pages) from issuances that recorded page count — selected dashboard period</p>
+            </div>
+            <div id="kpi-avg-yield" class="text-sm font-semibold text-slate-700">Avg: —</div>
+          </div>
+          <div class="relative h-72">
+            <canvas id="chart-avg-yield"></canvas>
           </div>
         </div>
 
@@ -449,7 +498,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
               <option value="OUT_OF_STOCK">Out of Stock</option>
             </select>
           </div>
-          <button id="btn-clear-inv-filters" class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+          <button type="button" id="btn-clear-inv-filters" class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
             Reset Filters
           </button>
         </div>
@@ -709,14 +758,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
           <!-- Department sub-tabs (releases only) -->
           <div id="txn-dept-tabs" class="hidden px-4 py-3 border-b border-slate-100 bg-slate-50/80 flex flex-wrap gap-2">
-            <button type="button" data-txn-dept="ALL" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white">All Departments</button>
-            <button type="button" data-txn-dept="ACCT" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">ACCT</button>
-            <button type="button" data-txn-dept="BD" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">BD</button>
-            <button type="button" data-txn-dept="BMS" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">BMS</button>
-            <button type="button" data-txn-dept="LOGISTICS" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">LOGISTICS</button>
-            <button type="button" data-txn-dept="PRODUCTION" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">PRODUCTION</button>
-            <button type="button" data-txn-dept="PURCHASING" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">PURCHASING</button>
-            <button type="button" data-txn-dept="QC" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">QC</button>
+            <!-- Filled dynamically from locations + release history -->
           </div>
 
           <!-- Search + date filters -->
@@ -740,6 +782,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
               <input id="filter-txn-to" type="date" class="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
               <button type="button" id="btn-txn-apply-range" class="px-3 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition-colors">Apply</button>
             </div>
+            <button type="button" id="btn-clear-txn-filters" class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Reset Filters</button>
           </div>
 
           <!-- Table -->
@@ -804,7 +847,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
                 <input id="page-loc-location" type="text" placeholder="e.g. Acctg Office" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-printer">Printer at location</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-printer">Printer assigned</label>
                 <input id="page-loc-printer" type="text" placeholder="e.g. Canon MF237W" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
             </div>
@@ -817,9 +860,15 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             </div>
 
             <div class="border-t border-slate-100 pt-4">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-bold text-slate-900">All locations</h3>
-                <span id="page-loc-count" class="text-xs font-semibold text-slate-500">0</span>
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-slate-900">All locations</h3>
+                  <span id="page-loc-count" class="text-xs font-semibold text-slate-500">0</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <input id="filter-locations-search" type="search" placeholder="Search department, location, printer…" class="flex-1 sm:w-64 px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <button type="button" id="btn-locations-search-clear" class="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">Clear</button>
+                </div>
               </div>
               <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="w-full text-sm text-left">
@@ -881,6 +930,142 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       </section>
 
 
+
+      <section id="view-logs" class="page-view hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">System Logs</h2>
+            <p class="text-sm text-slate-500 mt-0.5">What each admin did in the system — newest first.</p>
+          </div>
+          <button type="button" id="btn-refresh-logs" class="px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 hover:bg-slate-50 self-start">Refresh</button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-4 flex flex-wrap gap-3 items-end">
+          <div class="flex-1 min-w-[140px]">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-search">Search</label>
+            <input id="filter-logs-search" type="text" placeholder="Action, details, ref, item…" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200">
+          </div>
+          <div class="w-40">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-period">Period</label>
+            <select id="filter-logs-period" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white">
+              <option value="ALL">All time</option>
+              <option value="TODAY">Today</option>
+              <option value="WEEK">Last 7 days</option>
+              <option value="MONTH" selected>This month</option>
+              <option value="CUSTOM">Custom range</option>
+            </select>
+          </div>
+          <div id="logs-custom-range" class="hidden flex flex-wrap items-end gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-from">From</label>
+              <input id="filter-logs-from" type="date" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-to">To</label>
+              <input id="filter-logs-to" type="date" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
+            </div>
+          </div>
+          <div class="w-48">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-action">Action type</label>
+            <select id="filter-logs-action" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white">
+              <option value="ALL">All actions</option>
+            </select>
+          </div>
+          <div class="w-48">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-actor">Admin</label>
+            <select id="filter-logs-actor" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white">
+              <option value="ALL">All admins</option>
+            </select>
+          </div>
+          <button type="button" id="btn-apply-logs-filter" class="px-4 py-2 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black">Apply</button>
+          <button type="button" id="btn-clear-logs-filter" class="px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl border border-slate-200">Reset</button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">When</th>
+                  <th class="px-4 py-3 font-semibold">Action</th>
+                  <th class="px-4 py-3 font-semibold">Details</th>
+                  <th class="px-4 py-3 font-semibold">Admin</th>
+                </tr>
+              </thead>
+              <tbody id="logs-tbody" class="divide-y divide-slate-100 text-slate-700">
+                <tr><td colspan="4" class="px-4 py-10 text-center text-slate-400">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-email-config" class="page-view hidden space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight">Email Configuration</h2>
+          <p class="text-sm text-slate-500 mt-0.5">SMTP and alert settings used when the system sends low-stock and system emails.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden max-w-2xl">
+          <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div class="flex items-center gap-2">
+              <span class="w-9 h-9 rounded-xl bg-zinc-900 text-white flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+              </span>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">SMTP &amp; outbound mail</h3>
+                <p class="text-xs text-slate-500">Host, port, security, and credentials for alert delivery</p>
+              </div>
+            </div>
+          </div>
+          <form id="form-email-settings" class="p-5 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-smtp-host">SMTP Host</label>
+                <input id="cfg-smtp-host" type="text" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200" placeholder="mail.example.com" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-smtp-port">Port</label>
+                <input id="cfg-smtp-port" type="number" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200" placeholder="465" required>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-smtp-enc">Security</label>
+                <select id="cfg-smtp-enc" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white">
+                  <option value="ssl">SSL</option>
+                  <option value="tls">TLS</option>
+                  <option value="none">None</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-smtp-user">SMTP username</label>
+                <input id="cfg-smtp-user" type="text" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200" placeholder="you@company.com" required>
+                <p class="text-[11px] text-slate-400 mt-1">Also used as the From address (and fallback alert recipient if needed).</p>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-smtp-pass">SMTP password</label>
+                <input id="cfg-smtp-pass" type="password" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200" placeholder="Leave blank to keep the saved SMTP password" autocomplete="new-password">
+                <p id="cfg-smtp-pass-hint" class="text-[11px] text-slate-400 mt-1"></p>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-alert-recipient">Alert recipient <span class="text-rose-500">*</span></label>
+                <select id="cfg-alert-recipient" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white" required>
+                  <option value="">— Select registered admin email —</option>
+                </select>
+                <p class="text-[11px] text-slate-400 mt-1">Low-stock and system alerts are sent to this admin. Usernames in User Management must be email addresses.</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="cfg-cooldown">Low-stock alert cooldown (hours)</label>
+                <input id="cfg-cooldown" type="number" min="0" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200">
+              </div>
+              </div>
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+              <button type="submit" id="btn-save-email-settings" class="px-5 py-2.5 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black">Save email settings</button>
+              <button type="button" id="btn-test-email-settings" class="px-4 py-2.5 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50">Test low-stock email</button>
+            </div>
+            <p id="cfg-email-status" class="text-xs text-slate-500"></p>
+          </form>
+        </div>
+      </section>
 <section id="view-users" class="page-view hidden space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -912,27 +1097,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       </section>
 
 <div id="modal-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <!-- Duplicate Warning Modal -->
-    <div id="modal-duplicate" class="modal-card hidden bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 mb-4">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        <div>
-          <div class="text-sm font-bold" id="modal-duplicate-title">Ticket Already Processed</div>
-          <div class="text-xs opacity-80">This reference was already executed. Duplicate stock moves are blocked.</div>
-        </div>
-      </div>
-      <p class="text-sm text-slate-600 mt-2 hidden" id="modal-duplicate-desc">
-        This ticket reference number has already been executed. Stock cannot be modified multiple times.
-      </p>
-      <div class="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs font-mono text-slate-700" id="modal-duplicate-details">
-        Reference Number: <span id="modal-dup-ref" class="font-bold text-blue-600"></span>
-      </div>
-      <div class="mt-6 flex justify-end">
-        <button id="btn-close-dup-modal" type="button" class="px-4 py-2 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-lg transition-colors">
-          Understood
-        </button>
-      </div>
-    </div>
+<!-- duplicate modal moved to body end -->
 
     <!-- Ticket Not Found Modal -->
     <div id="modal-not-found" class="modal-card hidden bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
@@ -1107,14 +1272,23 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-printer">Printer at this location</label>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-printer">Printer assigned</label>
             <input id="modal-rel-printer" type="text" readonly class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-700" placeholder="Select location to see printer">
             <p class="text-[11px] text-slate-500 mt-1">From Locations &amp; Suppliers (sidebar).</p>
           </div>
 
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-yield">Actual yield (pages before change) <span class="text-rose-500">*</span></label>
-            <input id="modal-rel-yield" type="number" min="0" step="1" placeholder="e.g. 4500" class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+              <input id="modal-rel-has-yield" type="checkbox" class="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+              <span class="text-sm text-slate-800">
+                <span class="font-semibold">Printer reports page yield</span>
+                <span class="block text-xs font-normal text-slate-500 mt-0.5">Check only if this printer shows total pages printed before the toner ran out / was changed.</span>
+              </span>
+            </label>
+            <div id="modal-rel-yield-wrap" class="hidden mt-2">
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-yield">Actual yield (pages before change) <span class="text-rose-500">*</span></label>
+              <input id="modal-rel-yield" type="number" min="0" step="1" placeholder="e.g. 4500" class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
             <p class="text-[11px] text-slate-500 mt-1">How many pages the previous toner printed before replacement.</p>
           </div>
 
@@ -1293,7 +1467,31 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
               </div>
 
-      <div class="p-4 overflow-y-auto flex-1 min-h-0">
+      <div class="p-4 overflow-y-auto flex-1 min-h-0 space-y-3">
+        <div class="flex flex-wrap items-end gap-2">
+          <div>
+            <label class="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1" for="stock-card-period">Period</label>
+            <select id="stock-card-period" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white">
+              <option value="ALL" selected>All time</option>
+              <option value="TODAY">Today</option>
+              <option value="WEEK">Last 7 days</option>
+              <option value="MONTH">This month</option>
+              <option value="CUSTOM">Custom range</option>
+            </select>
+          </div>
+          <div id="stock-card-custom-range" class="hidden flex flex-wrap items-end gap-2">
+            <div>
+              <label class="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1" for="stock-card-from">From</label>
+              <input id="stock-card-from" type="date" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1" for="stock-card-to">To</label>
+              <input id="stock-card-to" type="date" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200">
+            </div>
+          </div>
+          <button type="button" id="btn-stock-card-apply-dates" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-900 text-white hover:bg-black">Apply</button>
+          <button type="button" id="btn-stock-card-reset-dates" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Reset</button>
+        </div>
         <div class="overflow-x-auto rounded-xl border border-slate-200">
           <table class="w-full text-left text-sm table-fixed">
             <thead class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-200">
@@ -2115,40 +2313,83 @@ const AppState = {
 const API_BASE = (window.TONER_API_BASE || (function(){ var p=location.pathname.replace(/\/[^/]*$/, ''); return (p||'') + '/api'; })()).replace(/\/$/, '');
 AppState.useBackend = false;
 
+
+let _loadingDepth = 0;
+
+function showGlobalLoading(message) {
+  _loadingDepth++;
+  const el = document.getElementById('global-loading');
+  const txt = document.getElementById('global-loading-text');
+  if (txt && message) txt.textContent = message;
+  else if (txt && _loadingDepth === 1) txt.textContent = 'Processing…';
+  if (el) {
+    el.classList.remove('hidden');
+    el.style.display = 'flex';
+  }
+}
+
+function hideGlobalLoading() {
+  _loadingDepth = Math.max(0, _loadingDepth - 1);
+  if (_loadingDepth > 0) return;
+  const el = document.getElementById('global-loading');
+  if (el) {
+    el.classList.add('hidden');
+    el.style.display = 'none';
+  }
+}
+
+function forceHideGlobalLoading() {
+  _loadingDepth = 0;
+  const el = document.getElementById('global-loading');
+  if (el) {
+    el.classList.add('hidden');
+    el.style.display = 'none';
+  }
+}
+
 async function apiRequest(path, options = {}) {
-  const base = (window.TONER_API_BASE || API_BASE || 'api').replace(/\/$/, '');
-  const url = `${base}/${path.replace(/^\//, '')}`;
-  console.info('[Toner] API', options.method || 'GET', url);
-  const opts = {
-    credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options,
-  };
-  if (opts.body && typeof opts.body === 'object') {
-    opts.body = JSON.stringify(opts.body);
-  }
-  let res;
+  const silent = !!options.silent;
+  const loadingMsg = options.loadingMessage || 'Processing…';
+  if (!silent) showGlobalLoading(loadingMsg);
   try {
-    res = await fetch(url, opts);
-  } catch (networkErr) {
-    const err = new Error('Cannot reach API at ' + url + ' — is Apache running?');
-    err.cause = networkErr;
-    throw err;
+    const base = (window.TONER_API_BASE || API_BASE || 'api').replace(/\/$/, '');
+    const url = `${base}/${path.replace(/^\//, '')}`;
+    console.info('[Toner] API', options.method || 'GET', url);
+    const opts = {
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options,
+    };
+    delete opts.silent;
+    delete opts.loadingMessage;
+    if (opts.body && typeof opts.body === 'object') {
+      opts.body = JSON.stringify(opts.body);
+    }
+    let res;
+    try {
+      res = await fetch(url, opts);
+    } catch (networkErr) {
+      const err = new Error('Cannot reach API at ' + url + ' — is Apache running?');
+      err.cause = networkErr;
+      throw err;
+    }
+    let data = null;
+    try { data = await res.json(); } catch (_) { data = null; }
+    if (!res.ok || (data && data.ok === false)) {
+      const err = new Error((data && data.error) || `Request failed (${res.status}) at ${url}`);
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
+  } finally {
+    if (!silent) hideGlobalLoading();
   }
-  let data = null;
-  try { data = await res.json(); } catch (_) { data = null; }
-  if (!res.ok || (data && data.ok === false)) {
-    const err = new Error((data && data.error) || `Request failed (${res.status}) at ${url}`);
-    err.status = res.status;
-    err.data = data;
-    throw err;
-  }
-  return data;
 }
 
 async function detectBackend() {
   try {
-    const data = await apiRequest('health.php');
+    const data = await apiRequest('health.php', { silent: true });
     AppState.useBackend = !!(data && data.ok);
   } catch (_) {
     AppState.useBackend = false;
@@ -2156,14 +2397,29 @@ async function detectBackend() {
   return AppState.useBackend;
 }
 
-async function loadFromBackend() {
+async function loadFromBackendSilent() {
   const [inv, tx] = await Promise.all([
-    apiRequest('inventory.php'),
-    apiRequest('transactions.php'),
+    apiRequest('inventory.php', { silent: true }),
+    apiRequest('transactions.php', { silent: true }),
   ]);
   AppState.inks = inv.items || [];
   AppState.transactions = tx.transactions || [];
   AppState.tickets = [];
+  renderAlerts();
+}
+
+async function loadFromBackend() {
+  const [inv, tx] = await Promise.all([
+    apiRequest('inventory.php', { loadingMessage: 'Refreshing data…' }),
+    apiRequest('transactions.php', { silent: true }),
+  ]);
+  AppState.inks = inv.items || [];
+  AppState.transactions = tx.transactions || [];
+  AppState.tickets = [];
+  renderAlerts();
+  // Quiet email check: still alerts admins if stock remains low (respects 12h cooldown)
+  /* low-stock email on load optional - primary trigger is issuance */
+  triggerLowStockEmailCheck(false).catch(() => {});
 }
 
 async function apiAddToner(payload) {
@@ -2184,8 +2440,13 @@ async function apiRecordDelivery(payload) {
   return apiRequest('delivery.php', { method: 'POST', body: payload });
 }
 
-async function apiRecordRelease(payload) {
-  return apiRequest('release.php', { method: 'POST', body: payload });
+async function apiRecordRelease(payload, options = {}) {
+  return apiRequest('release.php', {
+    method: 'POST',
+    body: payload,
+    loadingMessage: options.loadingMessage || 'Issuing toner…',
+    silent: !!options.silent,
+  });
 }
 
 async function apiRecordDefective(payload) {
@@ -2331,38 +2592,62 @@ function escapeHTML(str) {
   }[tag] || tag));
 }
 
+/** Philippine Time (Asia/Manila) — 12-hour clock */
+const APP_TIMEZONE = 'Asia/Manila';
+
+function toManilaDate(input) {
+  if (input == null || input === '') return null;
+  if (input instanceof Date) return isNaN(input.getTime()) ? null : input;
+  let s = String(input).trim();
+  // Date-only (txn_date): treat as calendar day in PH
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return new Date(s + 'T12:00:00+08:00');
+  }
+  s = s.replace(' ', 'T');
+  if (s.includes('.')) s = s.split('.')[0]; // drop fractional seconds
+  // SQL UTC timestamps without Z → treat as UTC
+  if (!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s)) {
+    s += 'Z';
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return 'N/A';
   try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString('en-US', {
+    const d = toManilaDate(dateStr);
+    if (!d) return String(dateStr);
+    return d.toLocaleDateString('en-PH', {
+      timeZone: APP_TIMEZONE,
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
   } catch (e) {
-    return dateStr;
+    return String(dateStr);
   }
 }
 
 function formatDateTime(dateStr) {
   if (!dateStr) return 'N/A';
   try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString('en-US', {
+    const d = toManilaDate(dateStr);
+    if (!d) return String(dateStr);
+    return d.toLocaleString('en-PH', {
+      timeZone: APP_TIMEZONE,
+      year: 'numeric',
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
-    }) + ' ' + d.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
   } catch (e) {
-    return dateStr;
+    return String(dateStr);
   }
 }
+
 
 function normalizeRefNumber(ref) {
   return (ref || '').trim().toUpperCase();
@@ -2385,9 +2670,15 @@ function generateInkId() {
 // 7. NAVIGATION
 // ==========================================
 function navigateTo(pageId) {
-  AppState.currentPage = pageId;
-  const validPages = ['dashboard', 'inventory', 'transactions', 'locations', 'users'];
+  const validPages = ['dashboard', 'inventory', 'transactions', 'locations', 'logs', 'email-config', 'users'];
   if (!validPages.includes(pageId)) pageId = 'dashboard';
+  AppState.currentPage = pageId;
+  try {
+    localStorage.setItem('toner_ui_page', pageId);
+    localStorage.setItem('toner_ui_txn_tab', AppState.filters.transactionType || 'RECEIVED');
+    localStorage.setItem('toner_ui_txn_date', AppState.filters.transactionDate || 'ALL');
+    localStorage.setItem('toner_ui_txn_dept', AppState.filters.transactionDept || 'ALL');
+  } catch (_) {}
 
   // Toggle page sections
   document.querySelectorAll('.page-view').forEach(view => {
@@ -2425,6 +2716,10 @@ function navigateTo(pageId) {
     renderTransactions();
   } else if (pageId === 'locations') {
     loadLocationsPage();
+  } else if (pageId === 'logs') {
+    loadSystemLogs();
+  } else if (pageId === 'email-config') {
+    loadEmailSettings();
   } else if (pageId === 'users') {
     loadUsers();
   } else if (pageId === 'reports') {
@@ -2439,14 +2734,12 @@ function navigateTo(pageId) {
 // 8. DASHBOARD
 // ==========================================
 function renderDashboard() {
+  syncDashCustomRangeUI();
   const inks = AppState.inks;
-  const transactions = AppState.transactions;
-
-  // Total Inks
+  // Inventory levels = current snapshot (not period-filtered)
   const totalSkus = inks.length;
   const totalStock = inks.reduce((acc, item) => acc + (Number(item.quantity) || 0), 0);
 
-  // Low stock and Out of stock
   let lowStockCount = 0;
   let outStockCount = 0;
   inks.forEach(item => {
@@ -2455,30 +2748,31 @@ function renderDashboard() {
     else if (status === STOCK_STATUS.LOW_STOCK) lowStockCount++;
   });
 
-  // Today's Date String YYYY-MM-DD
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayDeliveries = transactions.filter(t => t.type === 'RECEIVED' && t.date.startsWith(todayStr));
-  const todayReleases = transactions.filter(t => t.type === 'RELEASED' && t.date.startsWith(todayStr));
+  // Movement KPIs / activity use selected dashboard period
+  const transactions = getDashboardFilteredTransactions();
+  const periodDeliveries = transactions.filter(t => t.type === 'RECEIVED');
+  const periodReleases = transactions.filter(t => t.type === 'RELEASED');
 
-  const todayDelUnits = todayDeliveries.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
-  const todayRelUnits = todayReleases.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
+  const todayDelUnits = periodDeliveries.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
+  const todayRelUnits = periodReleases.reduce((sum, t) => sum + (Number(t.quantity) || 0), 0);
 
-  const uniqueDelTickets = new Set(todayDeliveries.map(t => t.referenceNumber)).size;
-  const uniqueRelTickets = new Set(todayReleases.map(t => t.referenceNumber)).size;
+  const uniqueDelTickets = new Set(periodDeliveries.map(t => t.referenceNumber)).size;
+  const uniqueRelTickets = new Set(periodReleases.map(t => t.referenceNumber)).size;
 
   const totalTicketsProcessed = new Set(transactions.map(t => t.referenceNumber)).size;
 
-  const latestTxn = transactions.length > 0 ? transactions[transactions.length - 1] : null;
+  const latestTxn = transactions.length > 0
+    ? [...transactions].sort((a, b) => String(b.date || b.createdAt).localeCompare(String(a.date || a.createdAt)))[0]
+    : null;
 
-  // Update KPIs
   document.getElementById('kpi-total-skus').textContent = totalSkus;
   document.getElementById('kpi-total-stock').textContent = totalStock.toLocaleString();
   document.getElementById('kpi-low-stock').textContent = lowStockCount;
   document.getElementById('kpi-out-stock').textContent = outStockCount;
   document.getElementById('kpi-today-deliveries').textContent = `${todayDelUnits} units`;
-  document.getElementById('kpi-today-del-tickets').textContent = `${uniqueDelTickets} ticket(s) processed`;
+  document.getElementById('kpi-today-del-tickets').textContent = `${uniqueDelTickets} ticket(s) in period`;
   document.getElementById('kpi-today-releases').textContent = `${todayRelUnits} units`;
-  document.getElementById('kpi-today-rel-tickets').textContent = `${uniqueRelTickets} ticket(s) processed`;
+  document.getElementById('kpi-today-rel-tickets').textContent = `${uniqueRelTickets} ticket(s) in period`;
   document.getElementById('kpi-total-tickets').textContent = totalTicketsProcessed;
 
   if (latestTxn) {
@@ -2593,9 +2887,9 @@ function parseLocalDate(dateStr) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-function isDateInFilter(dateStr, filterType) {
+function isDateInFilter(dateStr, filterType, fromStrOverride, toStrOverride) {
   if (!filterType || filterType === 'ALL') return true;
-  if (!dateStr) return true; // keep rows with missing dates visible
+  if (!dateStr) return true;
 
   const itemDay = parseLocalDate(dateStr);
   if (!itemDay) return true;
@@ -2618,8 +2912,8 @@ function isDateInFilter(dateStr, filterType) {
   }
 
   if (filterType === 'CUSTOM') {
-    const fromStr = AppState.filters.transactionDateFrom;
-    const toStr = AppState.filters.transactionDateTo;
+    const fromStr = fromStrOverride !== undefined ? fromStrOverride : AppState.filters.transactionDateFrom;
+    const toStr = toStrOverride !== undefined ? toStrOverride : AppState.filters.transactionDateTo;
     if (!fromStr && !toStr) return true;
 
     let ok = true;
@@ -2635,6 +2929,41 @@ function isDateInFilter(dateStr, filterType) {
   }
 
   return true;
+}
+
+function getDashboardFilteredTransactions() {
+  const filterType = AppState.filters.dashboardDate || 'MONTH';
+  const from = AppState.filters.dashboardDateFrom || '';
+  const to = AppState.filters.dashboardDateTo || '';
+  return (AppState.transactions || []).filter(t =>
+    isDateInFilter(t.date || t.createdAt, filterType, from, to)
+  );
+}
+
+function syncDashCustomRangeUI() {
+  const wrap = document.getElementById('dash-custom-range');
+  const isCustom = AppState.filters.dashboardDate === 'CUSTOM';
+  if (wrap) {
+    if (isCustom) wrap.classList.remove('hidden');
+    else wrap.classList.add('hidden');
+  }
+  const from = document.getElementById('filter-dash-from');
+  const to = document.getElementById('filter-dash-to');
+  if (from) from.value = AppState.filters.dashboardDateFrom || '';
+  if (to) to.value = AppState.filters.dashboardDateTo || '';
+  const sel = document.getElementById('filter-dash-date');
+  if (sel && sel.value !== AppState.filters.dashboardDate) {
+    sel.value = AppState.filters.dashboardDate || 'MONTH';
+  }
+  const label = document.getElementById('dash-period-label');
+  if (label) {
+    const map = { ALL: 'All time', TODAY: 'Today', WEEK: 'Last 7 days', MONTH: 'This month', CUSTOM: 'Custom range' };
+    let text = map[AppState.filters.dashboardDate] || 'This month';
+    if (AppState.filters.dashboardDate === 'CUSTOM' && (AppState.filters.dashboardDateFrom || AppState.filters.dashboardDateTo)) {
+      text = (AppState.filters.dashboardDateFrom || '…') + ' → ' + (AppState.filters.dashboardDateTo || '…');
+    }
+    label.textContent = text;
+  }
 }
 
 function syncTxnCustomRangeUI() {
@@ -2657,13 +2986,35 @@ function syncTxnCustomRangeUI() {
 // ==========================================
 // 10. INVENTORY
 // ==========================================
+function resetInventoryFilters() {
+  if (!AppState.filters) AppState.filters = {};
+  AppState.filters.inventorySearch = '';
+  AppState.filters.inventoryStatus = 'ALL';
+  const invSearch = document.getElementById('filter-inv-search');
+  const invStatus = document.getElementById('filter-inv-status');
+  if (invSearch) {
+    invSearch.value = '';
+    invSearch.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  if (invStatus) {
+    invStatus.value = 'ALL';
+    invStatus.selectedIndex = 0; // All Statuses
+    invStatus.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  // Force state again (in case input handlers re-read stale values)
+  AppState.filters.inventorySearch = '';
+  AppState.filters.inventoryStatus = 'ALL';
+  renderInventory();
+}
+
 function renderInventory() {
+
   const tbody = document.getElementById('inventory-tbody');
   const emptyState = document.getElementById('inventory-empty-state');
   if (!tbody) return;
 
-  const search = AppState.filters.inventorySearch.toLowerCase().trim();
-  const statusFilter = AppState.filters.inventoryStatus;
+  const search = String(AppState.filters.inventorySearch || '').toLowerCase().trim();
+  const statusFilter = AppState.filters.inventoryStatus || 'ALL';
 
   // Aggregate by toner code so each code appears only once
   const byCode = {};
@@ -2969,7 +3320,9 @@ function closeRemoveTonerModal() {
   AppState.pendingRemoveTonerCode = null;
 }
 
-function confirmRemoveToner() {
+async function confirmRemoveToner() {
+  const ok = await appConfirm({ title: 'Remove toner', message: 'Remove this toner from inventory? This cannot be undone easily.', confirmText: 'Remove', danger: true });
+  if (!ok) return;
   const code = AppState.pendingRemoveTonerCode;
   if (!code) return;
   const key = code.toUpperCase();
@@ -3078,6 +3431,8 @@ function hideStockCardEditPanel() {
 }
 
 async function saveStockCard() {
+  const ok = await appConfirm({ title: 'Save stock card', message: 'Save changes to quantity, printers, and supplier?', confirmText: 'Save' });
+  if (!ok) return;
   const code = (document.getElementById('stock-card-ink-code')?.value || document.getElementById('stock-card-code')?.textContent || '').trim();
   if (!code) return;
   const qty = Math.max(0, parseInt(document.getElementById('stock-card-qty')?.value, 10) || 0);
@@ -3131,6 +3486,152 @@ function closeStockCard() {
   if (backdrop && !anyOpen) backdrop.classList.add('hidden');
 }
 
+
+function phTodayYmd() {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  } catch (_) {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+}
+
+function getStockCardDateBounds() {
+  const period = document.getElementById('stock-card-period')?.value || 'ALL';
+  const customFrom = document.getElementById('stock-card-from')?.value || '';
+  const customTo = document.getElementById('stock-card-to')?.value || '';
+  const today = phTodayYmd();
+  let from = null;
+  let to = null;
+  if (period === 'TODAY') {
+    from = today;
+    to = today;
+  } else if (period === 'WEEK') {
+    const d = toManilaDate(today + 'T12:00:00+08:00') || new Date();
+    d.setDate(d.getDate() - 6);
+    from = d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    to = today;
+  } else if (period === 'MONTH') {
+    from = today.slice(0, 8) + '01';
+    to = today;
+  } else if (period === 'CUSTOM') {
+    from = customFrom || null;
+    to = customTo || null;
+  }
+  return { period, from, to };
+}
+
+function txnDateYmd(t) {
+  const raw = (t.date || t.createdAt || '').toString();
+  if (!raw) return '';
+  const s = raw.replace(' ', 'T').split('T')[0];
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : '';
+}
+
+function syncStockCardCustomRangeUI() {
+  const period = document.getElementById('stock-card-period')?.value || 'ALL';
+  const wrap = document.getElementById('stock-card-custom-range');
+  if (wrap) {
+    if (period === 'CUSTOM') wrap.classList.remove('hidden');
+    else wrap.classList.add('hidden');
+  }
+}
+
+function renderStockCardMovements() {
+  const code = (AppState._stockCardCode || document.getElementById('stock-card-ink-code')?.value || '').toUpperCase();
+  const onHand = Number(AppState._stockCardOnHand != null ? AppState._stockCardOnHand : (document.getElementById('stock-card-onhand')?.textContent || 0)) || 0;
+  if (!code) return;
+
+  syncStockCardCustomRangeUI();
+  const { from, to } = getStockCardDateBounds();
+
+  const allTxns = (AppState.transactions || [])
+    .filter(t => (t.inkCode || '').toUpperCase() === code)
+    .slice()
+    .sort((a, b) => {
+      const da = new Date(a.createdAt || a.date || 0).getTime();
+      const db = new Date(b.createdAt || b.date || 0).getTime();
+      return da - db;
+    });
+
+  let netFromTxns = 0;
+  allTxns.forEach(t => {
+    if (t.type === 'RECEIVED') netFromTxns += Number(t.quantity) || 0;
+    else if (t.type === 'RELEASED') netFromTxns -= Number(t.quantity) || 0;
+  });
+  let balance = onHand - netFromTxns;
+
+  const tbody = document.getElementById('stock-card-tbody');
+  const empty = document.getElementById('stock-card-empty');
+  const rows = [];
+
+  rows.push(`
+    <tr class="bg-slate-50/80">
+      <td class="px-3 py-2.5 text-xs text-slate-500">—</td>
+      <td class="px-3 py-2.5 font-semibold text-slate-800">Beginning Balance</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-400">—</td>
+      <td class="px-3 py-2.5 text-right font-mono text-slate-400">—</td>
+      <td class="px-3 py-2.5 text-right font-mono text-slate-400">—</td>
+      <td class="px-3 py-2.5 text-right font-mono font-bold text-slate-900">${balance}</td>
+      <td class="px-3 py-2.5 text-xs text-slate-400">—</td>
+    </tr>
+  `);
+
+  let shown = 0;
+  allTxns.forEach(t => {
+    const ymd = txnDateYmd(t);
+    const inRange = (!from || (ymd && ymd >= from)) && (!to || (ymd && ymd <= to));
+
+    const dateLabel = formatDate(t.date || (t.createdAt || '').toString().split('T')[0]);
+    let label = t.type;
+    let stockIn = '—';
+    let stockOut = '—';
+    let note = '';
+    const qty = Number(t.quantity) || 0;
+
+    if (t.type === 'RECEIVED') {
+      label = 'Delivery Received';
+      stockIn = String(qty);
+      balance += qty;
+      note = t.supplier || '';
+    } else if (t.type === 'RELEASED') {
+      label = t.defective ? 'Issued (later defective)' : 'Issued';
+      stockOut = String(qty);
+      balance -= qty;
+      note = [t.department, t.location].filter(Boolean).join(' · ');
+    } else if (t.type === 'DEFECTIVE') {
+      label = 'Defective Return';
+      note = t.purpose || 'Flagged defective';
+    }
+
+    if (!inRange) return;
+    shown++;
+    rows.push(`
+      <tr class="hover:bg-slate-50">
+        <td class="px-3 py-2.5 text-xs text-slate-600 whitespace-nowrap">${escapeHTML(dateLabel)}</td>
+        <td class="px-3 py-2.5 font-medium text-slate-800">${escapeHTML(label)}</td>
+        <td class="px-3 py-2.5 font-mono text-xs font-semibold text-slate-900">${escapeHTML(t.referenceNumber || '—')}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-bold text-blue-600">${stockIn === '—' ? '—' : '+' + stockIn}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-600">${stockOut === '—' ? '—' : '-' + stockOut}</td>
+        <td class="px-3 py-2.5 text-right font-mono font-bold text-slate-900">${balance}</td>
+        <td class="px-3 py-2.5 text-xs text-slate-500 truncate" title="${escapeHTML(note)}">${escapeHTML(note || '—')}</td>
+      </tr>
+    `);
+  });
+
+  if (tbody) tbody.innerHTML = rows.join('');
+  if (empty) {
+    if (shown === 0 && allTxns.length === 0) empty.classList.remove('hidden');
+    else if (shown === 0) {
+      empty.textContent = 'No movements in the selected date range.';
+      empty.classList.remove('hidden');
+    } else {
+      empty.classList.add('hidden');
+      empty.textContent = 'No movement history for this toner yet.';
+    }
+  }
+}
+
 function openStockCard(inkCode) {
   const code = (inkCode || '').trim();
   if (!code) return;
@@ -3181,85 +3682,9 @@ function openStockCard(inkCode) {
   }
 
 
-  const txns = (AppState.transactions || [])
-    .filter(t => (t.inkCode || '').toUpperCase() === code.toUpperCase())
-    .slice()
-    .sort((a, b) => {
-      const da = new Date(a.createdAt || a.date || 0).getTime();
-      const db = new Date(b.createdAt || b.date || 0).getTime();
-      return da - db;
-    });
-
-  // Reconstruct opening balance so ending balance matches on-hand
-  let netFromTxns = 0;
-  txns.forEach(t => {
-    if (t.type === 'RECEIVED') netFromTxns += Number(t.quantity) || 0;
-    else if (t.type === 'RELEASED') netFromTxns -= Number(t.quantity) || 0;
-    // DEFECTIVE does not change usable stock
-  });
-  let balance = onHand - netFromTxns;
-
-  const tbody = document.getElementById('stock-card-tbody');
-  const empty = document.getElementById('stock-card-empty');
-  const rows = [];
-
-  // Beginning balance row
-  rows.push(`
-    <tr class="bg-slate-50/80">
-      <td class="px-3 py-2.5 text-xs text-slate-500">—</td>
-      <td class="px-3 py-2.5 font-semibold text-slate-800">Beginning Balance</td>
-      <td class="px-3 py-2.5 font-mono text-xs text-slate-400">—</td>
-      <td class="px-3 py-2.5 text-right font-mono text-slate-400">—</td>
-      <td class="px-3 py-2.5 text-right font-mono text-slate-400">—</td>
-      <td class="px-3 py-2.5 text-right font-mono font-bold text-slate-900">${balance}</td>
-      <td class="px-3 py-2.5 text-xs text-slate-400">—</td>
-    </tr>
-  `);
-
-  if (txns.length === 0) {
-    if (empty) empty.classList.remove('hidden');
-  } else if (empty) {
-    empty.classList.add('hidden');
-  }
-
-  txns.forEach(t => {
-    const dateLabel = formatDate(t.date || (t.createdAt || '').split('T')[0]);
-    let label = t.type;
-    let stockIn = '—';
-    let stockOut = '—';
-    let note = '';
-    const qty = Number(t.quantity) || 0;
-
-    if (t.type === 'RECEIVED') {
-      label = 'Delivery Received';
-      stockIn = String(qty);
-      balance += qty;
-      note = t.supplier || '';
-    } else if (t.type === 'RELEASED') {
-      label = t.defective ? 'Issued (later defective)' : 'Issued';
-      stockOut = String(qty);
-      balance -= qty;
-      note = [t.department, t.location].filter(Boolean).join(' · ');
-    } else if (t.type === 'DEFECTIVE') {
-      label = 'Defective Return';
-      note = t.purpose || 'Flagged defective';
-      // balance unchanged
-    }
-
-    rows.push(`
-      <tr class="hover:bg-slate-50">
-        <td class="px-3 py-2.5 text-xs text-slate-600 whitespace-nowrap">${escapeHTML(dateLabel)}</td>
-        <td class="px-3 py-2.5 font-medium text-slate-800">${escapeHTML(label)}</td>
-        <td class="px-3 py-2.5 font-mono text-xs font-semibold text-slate-900">${escapeHTML(t.referenceNumber || '—')}</td>
-        <td class="px-3 py-2.5 text-right font-mono font-bold text-blue-600">${stockIn === '—' ? '—' : '+' + stockIn}</td>
-        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-600">${stockOut === '—' ? '—' : '-' + stockOut}</td>
-        <td class="px-3 py-2.5 text-right font-mono font-bold text-slate-900">${balance}</td>
-        <td class="px-3 py-2.5 text-xs text-slate-500 truncate" title="${escapeHTML(note)}">${escapeHTML(note || '—')}</td>
-      </tr>
-    `);
-  });
-
-  if (tbody) tbody.innerHTML = rows.join('');
+  AppState._stockCardCode = code;
+  AppState._stockCardOnHand = onHand;
+  renderStockCardMovements();
 
   const backdrop = document.getElementById('modal-backdrop');
   const modal = document.getElementById('modal-stock-card');
@@ -3858,16 +4283,13 @@ function updateTxnTabUI() {
 
   const deptTabs = document.getElementById('txn-dept-tabs');
   if (deptTabs) {
-    if (type === 'RELEASED') deptTabs.classList.remove('hidden');
-    else deptTabs.classList.add('hidden');
+    if (type === 'RELEASED') {
+      deptTabs.classList.remove('hidden');
+      renderTxnDeptTabs();
+    } else {
+      deptTabs.classList.add('hidden');
+    }
   }
-
-  document.querySelectorAll('.txn-dept-tab').forEach(btn => {
-    const active = btn.getAttribute('data-txn-dept') === AppState.filters.transactionDept;
-    btn.className = active
-      ? 'txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white'
-      : 'txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
-  });
 
   const receivedCount = AppState.transactions.filter(t => t.type === 'RECEIVED').length;
   const releasedCount = AppState.transactions.filter(t => t.type === 'RELEASED').length;
@@ -3897,9 +4319,57 @@ function resolveTonerSupplier(inkCode) {
 }
 
 
+
+let _appConfirmResolve = null;
+
+function appConfirm({ title = 'Confirm', message = 'Are you sure?', confirmText = 'Confirm', cancelText = 'Cancel', danger = false } = {}) {
+  return new Promise((resolve) => {
+    _appConfirmResolve = resolve;
+    const titleEl = document.getElementById('app-confirm-title');
+    const msgEl = document.getElementById('app-confirm-message');
+    const okBtn = document.getElementById('btn-app-confirm-ok');
+    const cancelBtn = document.getElementById('btn-app-confirm-cancel');
+    if (titleEl) titleEl.textContent = title;
+    if (msgEl) msgEl.textContent = message;
+    if (okBtn) {
+      okBtn.textContent = confirmText;
+      okBtn.className = danger
+        ? 'px-4 py-2.5 text-sm font-semibold rounded-xl bg-rose-600 text-white hover:bg-rose-700'
+        : 'px-4 py-2.5 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black';
+    }
+    if (cancelBtn) cancelBtn.textContent = cancelText;
+    const modal = document.getElementById('modal-app-confirm');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    }
+    document.body.classList.add('overflow-hidden');
+  });
+}
+
+function closeAppConfirm(result) {
+  const modal = document.getElementById('modal-app-confirm');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+  document.body.classList.remove('overflow-hidden');
+  if (typeof _appConfirmResolve === 'function') {
+    const r = _appConfirmResolve;
+    _appConfirmResolve = null;
+    r(!!result);
+  }
+}
+
 async function sendDefectiveToSupplier(ref) {
   if (!ref) return;
-  if (!confirm(`Mark ${ref} as sent to the supplier for replacement?`)) return;
+  const ok = await appConfirm({
+    title: 'Send to supplier',
+    message: `Mark ${ref} as sent to the supplier for replacement?`,
+    confirmText: 'Send to supplier',
+    cancelText: 'Cancel'
+  });
+  if (!ok) return;
   try {
     await apiRequest('defective.php', {
       method: 'POST',
@@ -3983,6 +4453,618 @@ async function confirmReceiveReplacement() {
   }
 }
 
+
+function getKnownDepartments() {
+  const set = new Set();
+  (AppState.releaseLocations || []).forEach(r => {
+    const d = (r.department || '').toUpperCase().trim();
+    if (d) set.add(d);
+  });
+  (AppState.transactions || []).forEach(t => {
+    if (t.type !== 'RELEASED' && t.type !== 'DEFECTIVE') return;
+    const d = (t.department || '').toUpperCase().trim();
+    if (d) set.add(d);
+  });
+  return [...set].sort();
+}
+
+function renderTxnDeptTabs() {
+  const wrap = document.getElementById('txn-dept-tabs');
+  if (!wrap) return;
+  const current = AppState.filters.transactionDept || 'ALL';
+  const depts = getKnownDepartments();
+  let html = `<button type="button" data-txn-dept="ALL" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg ${current === 'ALL' ? 'bg-zinc-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">All Depts</button>`;
+  depts.forEach(d => {
+    const active = current === d;
+    html += `<button type="button" data-txn-dept="${escapeHTML(d)}" class="txn-dept-tab px-3 py-1.5 text-xs font-semibold rounded-lg ${active ? 'bg-zinc-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">${escapeHTML(d)}</button>`;
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.txn-dept-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      AppState.filters.transactionDept = btn.getAttribute('data-txn-dept') || 'ALL';
+      renderTxnDeptTabs();
+      renderTransactions();
+    });
+  });
+}
+
+function openDuplicateModal(ref, type) {
+  const modal = document.getElementById('modal-duplicate');
+  const refEl = document.getElementById('modal-dup-ref');
+  if (refEl) refEl.textContent = ref || '—';
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeDuplicateModal() {
+  const modal = document.getElementById('modal-duplicate');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+  document.body.classList.remove('overflow-hidden');
+}
+
+function openKpiDetail(kind) {
+  const titleEl = document.getElementById('kpi-detail-title');
+  const subEl = document.getElementById('kpi-detail-sub');
+  const bodyEl = document.getElementById('kpi-detail-body');
+  if (!bodyEl) return;
+  const periodTxns = typeof getDashboardFilteredTransactions === 'function' ? getDashboardFilteredTransactions() : (AppState.transactions || []);
+  const inks = AppState.inks || [];
+  let title = 'Details';
+  let sub = '';
+  let html = '';
+
+  if (kind === 'skus' || kind === 'stock') {
+    title = kind === 'skus' ? 'Toner SKUs' : 'Stock on hand';
+    sub = 'Current inventory master list';
+    html = `<div class="overflow-x-auto rounded-xl border border-slate-200"><table class="w-full text-sm text-left"><thead class="bg-slate-50 text-xs uppercase text-slate-500"><tr><th class="px-3 py-2">Code</th><th class="px-3 py-2">Description</th><th class="px-3 py-2 text-right">Qty</th></tr></thead><tbody class="divide-y">` +
+      inks.map(i => `<tr><td class="px-3 py-2 font-mono font-semibold">${escapeHTML(i.inkCode)}</td><td class="px-3 py-2">${escapeHTML(i.description || '—')}</td><td class="px-3 py-2 text-right font-mono">${Number(i.quantity)||0}</td></tr>`).join('') +
+      `</tbody></table></div>`;
+  } else if (kind === 'low' || kind === 'out') {
+    title = kind === 'low' ? 'Low stock items' : 'Out of stock';
+    sub = 'Based on reorder level';
+    const rows = inks.filter(i => {
+      const st = getStockStatus(i.quantity, i.reorderLevel);
+      return kind === 'low' ? st === STOCK_STATUS.LOW_STOCK : st === STOCK_STATUS.OUT_OF_STOCK;
+    });
+    if (!rows.length) html = '<p class="text-slate-500">None in this category.</p>';
+    else html = `<div class="overflow-x-auto rounded-xl border border-slate-200"><table class="w-full text-sm text-left"><thead class="bg-slate-50 text-xs uppercase text-slate-500"><tr><th class="px-3 py-2">Code</th><th class="px-3 py-2">Description</th><th class="px-3 py-2 text-right">Qty</th><th class="px-3 py-2 text-right">Reorder</th></tr></thead><tbody class="divide-y">` +
+      rows.map(i => `<tr><td class="px-3 py-2 font-mono font-semibold">${escapeHTML(i.inkCode)}</td><td class="px-3 py-2">${escapeHTML(i.description || '—')}</td><td class="px-3 py-2 text-right font-mono">${Number(i.quantity)||0}</td><td class="px-3 py-2 text-right font-mono">${Number(i.reorderLevel)||0}</td></tr>`).join('') +
+      `</tbody></table></div>`;
+  } else if (kind === 'deliveries' || kind === 'releases' || kind === 'tickets') {
+    const type = kind === 'deliveries' ? 'RECEIVED' : (kind === 'releases' ? 'RELEASED' : null);
+    title = kind === 'deliveries' ? 'Deliveries in period' : (kind === 'releases' ? 'Releases in period' : 'Tickets in period');
+    sub = 'Filtered by dashboard period';
+    let rows = periodTxns;
+    if (type) rows = rows.filter(t => t.type === type);
+    if (!rows.length) html = '<p class="text-slate-500">No transactions in this period.</p>';
+    else html = `<div class="overflow-x-auto rounded-xl border border-slate-200"><table class="w-full text-sm text-left"><thead class="bg-slate-50 text-xs uppercase text-slate-500"><tr><th class="px-3 py-2">Ref</th><th class="px-3 py-2">Date</th><th class="px-3 py-2">Code</th><th class="px-3 py-2">Type</th><th class="px-3 py-2 text-right">Qty</th></tr></thead><tbody class="divide-y">` +
+      [...rows].reverse().slice(0, 50).map(t => `<tr><td class="px-3 py-2 font-mono font-semibold">${escapeHTML(t.referenceNumber)}</td><td class="px-3 py-2 text-xs">${escapeHTML(formatDate(t.date||t.createdAt))}</td><td class="px-3 py-2 font-mono">${escapeHTML(t.inkCode)}</td><td class="px-3 py-2">${escapeHTML(t.type)}</td><td class="px-3 py-2 text-right font-mono">${Number(t.quantity)||0}</td></tr>`).join('') +
+      `</tbody></table></div>`;
+  } else if (kind === 'last') {
+    title = 'Last processed ticket';
+    const latest = periodTxns.length ? [...periodTxns].sort((a,b)=>String(b.date||b.createdAt).localeCompare(String(a.date||a.createdAt)))[0] : null;
+    if (!latest) html = '<p class="text-slate-500">No transactions in this period.</p>';
+    else {
+      sub = latest.referenceNumber || '';
+      html = `<dl class="space-y-2 text-sm">
+        <div class="flex justify-between gap-4 border-b border-slate-100 py-2"><dt class="text-slate-500">Reference</dt><dd class="font-mono font-semibold">${escapeHTML(latest.referenceNumber)}</dd></div>
+        <div class="flex justify-between gap-4 border-b border-slate-100 py-2"><dt class="text-slate-500">Type</dt><dd>${escapeHTML(latest.type)}</dd></div>
+        <div class="flex justify-between gap-4 border-b border-slate-100 py-2"><dt class="text-slate-500">Item</dt><dd class="font-mono">${escapeHTML(latest.inkCode)}</dd></div>
+        <div class="flex justify-between gap-4 border-b border-slate-100 py-2"><dt class="text-slate-500">Description</dt><dd>${escapeHTML(resolveTonerDescription(latest.inkCode)||'—')}</dd></div>
+        <div class="flex justify-between gap-4 border-b border-slate-100 py-2"><dt class="text-slate-500">Qty</dt><dd class="font-mono">${Number(latest.quantity)||0}</dd></div>
+        <div class="flex justify-between gap-4 border-b border-slate-100 py-2"><dt class="text-slate-500">Date</dt><dd>${escapeHTML(formatDate(latest.date||latest.createdAt))}</dd></div>
+        <div class="flex justify-between gap-4 py-2"><dt class="text-slate-500">Department</dt><dd>${escapeHTML(latest.department||'—')}</dd></div>
+      </dl>`;
+    }
+  }
+  if (titleEl) titleEl.textContent = title;
+  if (subEl) subEl.textContent = sub;
+  bodyEl.innerHTML = html;
+  const modal = document.getElementById('modal-kpi-detail');
+  if (modal) { modal.classList.remove('hidden'); modal.style.display = 'flex'; }
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeKpiDetail() {
+  const modal = document.getElementById('modal-kpi-detail');
+  if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
+  document.body.classList.remove('overflow-hidden');
+}
+
+async function openMailLogModal() {
+  const modal = document.getElementById('modal-mail-log');
+  if (modal) { modal.classList.remove('hidden'); modal.style.display = 'flex'; }
+  document.body.classList.add('overflow-hidden');
+  await refreshMailLog();
+}
+
+function closeMailLogModal() {
+  const modal = document.getElementById('modal-mail-log');
+  if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
+  document.body.classList.remove('overflow-hidden');
+}
+
+function summarizeMailPreview(text) {
+  const raw = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!raw) return 'No message preview available.';
+  // Strip technical bits and duplicate timestamps (time is shown once on the card)
+  let s = raw
+    .replace(/driver=\S+/gi, '')
+    .replace(/to=\S+/gi, '')
+    .replace(/subject=/gi, '')
+    .replace(/SMTP ERROR:?/gi, '')
+    .replace(/---/g, '')
+    .replace(/\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?/g, '')
+    .replace(/\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4},? \d{1,2}:\d{2}\s*(?:AM|PM)?/gi, '')
+    .replace(/\(Philippine Time\)/gi, '')
+    .replace(/Philippine Time/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  if (!s) s = 'Low-stock notification';
+  if (s.length > 140) s = s.slice(0, 137) + '…';
+  return s;
+}
+
+/** Mail log timestamps are written in Asia/Manila — format once in 12-hour PH time */
+function formatMailLogTime(loggedAt) {
+  if (!loggedAt) return '';
+  try {
+    let s = String(loggedAt).trim().replace(' ', 'T');
+    // Drop fractional seconds but keep timezone if present
+    s = s.replace(/(\.\d+)(?=[zZ]|[+-]\d{2}:?\d{2}$)/, '');
+    if (!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s)) {
+      // Bare stamp from our logger = already Asia/Manila wall clock (not UTC)
+      s = s.split('.')[0] + '+08:00';
+    }
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return String(loggedAt);
+    return d.toLocaleString('en-PH', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (_) {
+    return String(loggedAt);
+  }
+}
+
+function guessMailKind(entry) {
+  const blob = ((entry.subject || '') + ' ' + (entry.bodyPreview || '') + ' ' + (entry.meta || '')).toLowerCase();
+  if (blob.includes('low-stock') || blob.includes('low stock') || blob.includes('reorder')) return 'Low stock alert';
+  if (blob.includes('failed') || blob.includes('error')) return 'Delivery issue';
+  return 'System notification';
+}
+
+async function refreshMailLog() {
+  const body = document.getElementById('mail-log-body');
+  const countEl = document.getElementById('mail-log-count');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="flex flex-col items-center justify-center py-12 text-zinc-400">
+      <div class="w-8 h-8 border-2 border-zinc-200 border-t-zinc-500 rounded-full animate-spin mb-3"></div>
+      <p class="text-sm">Loading activity…</p>
+    </div>`;
+  try {
+    const data = await apiRequest('mail_log.php?limit=80');
+    const entries = data.entries || [];
+    if (countEl) countEl.textContent = entries.length ? entries.length + (entries.length === 1 ? ' message' : ' messages') : '';
+    if (!entries.length) {
+      body.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-14 px-6 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center text-zinc-300 mb-4 shadow-sm">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          </div>
+          <p class="text-sm font-medium text-zinc-800">No emails yet</p>
+          <p class="text-xs text-zinc-500 mt-1.5 max-w-[16rem] leading-relaxed">When low-stock alerts are sent, they will show up here with status and recipient.</p>
+        </div>`;
+      return;
+    }
+    body.innerHTML = entries.map((e, idx) => {
+      const ok = !!e.ok;
+      const kind = guessMailKind(e);
+      const preview = summarizeMailPreview(e.bodyPreview || e.meta || '');
+      const to = (e.to || '').trim() || 'Unknown recipient';
+      const subject = (e.subject || '').trim() || kind;
+      const driver = (e.driver || '').toUpperCase();
+      const statusLabel = ok ? 'Delivered' : 'Failed';
+      const statusClass = ok
+        ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/15'
+        : 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/15';
+      const iconBg = ok ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600';
+      const icon = ok
+        ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+        : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+      const whenLabel = formatMailLogTime(e.loggedAt || '');
+      return `
+        <article class="group bg-white rounded-2xl border border-zinc-200/80 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all p-4">
+          <div class="flex gap-3">
+            <div class="w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center shrink-0">${icon}</div>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2 justify-between">
+                <h4 class="text-sm font-semibold text-zinc-900 tracking-tight truncate">${escapeHTML(subject)}</h4>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${statusClass}">${statusLabel}</span>
+              </div>
+              <p class="text-xs text-zinc-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                ${whenLabel ? `<span class="text-zinc-500">${escapeHTML(whenLabel)}</span><span class="text-zinc-300">·</span>` : ''}
+                <span class="font-medium text-zinc-600">${escapeHTML(kind)}</span>
+                <span class="text-zinc-300">·</span>
+                <span class="truncate">${escapeHTML(to)}</span>
+                ${driver ? `<span class="text-zinc-300">·</span><span class="text-[10px] uppercase tracking-wider text-zinc-400">${escapeHTML(driver)}</span>` : ''}
+              </p>
+              <p class="mt-2.5 text-xs text-zinc-600 leading-relaxed line-clamp-3">${escapeHTML(preview)}</p>
+            </div>
+          </div>
+        </article>`;
+    }).join('');
+  } catch (err) {
+    if (countEl) countEl.textContent = '';
+    body.innerHTML = `
+      <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-6 text-center">
+        <p class="text-sm font-medium text-rose-800">Couldn’t load email activity</p>
+        <p class="text-xs text-rose-600 mt-1">${escapeHTML(err.message || 'Unknown error')}</p>
+      </div>`;
+  }
+}
+
+async function clearMailLog() {
+  if (!confirm('Clear the entire mail log file?')) return;
+  try {
+    await apiRequest('mail_log.php', { method: 'DELETE' });
+    await refreshMailLog();
+    showToast('Mail log cleared.', 'success');
+  } catch (e) {
+    showToast(e.message || 'Clear failed', 'error');
+  }
+}
+
+
+
+function syncLogsCustomRangeUI() {
+  const period = document.getElementById('filter-logs-period')?.value || 'MONTH';
+  const wrap = document.getElementById('logs-custom-range');
+  if (wrap) {
+    if (period === 'CUSTOM') wrap.classList.remove('hidden');
+    else wrap.classList.add('hidden');
+  }
+}
+
+function populateLogsFilterMeta(meta, keepSelection) {
+  const actionSel = document.getElementById('filter-logs-action');
+  const actorSel = document.getElementById('filter-logs-actor');
+  const prevAction = keepSelection ? (actionSel?.value || 'ALL') : 'ALL';
+  const prevActor = keepSelection ? (actorSel?.value || 'ALL') : 'ALL';
+  if (actionSel) {
+    const actions = (meta && meta.actions) || [];
+    actionSel.innerHTML = '<option value="ALL">All actions</option>' +
+      actions.map(a => `<option value="${escapeHTML(a.key)}">${escapeHTML(a.label || a.key)}</option>`).join('');
+    if ([...actionSel.options].some(o => o.value === prevAction)) actionSel.value = prevAction;
+  }
+  if (actorSel) {
+    const actors = (meta && meta.actors) || [];
+    actorSel.innerHTML = '<option value="ALL">All admins</option>' +
+      actors.map(a => {
+        const val = a.username || a.name || '';
+        const label = a.name && a.username && a.name !== a.username
+          ? `${a.name} (${a.username})` : (a.name || a.username || '');
+        return `<option value="${escapeHTML(val)}">${escapeHTML(label)}</option>`;
+      }).join('');
+    if ([...actorSel.options].some(o => o.value === prevActor)) actorSel.value = prevActor;
+  }
+}
+
+async function loadSystemLogs() {
+  const tbody = document.getElementById('logs-tbody');
+  const q = (document.getElementById('filter-logs-search')?.value || '').trim();
+  const period = document.getElementById('filter-logs-period')?.value || 'MONTH';
+  const action = document.getElementById('filter-logs-action')?.value || 'ALL';
+  const actor = document.getElementById('filter-logs-actor')?.value || 'ALL';
+  const from = document.getElementById('filter-logs-from')?.value || '';
+  const to = document.getElementById('filter-logs-to')?.value || '';
+  syncLogsCustomRangeUI();
+  if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-10 text-center text-slate-400">Loading…</td></tr>';
+  try {
+    const params = new URLSearchParams();
+    params.set('limit', '200');
+    if (q) params.set('q', q);
+    if (period && period !== 'ALL') params.set('period', period);
+    if (period === 'CUSTOM') {
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      params.set('period', 'CUSTOM');
+    }
+    if (action && action !== 'ALL') params.set('action', action);
+    if (actor && actor !== 'ALL') params.set('actor', actor);
+    const data = await apiRequest('logs.php?' + params.toString());
+    populateLogsFilterMeta(data.meta, true);
+    const logs = data.logs || [];
+    if (!logs.length) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-10 text-center text-slate-400">No logs match these filters.</td></tr>';
+      return;
+    }
+    if (tbody) {
+      tbody.innerHTML = logs.map(L => {
+        const when = L.createdAt ? formatDateTime(L.createdAt) : '—';
+        let admin = escapeHTML(L.actorName || L.actorUsername || '—');
+        if (L.actorName && L.actorUsername && L.actorName !== L.actorUsername) {
+          admin = `${escapeHTML(L.actorName)} <span class="text-xs text-slate-400">(${escapeHTML(L.actorUsername)})</span>`;
+        }
+        const parts = [];
+        if (L.details) parts.push(escapeHTML(L.details));
+        if (L.referenceNumber) parts.push('<span class="font-mono text-xs">' + escapeHTML(L.referenceNumber) + '</span>');
+        if (L.itemCode) parts.push('<span class="font-mono text-xs">' + escapeHTML(L.itemCode) + '</span>');
+        const details = parts.length ? parts.join(' · ') : '—';
+        return `<tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">${escapeHTML(when)}</td>
+          <td class="px-4 py-3 font-semibold text-slate-900">${escapeHTML(L.actionLabel || L.actionKey || '—')}</td>
+          <td class="px-4 py-3 text-sm text-slate-600">${details}</td>
+          <td class="px-4 py-3 text-sm">${admin}</td>
+        </tr>`;
+      }).join('');
+    }
+  } catch (e) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-rose-600 text-sm">${escapeHTML(e.message || 'Failed to load logs')}</td></tr>`;
+  }
+}
+
+function resetLogsFilters() {
+  const s = document.getElementById('filter-logs-search');
+  const p = document.getElementById('filter-logs-period');
+  const a = document.getElementById('filter-logs-action');
+  const u = document.getElementById('filter-logs-actor');
+  const f = document.getElementById('filter-logs-from');
+  const to = document.getElementById('filter-logs-to');
+  if (s) s.value = '';
+  if (p) p.value = 'MONTH';
+  if (a) a.value = 'ALL';
+  if (u) u.value = 'ALL';
+  if (f) f.value = '';
+  if (to) to.value = '';
+  syncLogsCustomRangeUI();
+  loadSystemLogs();
+}
+
+/* formatDateTime: use global PH 12-hour helper above */
+
+
+
+
+async function fillAlertRecipientSelect(selected) {
+  const sel = document.getElementById('cfg-alert-recipient');
+  if (!sel) return;
+  let users = AppState.adminUsers || [];
+  if (!users.length) {
+    try {
+      const data = await apiRequest('users.php');
+      users = (data.users || []).filter(u => u.isActive !== false);
+      AppState.adminUsers = users;
+    } catch (_) { users = []; }
+  }
+  const emails = users
+    .map(u => String(u.username || '').trim().toLowerCase())
+    .filter(e => e && e.includes('@'));
+  const current = (selected || '').trim().toLowerCase();
+  if (current && !emails.includes(current)) emails.unshift(current);
+  sel.innerHTML = '<option value="">— Select registered admin email —</option>' +
+    emails.map(e => {
+      const u = users.find(x => String(x.username || '').toLowerCase() === e);
+      const label = u && u.fullName ? `${u.fullName} (${e})` : e;
+      return `<option value="${escapeHTML(e)}">${escapeHTML(label)}</option>`;
+    }).join('');
+  if (current) sel.value = current;
+}
+
+async function loadEmailSettings() {
+  const status = document.getElementById('cfg-email-status');
+  try {
+    const data = await apiRequest('settings.php');
+    const e = data.email || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+    set('cfg-smtp-host', e.smtp_host || '');
+    set('cfg-smtp-port', e.smtp_port != null ? e.smtp_port : 465);
+    set('cfg-smtp-enc', (e.smtp_encryption || 'ssl').toLowerCase());
+    set('cfg-smtp-user', e.smtp_user || '');
+    await fillAlertRecipientSelect(e.alert_recipient || e.admin_email || '');
+    set('cfg-smtp-pass', '');
+    set('cfg-cooldown', e.cooldown_hours != null ? e.cooldown_hours : 12);
+    const hint = document.getElementById('cfg-smtp-pass-hint');
+    if (hint) {
+      hint.textContent = e.smtp_pass_set
+        ? 'SMTP password is stored encrypted in the database. Leave blank to keep it, or enter a new password to replace it.'
+        : 'No SMTP password saved yet — enter the mailbox password; it will be encrypted in the database.';
+    }
+    if (status) status.textContent = '';
+  } catch (err) {
+    if (status) status.textContent = err.message || 'Failed to load settings';
+  }
+}
+
+async function saveEmailSettings(ev) {
+  if (ev) ev.preventDefault();
+  const status = document.getElementById('cfg-email-status');
+  const btn = document.getElementById('btn-save-email-settings');
+  const smtpUser = (document.getElementById('cfg-smtp-user')?.value || '').trim();
+  const payload = {
+    email: {
+      driver: 'smtp',
+      smtp_host: document.getElementById('cfg-smtp-host')?.value || '',
+      smtp_port: parseInt(document.getElementById('cfg-smtp-port')?.value || '465', 10),
+      smtp_encryption: document.getElementById('cfg-smtp-enc')?.value || 'ssl',
+      smtp_user: smtpUser,
+      smtp_pass: document.getElementById('cfg-smtp-pass')?.value || '',
+      from_email: smtpUser,
+      from_name: 'Toner Inventory System',
+      alert_recipient: (document.getElementById('cfg-alert-recipient')?.value || '').trim().toLowerCase(),
+      admin_email: (document.getElementById('cfg-alert-recipient')?.value || '').trim().toLowerCase(),
+      cooldown_hours: parseInt(document.getElementById('cfg-cooldown')?.value || '12', 10),
+      subject_prefix: '[Toner Alert]',
+    }
+  };
+  try {
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    await apiRequest('settings.php', { method: 'POST', body: payload });
+    showToast('Email settings saved to database.', 'success');
+    if (status) status.textContent = 'Saved to database. Outbound alerts will use this SMTP configuration.';
+    document.getElementById('cfg-smtp-pass').value = '';
+    await loadEmailSettings();
+  } catch (err) {
+    showToast(err.message || 'Save failed', 'error');
+    if (status) status.textContent = err.message || 'Save failed';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save email settings'; }
+  }
+}
+
+async function testEmailSettings() {
+  const status = document.getElementById('cfg-email-status');
+  try {
+    if (status) status.textContent = 'Sending low-stock test using current SMTP settings…';
+    const data = await apiRequest('check_low_stock.php?force=1');
+    const r = data.result || {};
+    if (r.sent) {
+      showToast('Test/alert email sent.', 'success');
+      if (status) status.textContent = 'Email sent to ' + (r.to || 'admins') + '. Check Mail log.';
+    } else {
+      showToast(r.error || r.reason || 'Check completed — see status', r.error ? 'error' : 'info');
+      if (status) status.textContent = JSON.stringify(r).slice(0, 200);
+    }
+  } catch (err) {
+    showToast(err.message || 'Test failed', 'error');
+    if (status) status.textContent = err.message || 'Test failed';
+  }
+}
+
+
+function updateSidebarUser() {
+  const me = AppState.currentUser || {};
+  const name = (me.fullName || me.name || '').trim();
+  const user = (me.username || me.email || '').trim();
+  const nameEl = document.getElementById('sidebar-user-name');
+  const emailEl = document.getElementById('sidebar-user-email');
+  const av = document.getElementById('sidebar-user-avatar');
+  if (nameEl) nameEl.textContent = name || user || 'Admin';
+  if (emailEl) emailEl.textContent = user && name ? user : (user || 'Signed in');
+  if (av) {
+    const label = name || user || 'A';
+    const parts = label.split(/\s+/).filter(Boolean);
+    let initials = parts.length >= 2
+      ? (parts[0][0] + parts[1][0])
+      : label.slice(0, 2);
+    av.textContent = initials.toUpperCase();
+  }
+}
+
+
+function parseDefectiveMeta(notes) {
+  const raw = String(notes || '');
+  const get = (key) => {
+    const m = raw.match(new RegExp('\\[' + key + '\\]\\s*(.+)', 'i'));
+    return m ? m[1].trim() : '';
+  };
+  const human = raw.split(/\n/).filter(line => !/^\s*\[(SENT_AT|RECV_AT|ACCEPTED_BY|RECORDED_BY)\]/i.test(line)).join('\n').trim();
+  return { sentAt: get('SENT_AT'), receivedAt: get('RECV_AT'), acceptedByMeta: get('ACCEPTED_BY'), recordedByMeta: get('RECORDED_BY'), humanNotes: human };
+}
+
+
+function openReleaseDetailModal(ref, id) {
+  const list = AppState.transactions || [];
+  let t = null;
+  if (id) t = list.find(x => x.type === 'RELEASED' && String(x.id) === String(id));
+  if (!t) t = list.find(x => x.type === 'RELEASED' && normalizeRefNumber(x.referenceNumber) === normalizeRefNumber(ref));
+  if (!t) { showToast('Issuance record not found.', 'warning'); return; }
+  const desc = resolveTonerDescription(t.inkCode) || t.description || '';
+  const refEl = document.getElementById('rel-detail-ref');
+  if (refEl) refEl.textContent = t.referenceNumber || ref || '—';
+  const body = document.getElementById('rel-detail-body');
+  const row = (label, val) => `<div class="flex justify-between gap-4 border-b border-slate-100 py-2.5"><dt class="text-slate-500 shrink-0">${label}</dt><dd class="text-slate-900 font-medium text-right break-words">${val}</dd></div>`;
+  const yieldVal = (t.actualYield != null && t.actualYield !== '' && Number(t.actualYield) > 0)
+    ? Number(t.actualYield).toLocaleString() + ' pages'
+    : '—';
+  if (body) {
+    body.innerHTML = `<dl>
+      ${row('Date', escapeHTML(formatDate(t.date || t.createdAt) || '—'))}
+      ${row('Item', escapeHTML((t.inkCode || '') + (desc ? ' — ' + desc : '')))}
+      ${row('Department', escapeHTML(t.department || '—'))}
+      ${row('Location', escapeHTML(t.location || '—'))}
+      ${row('Printer assigned', escapeHTML(t.locationPrinter || '—'))}
+      ${row('Actual yield', escapeHTML(yieldVal))}
+      ${row('Issued by', escapeHTML(t.issuedBy || '—'))}
+      ${row('Recorded by', escapeHTML(t.recordedBy || '—'))}
+      ${row('Purpose', escapeHTML(t.purpose || 'Stock issuance'))}
+      ${t.defective ? row('Flag', '<span class="text-rose-700 font-semibold">Later marked defective</span>') : ''}
+    </dl>`;
+  }
+  const modal = document.getElementById('modal-release-detail');
+  if (modal) { modal.classList.remove('hidden'); modal.style.display = 'flex'; }
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeReleaseDetailModal() {
+  const modal = document.getElementById('modal-release-detail');
+  if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
+  document.body.classList.remove('overflow-hidden');
+}
+
+function openDefectiveDetailModal(ref) {
+  const t = (AppState.transactions || []).find(x => x.type === 'DEFECTIVE' && normalizeRefNumber(x.referenceNumber) === normalizeRefNumber(ref));
+  if (!t) { showToast('Defective record not found.', 'warning'); return; }
+  const st = String(t.status || 'DEFECTIVE').toUpperCase();
+  const meta = parseDefectiveMeta(t.defectiveNotes || '');
+  const desc = resolveTonerDescription(t.inkCode) || t.description || '';
+  const statusLabel = st === 'SENT_TO_SUPPLIER' ? 'Sent to supplier' : st === 'REPLACED' ? 'Replaced (back in inventory)' : 'Defective';
+  const refEl = document.getElementById('def-detail-ref');
+  if (refEl) refEl.textContent = t.referenceNumber || ref;
+  const body = document.getElementById('def-detail-body');
+  const row = (label, val) => `<div class="flex justify-between gap-4 border-b border-slate-100 py-2.5"><dt class="text-slate-500 shrink-0">${label}</dt><dd class="text-slate-900 font-medium text-right break-words">${val}</dd></div>`;
+  if (body) {
+    body.innerHTML = `<dl>
+      ${row('Status', escapeHTML(statusLabel))}
+      ${row('Item', escapeHTML((t.inkCode || '') + (desc ? ' — ' + desc : '')))}
+      ${row('Department', escapeHTML(t.department || '—'))}
+      ${row('Location', escapeHTML(t.location || '—'))}
+      ${row('Flagged on', escapeHTML(formatDateTime(t.defectiveAt || t.createdAt || t.date) || '—'))}
+      ${row('Sent to supplier', escapeHTML(meta.sentAt ? formatDateTime(meta.sentAt) : (st === 'SENT_TO_SUPPLIER' || st === 'REPLACED' ? 'Recorded' : 'Not sent yet')))}
+      ${row('Received back to inventory', escapeHTML(meta.receivedAt ? formatDateTime(meta.receivedAt) : (st === 'REPLACED' ? 'Recorded' : 'Not received yet')))}
+      ${row('Accepted by', escapeHTML(t.issuedBy || meta.acceptedByMeta || '—'))}
+      ${row('Transacted / recorded by', escapeHTML(t.recordedBy || meta.recordedByMeta || '—'))}
+      ${row('Notes', escapeHTML(meta.humanNotes || t.purpose || '—'))}
+    </dl>`;
+  }
+  const actions = document.getElementById('def-detail-actions');
+  if (actions) {
+    let html = '';
+    if (st === 'DEFECTIVE') html = `<button type="button" id="def-detail-send" class="px-3 py-2 text-xs font-semibold rounded-xl border border-amber-200 text-amber-800 bg-amber-50" data-ref="${escapeHTML(t.referenceNumber)}">Send to supplier</button>`;
+    else if (st === 'SENT_TO_SUPPLIER') html = `<button type="button" id="def-detail-recv" class="px-3 py-2 text-xs font-semibold rounded-xl border border-emerald-200 text-emerald-800 bg-emerald-50" data-ref="${escapeHTML(t.referenceNumber)}" data-code="${escapeHTML(t.inkCode)}">Receive replacement</button>`;
+    actions.innerHTML = html;
+    document.getElementById('def-detail-send')?.addEventListener('click', () => {
+      closeDefectiveDetailModal();
+      sendDefectiveToSupplier(t.referenceNumber);
+    });
+    document.getElementById('def-detail-recv')?.addEventListener('click', () => {
+      closeDefectiveDetailModal();
+      openReceiveReplacementModal(t.referenceNumber, t.inkCode || '');
+    });
+  }
+  const modal = document.getElementById('modal-defective-detail');
+  if (modal) { modal.classList.remove('hidden'); modal.style.display = 'flex'; }
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeDefectiveDetailModal() {
+  const modal = document.getElementById('modal-defective-detail');
+  if (modal) { modal.classList.add('hidden'); modal.style.display = 'none'; }
+  document.body.classList.remove('overflow-hidden');
+}
+
 function renderTransactions() {
   const tbody = document.getElementById('txns-tbody');
   const emptyState = document.getElementById('txns-empty-state');
@@ -4054,10 +5136,7 @@ function renderTransactions() {
         <th class="px-4 py-3.5">Toner Code</th>
         <th class="px-4 py-3.5">Description</th>
         <th class="px-4 py-3.5">Status</th>
-        <th class="px-4 py-3.5">Department</th>
-        <th class="px-4 py-3.5">Location</th>
-        <th class="px-4 py-3.5">Notes</th>
-        <th class="px-4 py-3.5">Actions</th>`;
+        <th class="px-4 py-3.5">Action</th>`;
     } else {
       theadRow.innerHTML = `
         <th class="px-4 py-3.5">Ticket Ref</th>
@@ -4065,9 +5144,7 @@ function renderTransactions() {
         <th class="px-4 py-3.5">Toner Code</th>
         <th class="px-4 py-3.5">Description</th>
         <th class="px-4 py-3.5">Department</th>
-        <th class="px-4 py-3.5">Location</th>
-        <th class="px-4 py-3.5">Issued by</th>
-        <th class="px-4 py-3.5">Recorded by</th>`;
+        <th class="px-4 py-3.5">Action</th>`;
     }
   }
 
@@ -4098,14 +5175,7 @@ function renderTransactions() {
       } else if (st === 'REPLACED') {
         statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">REPLACED</span>';
       }
-      let actions = '<span class="text-xs text-slate-400">—</span>';
-      if (st === 'DEFECTIVE') {
-        actions = `<button type="button" class="btn-def-send text-xs font-semibold text-amber-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}">Send to supplier</button>`;
-      } else if (st === 'SENT_TO_SUPPLIER') {
-        actions = `<button type="button" class="btn-def-receive text-xs font-semibold text-emerald-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}" data-code="${escapeHTML(t.inkCode)}">Receive replacement</button>`;
-      } else if (st === 'REPLACED') {
-        actions = `<span class="text-xs text-slate-500">By ${escapeHTML(t.issuedBy || '—')}</span>`;
-      }
+      const actions = `<button type="button" class="btn-def-view text-xs font-semibold text-blue-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}">View</button>`;
       return `
         <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-4 py-3.5 font-mono font-bold text-rose-700">${escapeHTML(t.referenceNumber)}</td>
@@ -4113,11 +5183,6 @@ function renderTransactions() {
           <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
           <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(desc || '—')}</td>
           <td class="px-4 py-3.5">${statusBadge}</td>
-          <td class="px-4 py-3.5">
-            <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
-          </td>
-          <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.location || '—')}</td>
-          <td class="px-4 py-3.5 text-xs text-slate-500">${escapeHTML(t.purpose || '—')}</td>
           <td class="px-4 py-3.5">${actions}</td>
         </tr>`;
     }
@@ -4134,9 +5199,9 @@ function renderTransactions() {
         <td class="px-4 py-3.5">
           <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">${escapeHTML(t.department || '—')}</span>
         </td>
-        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.location || '—')}</td>
-        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.issuedBy || '—')}</td>
-        <td class="px-4 py-3.5 text-sm text-slate-700">${escapeHTML(t.recordedBy || '—')}</td>
+        <td class="px-4 py-3.5">
+          <button type="button" class="btn-rel-view text-xs font-semibold text-blue-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}" data-id="${escapeHTML(t.id || '')}">View</button>
+        </td>
       </tr>`;
   }).join('');
 }
@@ -4266,21 +5331,23 @@ function renderAlerts() {
 
   lowOrOut.forEach(item => {
     const isOut = Number(item.quantity) <= 0;
+    const code = item.inkCode || '';
+    const desc = (item.description || '').trim();
+    const label = desc ? `${code} — ${desc}` : code;
     AppState.notifications.push({
-      id: 'stock-' + item.inkCode,
+      id: 'stock-' + code,
       type: isOut ? 'danger' : 'warning',
-      title: isOut ? 'Out of Stock' : 'Low Stock',
+      title: isOut ? 'Out of stock' : 'Low stock alert',
       message: isOut
-        ? `${item.inkCode} has 0 units remaining.`
-        : `${item.inkCode} is low (${item.quantity} left; reorder at ${item.reorderLevel}).`,
+        ? `${label} has 0 units. Order replacement soon.`
+        : `${label} is low (${item.quantity} on hand; reorder at ${item.reorderLevel}).`,
       time: new Date().toISOString(),
       read: false,
       source: 'stock',
-      inkCode: item.inkCode
+      inkCode: code
     });
   });
 
-  // Sort: unread first, then newest
   AppState.notifications.sort((a, b) => {
     if (a.read !== b.read) return a.read ? 1 : -1;
     return new Date(b.time) - new Date(a.time);
@@ -4288,6 +5355,31 @@ function renderAlerts() {
 
   renderNotifications();
 }
+
+/** Email admins if inventory is still low/out (server cooldown applies unless force). */
+async function triggerLowStockEmailCheck(force = false) {
+  try {
+    const q = force ? 'check_low_stock.php?force=1' : 'check_low_stock.php';
+    const data = await apiRequest(q);
+    const r = data.result || {};
+    if (r.sent) {
+      showToast('Low-stock email sent to admins.', 'success');
+      pushNotification('warning', 'Low-stock email sent', `Alerted ${r.alerted || 0} item(s).`, { source: 'action' });
+    } else if ((r.low_count || 0) + (r.out_count || 0) === 0) {
+      if (force) showToast('Stock levels are OK — no alert needed.', 'info');
+    } else if (r.reason === 'no_recipients') {
+      showToast(r.error || 'No admin emails configured.', 'warning');
+    } else if (r.error) {
+      showToast(r.error, 'error');
+    } else if (force) {
+      showToast('Alert checked (may be in cooldown or already notified).', 'info');
+    }
+  } catch (e) {
+    if (force) showToast(e.message || 'Email check failed', 'error');
+    console.warn('[Toner] low-stock email check', e);
+  }
+}
+
 
 function renderNotifications() {
   const list = document.getElementById('notif-list');
@@ -4347,7 +5439,107 @@ function renderCharts() {
   if (typeof Chart === 'undefined') return;
   renderDepartmentDemandChart();
   renderStockStatusChart();
+  renderAvgYieldChart();
 }
+
+function renderAvgYieldChart() {
+  const canvas = document.getElementById('chart-avg-yield');
+  if (!canvas) return;
+  if (AppState.charts.avgYield) {
+    try { AppState.charts.avgYield.destroy(); } catch (_) {}
+  }
+
+  const periodTxns = (typeof getDashboardFilteredTransactions === 'function')
+    ? getDashboardFilteredTransactions()
+    : (AppState.transactions || []);
+
+  // Group RELEASED with positive actualYield by toner code (or description)
+  const buckets = {}; // code -> { sum, n, label }
+  let totalSum = 0, totalN = 0;
+  periodTxns.forEach(t => {
+    if (t.type !== 'RELEASED') return;
+    const y = t.actualYield != null ? Number(t.actualYield) : (t.yield != null ? Number(t.yield) : NaN);
+    if (!Number.isFinite(y) || y <= 0) return;
+    const code = (t.inkCode || '').toUpperCase() || 'UNKNOWN';
+    const desc = (typeof resolveTonerDescription === 'function' ? resolveTonerDescription(code) : '') || code;
+    if (!buckets[code]) buckets[code] = { sum: 0, n: 0, label: desc };
+    buckets[code].sum += y;
+    buckets[code].n += 1;
+    totalSum += y;
+    totalN += 1;
+  });
+
+  const kpi = document.getElementById('kpi-avg-yield');
+  if (kpi) {
+    kpi.textContent = totalN > 0
+      ? `Overall avg: ${Math.round(totalSum / totalN).toLocaleString()} pages (${totalN} issuance${totalN === 1 ? '' : 's'})`
+      : 'Avg: — (no yield data in period)';
+  }
+
+  const entries = Object.entries(buckets)
+    .map(([code, b]) => ({ code, avg: b.sum / b.n, label: b.label, n: b.n }))
+    .sort((a, b) => b.avg - a.avg)
+    .slice(0, 12);
+
+  if (entries.length === 0) {
+    AppState.charts.avgYield = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: ['No yield data'],
+        datasets: [{ label: 'Avg pages', data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Record yields on issuance to populate this chart', font: { size: 12 } }
+        },
+        scales: { y: { beginAtZero: true, max: 1000 } }
+      }
+    });
+    return;
+  }
+
+  const colors = ['#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#14b8a6'];
+  AppState.charts.avgYield = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: entries.map(e => e.label.length > 28 ? e.label.slice(0, 26) + '…' : e.label),
+      datasets: [{
+        label: 'Average pages',
+        data: entries.map(e => Math.round(e.avg)),
+        backgroundColor: entries.map((_, i) => colors[i % colors.length]),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: (ctx) => {
+              const e = entries[ctx.dataIndex];
+              return e ? `From ${e.n} issuance(s) · ${e.code}` : '';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Pages', font: { size: 11 } }
+        },
+        x: {
+          ticks: { maxRotation: 45, minRotation: 0, font: { size: 10 } }
+        }
+      }
+    }
+  });
+}
+
 
 function renderStockStatusChart() {
   const canvas = document.getElementById('chart-stock-status');
@@ -4403,28 +5595,21 @@ function renderDepartmentDemandChart() {
     AppState.charts.activity.destroy();
   }
 
-  // Frequency of toner need = units RELEASED per department (from transactions)
+  // Frequency of toner need = units RELEASED per department (dashboard period)
+  const periodTxns = (typeof getDashboardFilteredTransactions === 'function')
+    ? getDashboardFilteredTransactions()
+    : (AppState.transactions || []);
   const demand = {};
-  AppState.transactions
+  periodTxns
     .filter(t => t.type === 'RELEASED')
     .forEach(t => {
       const d = t.department || 'Other';
       demand[d] = (demand[d] || 0) + (Number(t.quantity) || 0);
     });
 
-  // Also count release ticket frequency (number of release events) as secondary insight in tooltip
-  const ticketCount = {};
-  AppState.transactions
-    .filter(t => t.type === 'RELEASED')
-    .forEach(t => {
-      const d = t.department || 'Other';
-      const key = d + '|' + (t.referenceNumber || '');
-      // count unique refs per dept
-    });
-
   const releaseEvents = {};
   const seen = new Set();
-  AppState.transactions
+  periodTxns
     .filter(t => t.type === 'RELEASED')
     .forEach(t => {
       const d = t.department || 'Other';
@@ -4436,6 +5621,10 @@ function renderDepartmentDemandChart() {
       }
     });
 
+  // Include departments from Locations master even with 0 releases (new locations)
+  getKnownDepartments().forEach(d => {
+    if (demand[d] === undefined) demand[d] = 0;
+  });
   // Sort by units issued (most frequent demand first)
   const labels = Object.keys(demand).sort((a, b) => demand[b] - demand[a]);
   const data = labels.map(l => demand[l]);
@@ -4580,46 +5769,8 @@ function renderReportCharts(filteredTxns) {
 // ==========================================
 // 18. MODALS
 // ==========================================
-function openDuplicateModal(refNumber, type) {
-  const modal = document.getElementById('modal-duplicate');
-  if (!modal) return;
-
-  const refEl = document.getElementById('modal-dup-ref');
-  const detailsEl = document.getElementById('modal-duplicate-details');
-  const descEl = document.getElementById('modal-duplicate-desc');
-
-  const existingTxn = AppState.transactions.find(t => normalizeRefNumber(t.referenceNumber) === normalizeRefNumber(refNumber));
-
-  if (refEl) refEl.textContent = refNumber;
-
-  if (existingTxn && detailsEl) {
-    detailsEl.innerHTML = `
-      Reference Number: <span id="modal-dup-ref" class="font-bold text-blue-600">${escapeHTML(refNumber)}</span><br>
-      Transaction ID: <span class="font-bold">${escapeHTML(existingTxn.id)}</span><br>
-      Processed: <span class="font-bold">${escapeHTML(formatDateTime(existingTxn.createdAt || existingTxn.date))}</span>
-    `;
-  }
-
-  if (descEl) {
-    descEl.textContent = existingTxn
-      ? `This ${type.toLowerCase()} ticket was already executed. Per strict audit protocols, duplicate movements are blocked to protect stock integrity.`
-      : `Reference ${refNumber} has already been processed.`;
-  }
-
-  // Show modal + shared backdrop
-  const backdrop = document.getElementById('modal-backdrop');
-  if (backdrop) backdrop.classList.remove('hidden');
-  modal.classList.remove('hidden');
-}
-
-function closeDuplicateModal() {
-  const modal = document.getElementById('modal-duplicate');
-  if (modal) modal.classList.add('hidden');
-  const backdrop = document.getElementById('modal-backdrop');
-  // Only hide backdrop if no other modals are open
-  const anyOpen = document.querySelector('.modal-card:not(.hidden)');
-  if (backdrop && !anyOpen) backdrop.classList.add('hidden');
-}
+/* openDuplicateModal replaced below */
+function __dup_placeholder(){}
 
 function openNotFoundModal(refNumber) {
   const modal = document.getElementById('modal-not-found');
@@ -4796,7 +5947,9 @@ function recordManualDelivery() {
       if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
 
       // Send mrr + referenceNumber + lines so API never says "reference required"
-      await apiRecordDelivery({
+      const okDel = await appConfirm({ title: 'Confirm delivery', message: 'Post this delivery and add stock to inventory?', confirmText: 'Post to stock' });
+        if (!okDel) return;
+        await apiRecordDelivery({
         mrr: ref,
         mrrNo: ref,
         referenceNumber: ref,
@@ -4916,12 +6069,16 @@ function recordManualIssuance() {
   if (!toner) { showToast('Select an item.', 'warning'); return; }
   if (!dept) { showToast('Select a department.', 'warning'); return; }
   if (!location) { showToast('Select a location.', 'warning'); return; }
-  if (yieldRaw === '' || yieldRaw === null || yieldRaw === undefined) {
-    showToast('Enter actual yield (pages before change).', 'warning');
-    document.getElementById('modal-rel-yield')?.focus();
-    return;
+  const hasYield = !!document.getElementById('modal-rel-has-yield')?.checked;
+  let actualYield = null;
+  if (hasYield) {
+    if (yieldRaw === '' || yieldRaw === null || yieldRaw === undefined) {
+      showToast('Enter actual yield (pages before change).', 'warning');
+      document.getElementById('modal-rel-yield')?.focus();
+      return;
+    }
+    actualYield = Math.max(0, parseInt(yieldRaw, 10) || 0);
   }
-  const actualYield = Math.max(0, parseInt(yieldRaw, 10) || 0);
   if (!issuedBy) { showToast('Select who issued this toner.', 'warning'); return; }
 
   if (TicketService.isAlreadyProcessed(ref)) {
@@ -4965,22 +6122,46 @@ function recordManualIssuance() {
   (async () => {
     try {
       if (AppState.useBackend) {
-        await apiRecordRelease({
-          referenceNumber: ref,
-          inkCode: toner,
-          itemCode: toner,
-          department: dept,
-          location,
-          locationPrinter: locationPrinter === '—' ? '' : locationPrinter,
-          actualYield,
-          issuedBy
+        const okIssue = await appConfirm({
+          title: 'Confirm stock issuance',
+          message: 'Record this toner issuance and deduct 1 unit from inventory?',
+          confirmText: 'Issue toner'
         });
-        await loadFromBackend();
+        if (!okIssue) return;
+
+        // Keep loading visible for the whole issuance + refresh (email can take a while)
+        showGlobalLoading('Issuing toner… sending alerts if needed');
+        try {
+          await apiRecordRelease({
+            referenceNumber: ref,
+            inkCode: toner,
+            itemCode: toner,
+            department: dept,
+            location,
+            locationPrinter: locationPrinter === '—' ? '' : locationPrinter,
+            actualYield,
+            issuedBy
+          }, { silent: true, loadingMessage: 'Issuing toner…' });
+          await loadFromBackendSilent();
+        } finally {
+          forceHideGlobalLoading();
+        }
         renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
         document.getElementById('m-rel-success-ref').textContent = ref;
         document.getElementById('release-step-form')?.classList.add('hidden');
         document.getElementById('release-step-success')?.classList.remove('hidden');
         showToast(`Issuance ${ref} recorded.`, 'success');
+        // If API reported low-stock email, surface a soft reminder in UI
+        try {
+          const invItem = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase());
+          const qty = invItem ? Number(invItem.quantity) : null;
+          const reorder = invItem ? Number(invItem.reorderLevel) : 3;
+          if (qty !== null && qty <= reorder) {
+            pushNotification('warning', 'Low stock after issuance',
+              `${toner} is still low (${qty} left; reorder at ${reorder}). Admins were emailed if configured.`,
+              { source: 'action' });
+          }
+        } catch (_) {}
         pushNotification('success', 'Toner Released', `Ticket ${ref} processed. Toner stock decremented.`, { source: 'action' });
       } else {
         const ok = TicketService.processReleaseTicket(ticket);
@@ -5049,6 +6230,10 @@ async function openReleaseModal() {
   const dept = document.getElementById('modal-rel-dept');
   const date = document.getElementById('modal-rel-date');
   const hint = document.getElementById('modal-rel-stock-hint');
+  const hasYieldEl = document.getElementById('modal-rel-has-yield');
+  if (hasYieldEl) hasYieldEl.checked = false;
+  const yieldWrap = document.getElementById('modal-rel-yield-wrap');
+  if (yieldWrap) yieldWrap.classList.add('hidden');
   const yieldEl = document.getElementById('modal-rel-yield');
   const printerEl = document.getElementById('modal-rel-printer');
   if (ref) ref.value = '';
@@ -5677,6 +6862,20 @@ function setupEventListeners() {
 
   if (btnModalProcessRel) {
     btnModalProcessRel.addEventListener('click', recordManualIssuance);
+  const hasYieldCb = document.getElementById('modal-rel-has-yield');
+  if (hasYieldCb) {
+    hasYieldCb.addEventListener('change', () => {
+      const wrap = document.getElementById('modal-rel-yield-wrap');
+      if (wrap) wrap.classList.toggle('hidden', !hasYieldCb.checked);
+      if (!hasYieldCb.checked) {
+        const y = document.getElementById('modal-rel-yield');
+        if (y) y.value = '';
+      } else {
+        document.getElementById('modal-rel-yield')?.focus();
+      }
+    });
+  }
+
 
   const relDept = document.getElementById('modal-rel-dept');
   if (relDept) {
@@ -5833,7 +7032,7 @@ function setupEventListeners() {
   // Inventory Filters (IDs must match the HTML: filter-inv-search / filter-inv-status)
   const invSearch = document.getElementById('filter-inv-search');
   const invStatus = document.getElementById('filter-inv-status');
-  const btnInvClear = document.getElementById('btn-inv-clear');
+  const btnInvClear = document.getElementById('btn-clear-inv-filters') || document.getElementById('btn-inv-clear');
 
   if (invSearch) {
     invSearch.addEventListener('input', (e) => {
@@ -5855,14 +7054,17 @@ function setupEventListeners() {
     });
   }
   if (btnInvClear) {
-    btnInvClear.addEventListener('click', () => {
-      AppState.filters.inventorySearch = '';
-      AppState.filters.inventoryStatus = 'ALL';
-      if (invSearch) invSearch.value = '';
-      if (invStatus) invStatus.value = 'ALL';
-      renderInventory();
+    btnInvClear.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resetInventoryFilters();
     });
   }
+  // Safety: also bind by id in case DOM was re-rendered
+  document.getElementById('btn-clear-inv-filters')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetInventoryFilters();
+  });
 
 
   // Stock card: click inventory row
@@ -5888,8 +7090,41 @@ function setupEventListeners() {
 
   const navLocations = document.getElementById('nav-locations');
   if (navLocations) navLocations.addEventListener('click', () => navigateTo('locations'));
+  const navLogs = document.getElementById('nav-logs');
+  if (navLogs) navLogs.addEventListener('click', () => navigateTo('logs'));
+  const navSettings = document.getElementById('nav-email-config');
+  if (navSettings) navSettings.addEventListener('click', () => navigateTo('email-config'));
   const navUsers = document.getElementById('nav-users');
   if (navUsers) navUsers.addEventListener('click', () => navigateTo('users'));
+  const formEmailSettings = document.getElementById('form-email-settings');
+  if (formEmailSettings) formEmailSettings.addEventListener('submit', saveEmailSettings);
+  const btnTestEmail = document.getElementById('btn-test-email-settings');
+  if (btnTestEmail) btnTestEmail.addEventListener('click', testEmailSettings);
+  const btnRefreshLogs = document.getElementById('btn-refresh-logs');
+  if (btnRefreshLogs) btnRefreshLogs.addEventListener('click', loadSystemLogs);
+
+  const btnApplyLogs = document.getElementById('btn-apply-logs-filter');
+  if (btnApplyLogs) btnApplyLogs.addEventListener('click', loadSystemLogs);
+  const btnClearLogs = document.getElementById('btn-clear-logs-filter');
+  if (btnClearLogs) btnClearLogs.addEventListener('click', resetLogsFilters);
+  const logsPeriod = document.getElementById('filter-logs-period');
+  if (logsPeriod) logsPeriod.addEventListener('change', () => {
+    syncLogsCustomRangeUI();
+    if (logsPeriod.value !== 'CUSTOM') loadSystemLogs();
+  });
+  const logsAction = document.getElementById('filter-logs-action');
+  if (logsAction) logsAction.addEventListener('change', loadSystemLogs);
+  const logsActor = document.getElementById('filter-logs-actor');
+  if (logsActor) logsActor.addEventListener('change', loadSystemLogs);
+
+  const filterLogs = document.getElementById('filter-logs-search');
+  if (filterLogs) {
+    let logTimer;
+    filterLogs.addEventListener('input', () => {
+      clearTimeout(logTimer);
+      logTimer = setTimeout(loadSystemLogs, 300);
+    });
+  }
   document.querySelectorAll('.loc-sup-tab').forEach(btn => {
     btn.addEventListener('click', () => switchLocSupTab(btn.getAttribute('data-loc-tab')));
   });
@@ -5910,6 +7145,23 @@ function setupEventListeners() {
   if (editLocBackdrop) editLocBackdrop.addEventListener('click', closeEditLocationModal);
 
   const btnPageLocClear = document.getElementById('btn-page-loc-clear');
+  const filterLocSearch = document.getElementById('filter-locations-search');
+  if (filterLocSearch) {
+    let locSearchTimer;
+    filterLocSearch.addEventListener('input', () => {
+      clearTimeout(locSearchTimer);
+      locSearchTimer = setTimeout(() => renderPageLocationsTable(), 200);
+    });
+  }
+  const btnLocSearchClear = document.getElementById('btn-locations-search-clear');
+  if (btnLocSearchClear) {
+    btnLocSearchClear.addEventListener('click', () => {
+      const inp = document.getElementById('filter-locations-search');
+      if (inp) inp.value = '';
+      renderPageLocationsTable();
+    });
+  }
+
   if (btnPageLocClear) btnPageLocClear.addEventListener('click', () => {
     document.getElementById('page-loc-edit-id').value = '';
     document.getElementById('page-loc-dept').value = '';
@@ -5924,6 +7176,10 @@ function setupEventListeners() {
   if (btnCloseUser) btnCloseUser.addEventListener('click', closeUserModal);
   if (btnCancelUser) btnCancelUser.addEventListener('click', closeUserModal);
   if (btnSaveUser) btnSaveUser.addEventListener('click', saveUser);
+  const btnCloseUserSaved = document.getElementById('btn-close-user-saved');
+  const userSavedBackdrop = document.getElementById('modal-user-saved-backdrop');
+  if (btnCloseUserSaved) btnCloseUserSaved.addEventListener('click', closeUserSavedModal);
+  if (userSavedBackdrop) userSavedBackdrop.addEventListener('click', closeUserSavedModal);
 
   const btnAddPrinterRow = document.getElementById('btn-add-printer-row');
   if (btnAddPrinterRow) {
@@ -5945,6 +7201,24 @@ function setupEventListeners() {
   const btnConfirmRemoveToner = document.getElementById('btn-confirm-remove-toner');
   if (btnCancelRemoveToner) btnCancelRemoveToner.addEventListener('click', closeRemoveTonerModal);
   if (btnConfirmRemoveToner) btnConfirmRemoveToner.addEventListener('click', confirmRemoveToner);
+  const btnCloseRelDetail = document.getElementById('btn-close-release-detail');
+  const btnRelDetailDone = document.getElementById('btn-release-detail-done');
+  const relDetailBackdrop = document.getElementById('modal-release-detail-backdrop');
+  if (btnCloseRelDetail) btnCloseRelDetail.addEventListener('click', closeReleaseDetailModal);
+  if (btnRelDetailDone) btnRelDetailDone.addEventListener('click', closeReleaseDetailModal);
+  if (relDetailBackdrop) relDetailBackdrop.addEventListener('click', closeReleaseDetailModal);
+  const btnCloseDefDetail = document.getElementById('btn-close-defective-detail');
+  const btnDefDetailDone = document.getElementById('btn-defective-detail-done');
+  const defDetailBackdrop = document.getElementById('modal-defective-detail-backdrop');
+  if (btnCloseDefDetail) btnCloseDefDetail.addEventListener('click', closeDefectiveDetailModal);
+  if (btnDefDetailDone) btnDefDetailDone.addEventListener('click', closeDefectiveDetailModal);
+  if (defDetailBackdrop) defDetailBackdrop.addEventListener('click', closeDefectiveDetailModal);
+  const btnAppConfirmOk = document.getElementById('btn-app-confirm-ok');
+  const btnAppConfirmCancel = document.getElementById('btn-app-confirm-cancel');
+  const appConfirmBackdrop = document.getElementById('modal-app-confirm-backdrop');
+  if (btnAppConfirmOk) btnAppConfirmOk.addEventListener('click', () => closeAppConfirm(true));
+  if (btnAppConfirmCancel) btnAppConfirmCancel.addEventListener('click', () => closeAppConfirm(false));
+  if (appConfirmBackdrop) appConfirmBackdrop.addEventListener('click', () => closeAppConfirm(false));
   const btnCloseStock = document.getElementById('btn-close-stock-card');
   
   const btnStockEdit = document.getElementById('btn-stock-card-edit');
@@ -5966,6 +7240,26 @@ function setupEventListeners() {
   if (btnCloseStock) btnCloseStock.addEventListener('click', closeStockCard);
   if (btnStockDone) btnStockDone.addEventListener('click', closeStockCard);
 
+  const stockCardPeriod = document.getElementById('stock-card-period');
+  if (stockCardPeriod) stockCardPeriod.addEventListener('change', () => {
+    syncStockCardCustomRangeUI();
+    if (stockCardPeriod.value !== 'CUSTOM') renderStockCardMovements();
+  });
+  const btnStockCardApplyDates = document.getElementById('btn-stock-card-apply-dates');
+  if (btnStockCardApplyDates) btnStockCardApplyDates.addEventListener('click', renderStockCardMovements);
+  const btnStockCardResetDates = document.getElementById('btn-stock-card-reset-dates');
+  if (btnStockCardResetDates) btnStockCardResetDates.addEventListener('click', () => {
+    const p = document.getElementById('stock-card-period');
+    const f = document.getElementById('stock-card-from');
+    const toEl = document.getElementById('stock-card-to');
+    if (p) p.value = 'ALL';
+    if (f) f.value = '';
+    if (toEl) toEl.value = '';
+    syncStockCardCustomRangeUI();
+    renderStockCardMovements();
+  });
+
+
   // Transactions Filters, Tabs & Export
   document.querySelectorAll('.txn-main-tab').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -5973,21 +7267,41 @@ function setupEventListeners() {
       if (AppState.filters.transactionType === 'RECEIVED') {
         AppState.filters.transactionDept = 'ALL';
       }
+      try {
+        localStorage.setItem('toner_ui_txn_tab', AppState.filters.transactionType || 'RECEIVED');
+        localStorage.setItem('toner_ui_txn_dept', AppState.filters.transactionDept || 'ALL');
+      } catch (_) {}
       renderTransactions();
     });
   });
-  document.querySelectorAll('.txn-dept-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      AppState.filters.transactionDept = btn.getAttribute('data-txn-dept');
+  // Dept tabs are rebuilt dynamically — use delegated click
+  const deptTabsHost = document.getElementById('txn-dept-tabs');
+  if (deptTabsHost && !deptTabsHost._deptBound) {
+    deptTabsHost._deptBound = true;
+    deptTabsHost.addEventListener('click', (e) => {
+      const btn = e.target.closest('.txn-dept-tab');
+      if (!btn) return;
+      AppState.filters.transactionDept = btn.getAttribute('data-txn-dept') || 'ALL';
+      try { localStorage.setItem('toner_ui_txn_dept', AppState.filters.transactionDept); } catch (_) {}
       renderTransactions();
     });
-  });
+  }
 
   
   const txnsTbody = document.getElementById('txns-tbody');
   if (txnsTbody && !txnsTbody._defActionsBound) {
     txnsTbody._defActionsBound = true;
     txnsTbody.addEventListener('click', (e) => {
+      const relViewBtn = e.target.closest('.btn-rel-view');
+      if (relViewBtn) {
+        openReleaseDetailModal(relViewBtn.getAttribute('data-ref'), relViewBtn.getAttribute('data-id'));
+        return;
+      }
+      const viewBtn = e.target.closest('.btn-def-view');
+      if (viewBtn) {
+        openDefectiveDetailModal(viewBtn.getAttribute('data-ref'));
+        return;
+      }
       const sendBtn = e.target.closest('.btn-def-send');
       if (sendBtn) {
         e.preventDefault();
@@ -6010,9 +7324,90 @@ function setupEventListeners() {
   if (btnConfirmDefRep) btnConfirmDefRep.addEventListener('click', confirmReceiveReplacement);
   if (defRepBackdrop) defRepBackdrop.addEventListener('click', closeReceiveReplacementModal);
 
+  
+  const dashDate = document.getElementById('filter-dash-date');
+  if (dashDate) {
+    dashDate.addEventListener('change', (e) => {
+      AppState.filters.dashboardDate = e.target.value || 'MONTH';
+      if (AppState.filters.dashboardDate !== 'CUSTOM') {
+        AppState.filters.dashboardDateFrom = '';
+        AppState.filters.dashboardDateTo = '';
+      }
+      syncDashCustomRangeUI();
+      renderDashboard();
+      renderCharts();
+    });
+  }
+  const dashFrom = document.getElementById('filter-dash-from');
+  const dashTo = document.getElementById('filter-dash-to');
+  const btnDashApply = document.getElementById('btn-dash-apply-range');
+  if (dashFrom) dashFrom.addEventListener('change', () => {
+    AppState.filters.dashboardDateFrom = dashFrom.value || '';
+  });
+  if (dashTo) dashTo.addEventListener('change', () => {
+    AppState.filters.dashboardDateTo = dashTo.value || '';
+  });
+  if (btnDashApply) {
+    btnDashApply.addEventListener('click', () => {
+      AppState.filters.dashboardDate = 'CUSTOM';
+      AppState.filters.dashboardDateFrom = document.getElementById('filter-dash-from')?.value || '';
+      AppState.filters.dashboardDateTo = document.getElementById('filter-dash-to')?.value || '';
+      const sel = document.getElementById('filter-dash-date');
+      if (sel) sel.value = 'CUSTOM';
+      syncDashCustomRangeUI();
+      renderDashboard();
+      renderCharts();
+    });
+  }
+
+  
+  document.querySelectorAll('.kpi-card').forEach(card => {
+    card.addEventListener('click', () => openKpiDetail(card.getAttribute('data-kpi')));
+  });
+  const btnCloseKpi = document.getElementById('btn-close-kpi-detail');
+  const kpiBackdrop = document.getElementById('modal-kpi-detail-backdrop');
+  if (btnCloseKpi) btnCloseKpi.addEventListener('click', closeKpiDetail);
+  if (kpiBackdrop) kpiBackdrop.addEventListener('click', closeKpiDetail);
+  const btnCloseDup = document.getElementById('btn-close-dup-modal');
+  const dupBackdrop = document.getElementById('modal-duplicate-backdrop');
+  if (btnCloseDup) btnCloseDup.addEventListener('click', closeDuplicateModal);
+  if (dupBackdrop) dupBackdrop.addEventListener('click', closeDuplicateModal);
+  const btnMailLog = document.getElementById('btn-open-mail-log');
+  if (btnMailLog) btnMailLog.addEventListener('click', openMailLogModal);
+  const btnCloseMail = document.getElementById('btn-close-mail-log');
+  const btnRefreshMail = document.getElementById('btn-refresh-mail-log');
+  const btnClearMail = document.getElementById('btn-clear-mail-log');
+  const mailBackdrop = document.getElementById('modal-mail-log-backdrop');
+  if (btnCloseMail) btnCloseMail.addEventListener('click', closeMailLogModal);
+  if (btnRefreshMail) btnRefreshMail.addEventListener('click', refreshMailLog);
+  if (btnClearMail) btnClearMail.addEventListener('click', clearMailLog);
+  if (mailBackdrop) mailBackdrop.addEventListener('click', closeMailLogModal);
+
   const txnSearch = document.getElementById('filter-txn-search');
   const txnDate = document.getElementById('filter-txn-date');
   const btnTxnExport = document.getElementById('btn-export-txns');
+  const btnClearTxnFilters = document.getElementById('btn-clear-txn-filters');
+  if (btnClearTxnFilters) {
+    btnClearTxnFilters.addEventListener('click', () => {
+      AppState.filters.transactionSearch = '';
+      AppState.filters.transactionDate = 'MONTH';
+      AppState.filters.transactionDateFrom = '';
+      AppState.filters.transactionDateTo = '';
+      AppState.filters.transactionDept = 'ALL';
+      const s = document.getElementById('filter-txn-search');
+      const d = document.getElementById('filter-txn-date');
+      const f = document.getElementById('filter-txn-from');
+      const to = document.getElementById('filter-txn-to');
+      if (s) s.value = '';
+      if (d) d.value = 'MONTH';
+      if (f) f.value = '';
+      if (to) to.value = '';
+      if (typeof syncTxnCustomRangeUI === 'function') syncTxnCustomRangeUI();
+      if (typeof updateTxnTabUI === 'function') updateTxnTabUI();
+      renderTransactions();
+    });
+  }
+
 
   if (txnSearch) {
     const applyTxnSearch = () => {
@@ -6030,6 +7425,7 @@ function setupEventListeners() {
         AppState.filters.transactionDateFrom = '';
         AppState.filters.transactionDateTo = '';
       }
+      try { localStorage.setItem('toner_ui_txn_date', AppState.filters.transactionDate || 'ALL'); } catch (_) {}
       renderTransactions();
     });
   }
@@ -6084,16 +7480,7 @@ function setupEventListeners() {
     });
   }
 
-  // Modal Buttons
-  const btnCloseDup = document.getElementById('btn-close-dup-modal');
-  const btnViewDup = document.getElementById('btn-view-dup-txns');
-  if (btnCloseDup) btnCloseDup.addEventListener('click', closeDuplicateModal);
-  if (btnViewDup) {
-    btnViewDup.addEventListener('click', () => {
-      closeDuplicateModal();
-      navigateTo('transactions');
-    });
-  }
+  // Modal Buttons (duplicate modal wired with blur backdrop elsewhere)
 
   const btnCloseNf = document.getElementById('btn-close-notfound-modal') || document.getElementById('btn-close-nf-modal');
   if (btnCloseNf) btnCloseNf.addEventListener('click', closeNotFoundModal);
@@ -6229,28 +7616,78 @@ function closeUserModal() {
   if (backdrop && !anyOpen) backdrop.classList.add('hidden');
 }
 
+
+function openUserSavedModal({ isNew, fullName, username, isActive }) {
+  const title = document.getElementById('user-saved-title');
+  const msg = document.getElementById('user-saved-message');
+  const nameEl = document.getElementById('user-saved-name');
+  const emailEl = document.getElementById('user-saved-email');
+  const statusEl = document.getElementById('user-saved-status');
+  if (title) title.textContent = isNew ? 'Admin created' : 'Admin updated';
+  if (msg) {
+    msg.textContent = isNew
+      ? 'The new admin account was saved successfully.'
+      : 'The admin details were updated successfully.';
+  }
+  if (nameEl) nameEl.textContent = fullName || '—';
+  if (emailEl) emailEl.textContent = username || '—';
+  if (statusEl) statusEl.textContent = isActive === false ? 'Inactive' : 'Active';
+  // Close edit modal/backdrop so only success modal is highlighted
+  try { closeUserModal(); } catch (_) {}
+  const sharedBackdrop = document.getElementById('modal-backdrop');
+  if (sharedBackdrop) sharedBackdrop.classList.add('hidden');
+  const modal = document.getElementById('modal-user-saved');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    modal.style.zIndex = '10080';
+  }
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeUserSavedModal() {
+  const modal = document.getElementById('modal-user-saved');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+  document.body.classList.remove('overflow-hidden');
+}
+
 async function saveUser() {
   const id = document.getElementById('user-edit-id')?.value;
+  const ok = await appConfirm({
+    title: id ? 'Update admin' : 'Create admin',
+    message: id ? 'Save changes to this admin account?' : 'Create this new admin account?',
+    confirmText: 'Save'
+  });
+  if (!ok) return;
   const username = (document.getElementById('user-username')?.value || '').trim().toLowerCase();
   const fullName = (document.getElementById('user-fullname')?.value || '').trim();
   const password = document.getElementById('user-password')?.value || '';
   const isActive = document.getElementById('user-active')?.checked;
 
   try {
+    let isNew = false;
     if (id) {
       const body = { id: parseInt(id, 10), fullName, isActive };
       if (password) body.password = password;
       await apiRequest('users.php', { method: 'PUT', body });
-      showToast('User updated.', 'success');
     } else {
       if (!username) { showToast('Email is required.', 'warning'); return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) { showToast('Enter a valid email address.', 'warning'); return; }
       if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'warning'); return; }
       await apiRequest('users.php', { method: 'POST', body: { username, password, fullName, role: 'admin' } });
-      showToast('Admin created. They can sign in now.', 'success');
+      isNew = true;
     }
     closeUserModal();
     await loadUsers();
+    openUserSavedModal({
+      isNew,
+      fullName: fullName || '—',
+      username: username || '—',
+      isActive: isActive !== false
+    });
   } catch (e) {
     showToast(e.message || 'Save failed', 'error');
   }
@@ -6283,11 +7720,12 @@ async function loadAdminUsersForIssuance() {
     AppState.adminUsers = [];
   }
   try {
-    const me = await apiRequest('me.php');
+    const me = await apiRequest('me.php', { silent: true });
     AppState.currentUser = me;
   } catch (e) {
     AppState.currentUser = { username: 'admin', fullName: 'Admin' };
   }
+  updateSidebarUser();
 }
 
 function populateDeptSelect() {
@@ -6551,6 +7989,8 @@ async function addPageSupplier() {
 
 
 function switchLocSupTab(tab) {
+  tab = tab === 'suppliers' ? 'suppliers' : 'locations';
+  try { localStorage.setItem('toner_ui_loc_tab', tab); } catch (_) {}
   const isLoc = tab === 'locations';
   const panelLoc = document.getElementById('panel-locations');
   const panelSup = document.getElementById('panel-suppliers');
@@ -6569,7 +8009,12 @@ function switchLocSupTab(tab) {
 async function loadLocationsPage() {
   await loadReleaseLocations();
   await loadSuppliers();
-  switchLocSupTab('locations');
+  let tab = 'locations';
+  try {
+    const saved = localStorage.getItem('toner_ui_loc_tab');
+    if (saved === 'suppliers' || saved === 'locations') tab = saved;
+  } catch (_) {}
+  switchLocSupTab(tab);
   renderPageLocationsTable();
   renderPageSuppliersTable();
 }
@@ -6579,11 +8024,33 @@ function renderPageLocationsTable() {
   const empty = document.getElementById('page-locations-empty');
   const countEl = document.getElementById('page-loc-count');
   if (!tbody) return;
-  const rows = AppState.releaseLocations || [];
-  if (countEl) countEl.textContent = rows.length + (rows.length === 1 ? ' location' : ' locations');
+  const q = (document.getElementById('filter-locations-search')?.value || '').trim().toLowerCase();
+  const allRows = AppState.releaseLocations || [];
+  const rows = !q ? allRows : allRows.filter(r => {
+    const blob = [r.department, r.location, r.printerName, r.printer]
+      .map(x => String(x || '').toLowerCase())
+      .join(' ');
+    return blob.includes(q);
+  });
+  if (countEl) {
+    countEl.textContent = q
+      ? `${rows.length} of ${allRows.length} location${allRows.length === 1 ? '' : 's'}`
+      : (allRows.length + (allRows.length === 1 ? ' location' : ' locations'));
+  }
+  if (!allRows.length) {
+    tbody.innerHTML = '';
+    if (empty) {
+      empty.textContent = 'No locations yet. Add department, location, and optional printer above.';
+      empty.classList.remove('hidden');
+    }
+    return;
+  }
   if (!rows.length) {
     tbody.innerHTML = '';
-    if (empty) empty.classList.remove('hidden');
+    if (empty) {
+      empty.textContent = 'No locations match your search.';
+      empty.classList.remove('hidden');
+    }
     return;
   }
   if (empty) empty.classList.add('hidden');
@@ -6625,6 +8092,9 @@ function renderPageLocationsTable() {
 }
 
 async function savePageLocationRow() {
+  const ok = await appConfirm({ title: 'Save location', message: 'Add or update this location and printer assigned?', confirmText: 'Save' });
+  if (!ok) return;
+
   const department = (document.getElementById('page-loc-dept')?.value || '').trim().toUpperCase();
   const location = (document.getElementById('page-loc-location')?.value || '').trim();
   const printerName = (document.getElementById('page-loc-printer')?.value || '').trim();
@@ -6641,6 +8111,9 @@ async function savePageLocationRow() {
     document.getElementById('page-loc-printer').value = '';
     await loadReleaseLocations();
     renderPageLocationsTable();
+    if (typeof renderCharts === "function") renderCharts();
+    if (typeof renderTxnDeptTabs === "function") renderTxnDeptTabs();
+    if (typeof populateDeptSelect === "function") populateDeptSelect();
     if (typeof renderLocationsTable === 'function') renderLocationsTable();
     populateDeptSelect();
   } catch (e) {
@@ -6705,6 +8178,8 @@ async function saveEditLocationModal() {
     renderPageLocationsTable();
     if (typeof renderLocationsTable === 'function') renderLocationsTable();
     populateDeptSelect();
+    if (typeof renderCharts === 'function') renderCharts();
+    if (typeof renderTxnDeptTabs === 'function') renderTxnDeptTabs();
   } catch (e) {
     showToast(e.message || 'Update failed', 'error');
   }
@@ -6732,7 +8207,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Database offline — changes will NOT save to SQL Server.', 'warning');
     initializeDataSafely();
   }
-  navigateTo('dashboard');
+  try {
+    const savedPage = localStorage.getItem('toner_ui_page');
+    const savedTab = localStorage.getItem('toner_ui_txn_tab');
+    const savedDate = localStorage.getItem('toner_ui_txn_date');
+    const savedDept = localStorage.getItem('toner_ui_txn_dept');
+    if (savedTab && ['RECEIVED','RELEASED','DEFECTIVE'].includes(savedTab)) {
+      AppState.filters.transactionType = savedTab;
+    }
+    if (savedDate) AppState.filters.transactionDate = savedDate;
+    if (savedDept) AppState.filters.transactionDept = savedDept;
+    // Sync date select UI
+    const dateSel = document.getElementById('filter-txn-date');
+    if (dateSel && savedDate) dateSel.value = savedDate;
+    if (savedPage && ['dashboard','inventory','transactions','locations','logs','email-config','users'].includes(savedPage)) {
+      navigateTo(savedPage);
+    } else {
+      navigateTo('dashboard');
+    }
+  } catch (_) { navigateTo('dashboard'); }
+
   renderAlerts();
 });
 
@@ -6771,7 +8265,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <input id="edit-loc-location" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-printer">Printer at location</label>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-printer">Printer assigned</label>
             <input id="edit-loc-printer" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
@@ -6824,6 +8318,179 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       </div>
     </div>
+
+
+<!-- Ticket Already Processed — full-screen blur -->
+<div id="modal-duplicate" class="hidden" style="position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-duplicate-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:26rem;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);border:1px solid #e4e4e7;overflow:hidden;">
+    <div class="p-6">
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 mb-4">
+        <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <div class="text-sm font-bold" id="modal-duplicate-title">Ticket Already Processed</div>
+          <div class="text-xs opacity-80">This reference was already executed. Duplicate stock moves are blocked.</div>
+        </div>
+      </div>
+      <p class="text-sm text-slate-600" id="modal-duplicate-desc">This ticket reference has already been used. Stock cannot be modified twice.</p>
+      <div class="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs font-mono text-slate-700" id="modal-duplicate-details">
+        Reference Number: <span id="modal-dup-ref" class="font-bold text-slate-900"></span>
+      </div>
+      <div class="mt-6 flex justify-end">
+        <button id="btn-close-dup-modal" type="button" class="px-4 py-2 text-sm font-semibold bg-zinc-900 text-white hover:bg-black rounded-xl transition-colors">Understood</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KPI detail modal -->
+<div id="modal-kpi-detail" class="hidden" style="position:fixed;inset:0;z-index:10040;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-kpi-detail-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:36rem;max-height:85vh;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);border:1px solid #e4e4e7;overflow:hidden;display:flex;flex-direction:column;">
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div>
+        <h3 id="kpi-detail-title" class="text-base font-bold text-slate-900">Details</h3>
+        <p id="kpi-detail-sub" class="text-xs text-slate-500 mt-0.5"></p>
+      </div>
+      <button type="button" id="btn-close-kpi-detail" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div id="kpi-detail-body" class="px-5 py-4 overflow-y-auto text-sm text-slate-700 flex-1"></div>
+  </div>
+</div>
+
+<!-- Mail log modal — modern inbox-style -->
+<div id="modal-mail-log" class="hidden" style="position:fixed;inset:0;z-index:10040;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-mail-log-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:32rem;max-height:88vh;background:#fafafa;border-radius:1.25rem;border:1px solid #e4e4e7;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);">
+    <div class="px-5 pt-5 pb-4 bg-white border-b border-zinc-100 shrink-0">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-11 h-11 rounded-2xl bg-zinc-900 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-lg font-semibold text-zinc-900 tracking-tight">Email activity</h3>
+            <p class="text-xs text-zinc-500 mt-0.5">Low-stock alerts and system notifications</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-mail-log" class="p-2 rounded-xl text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors" title="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="mt-4 flex items-center gap-2">
+        <button type="button" id="btn-refresh-mail-log" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh
+        </button>
+        <button type="button" id="btn-clear-mail-log" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full text-rose-600 hover:bg-rose-50 transition-colors">
+          Clear history
+        </button>
+        <span id="mail-log-count" class="ml-auto text-[11px] font-medium text-zinc-400"></span>
+      </div>
+    </div>
+    <div id="mail-log-body" class="px-4 py-4 overflow-y-auto flex-1 space-y-3"></div>
+  </div>
+</div>
+
+
+<!-- Admin saved — pop-out with blurred background -->
+<div id="modal-user-saved" class="hidden" style="position:fixed;inset:0;z-index:10080;display:none;align-items:center;justify-content:center;padding:1.25rem;">
+  <div id="modal-user-saved-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
+  <div id="modal-user-saved-card" style="position:relative;z-index:1;width:100%;max-width:24rem;background:#fff;border-radius:1.25rem;border:1px solid rgba(255,255,255,0.8);box-shadow:0 25px 60px -12px rgba(0,0,0,0.45), 0 0 0 1px rgba(15,23,42,0.06);overflow:hidden;transform:scale(1);animation:userSavedPop 0.22s ease-out;">
+    <div class="p-6 text-center">
+      <div class="w-14 h-14 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 ring-8 ring-emerald-50/80">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h3 id="user-saved-title" class="text-lg font-bold text-slate-900 tracking-tight">Admin updated</h3>
+      <p id="user-saved-message" class="text-sm text-slate-500 mt-2 leading-relaxed"></p>
+      <div class="mt-4 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3 text-left text-sm space-y-1.5">
+        <div class="flex justify-between gap-3"><span class="text-slate-500">Name</span><span id="user-saved-name" class="font-semibold text-slate-900 text-right"></span></div>
+        <div class="flex justify-between gap-3"><span class="text-slate-500">Email</span><span id="user-saved-email" class="font-mono text-xs text-slate-800 text-right break-all"></span></div>
+        <div class="flex justify-between gap-3"><span class="text-slate-500">Status</span><span id="user-saved-status" class="font-semibold text-slate-900"></span></div>
+      </div>
+      <button type="button" id="btn-close-user-saved" class="mt-5 w-full px-4 py-2.5 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black transition-colors">Done</button>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes userSavedPop {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+</style>
+
+
+<div id="modal-defective-detail" class="hidden" style="position:fixed;inset:0;z-index:10070;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-defective-detail-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:28rem;max-height:90vh;overflow:auto;background:#fff;border-radius:1.25rem;border:1px solid #e4e4e7;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);">
+    <div class="px-5 py-4 border-b border-slate-100 flex items-start justify-between gap-3 sticky top-0 bg-white z-10">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">Defective return details</h3>
+        <p class="text-xs text-slate-500 mt-0.5 font-mono" id="def-detail-ref">—</p>
+      </div>
+      <button type="button" id="btn-close-defective-detail" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="p-5 space-y-1 text-sm" id="def-detail-body"></div>
+    <div class="px-5 py-4 border-t border-slate-100 flex flex-wrap gap-2 justify-end sticky bottom-0 bg-white">
+      <div id="def-detail-actions" class="flex flex-wrap gap-2 mr-auto"></div>
+      <button type="button" id="btn-defective-detail-done" class="px-4 py-2 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black">Close</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- App confirm modal (replaces browser confirm) -->
+<div id="modal-app-confirm" class="hidden" style="position:fixed;inset:0;z-index:10090;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-app-confirm-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:24rem;background:#fff;border-radius:1.25rem;border:1px solid #e4e4e7;box-shadow:0 25px 50px -12px rgba(0,0,0,0.4);overflow:hidden;">
+    <div class="p-6">
+      <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      </div>
+      <h3 id="app-confirm-title" class="text-lg font-bold text-slate-900">Confirm</h3>
+      <p id="app-confirm-message" class="text-sm text-slate-600 mt-2 leading-relaxed"></p>
+      <div class="mt-6 flex gap-2 justify-end">
+        <button type="button" id="btn-app-confirm-cancel" class="px-4 py-2.5 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50">Cancel</button>
+        <button type="button" id="btn-app-confirm-ok" class="px-4 py-2.5 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="modal-release-detail" class="hidden" style="position:fixed;inset:0;z-index:10070;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-release-detail-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:28rem;max-height:90vh;overflow:auto;background:#fff;border-radius:1.25rem;border:1px solid #e4e4e7;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);">
+    <div class="px-5 py-4 border-b border-slate-100 flex items-start justify-between gap-3 sticky top-0 bg-white z-10">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">Issuance details</h3>
+        <p class="text-xs text-slate-500 mt-0.5 font-mono" id="rel-detail-ref">—</p>
+      </div>
+      <button type="button" id="btn-close-release-detail" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="p-5 text-sm" id="rel-detail-body"></div>
+    <div class="px-5 py-4 border-t border-slate-100 flex justify-end sticky bottom-0 bg-white">
+      <button type="button" id="btn-release-detail-done" class="px-4 py-2 text-sm font-semibold rounded-xl bg-zinc-900 text-white hover:bg-black">Close</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="global-loading" class="hidden" style="position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:1rem;" aria-live="polite" aria-busy="true">
+  <div style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+  <div style="position:relative;z-index:1;background:#fff;border-radius:1.25rem;padding:1.75rem 2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.4);border:1px solid #e4e4e7;min-width:16rem;text-align:center;">
+    <div style="width:2.5rem;height:2.5rem;margin:0 auto 0.75rem;border:3px solid #e4e4e7;border-top-color:#18181b;border-radius:9999px;animation:toner-spin 0.75s linear infinite;"></div>
+    <div id="global-loading-text" class="text-sm font-semibold text-slate-800">Processing…</div>
+    <div class="text-xs text-slate-500 mt-1">Please wait — do not close this window</div>
+  </div>
+</div>
+<style>@keyframes toner-spin{to{transform:rotate(360deg)}}</style>
 
 </body>
 </html>
