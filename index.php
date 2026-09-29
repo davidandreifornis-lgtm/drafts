@@ -5603,7 +5603,8 @@ function renderDepartmentDemandChart() {
   periodTxns
     .filter(t => t.type === 'RELEASED')
     .forEach(t => {
-      const d = t.department || 'Other';
+      const d = (t.department || '').trim();
+      if (!d) return; // skip — no "Other"
       demand[d] = (demand[d] || 0) + (Number(t.quantity) || 0);
     });
 
@@ -5612,7 +5613,8 @@ function renderDepartmentDemandChart() {
   periodTxns
     .filter(t => t.type === 'RELEASED')
     .forEach(t => {
-      const d = t.department || 'Other';
+      const d = (t.department || '').trim();
+      if (!d) return; // skip — no "Other"
       const ref = normalizeRefNumber(t.referenceNumber);
       const key = d + '::' + ref;
       if (!seen.has(key)) {
@@ -5739,7 +5741,8 @@ function renderReportCharts(filteredTxns) {
 
     const deptCounts = {};
     filteredTxns.filter(t => t.type === 'RELEASED').forEach(t => {
-      const dept = t.department || 'Other';
+      const dept = (t.department || '').trim();
+      if (!dept) return; // skip — no "Other"
       deptCounts[dept] = (deptCounts[dept] || 0) + (Number(t.quantity) || 0);
     });
 
