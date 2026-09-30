@@ -454,13 +454,13 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h3 class="font-bold text-slate-900">Toner lifespan by location</h3>
-              <p class="text-xs text-slate-500">Average days between toner changes at each location — selected dashboard period. All locations are listed.</p>
+              <h3 class="font-bold text-slate-900">Toner lifespan by department</h3>
+              <p class="text-xs text-slate-500">Average days between toner changes per department — selected dashboard period. Click a department for location breakdown.</p>
             </div>
             <div id="kpi-avg-yield" class="text-sm font-semibold text-slate-700">Overall: —</div>
           </div>
           <div id="dept-lifespan-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            <div class="col-span-full py-10 text-center text-sm text-slate-400">Loading locations…</div>
+            <div class="col-span-full py-10 text-center text-sm text-slate-400">Loading departments…</div>
           </div>
         </div>
 
@@ -837,7 +837,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
               <p class="text-xs text-slate-500 mt-0.5">Creates a new option for Stock Issuance. To change an existing row, use <strong>Edit</strong> in the table.</p>
             </div>
             <input type="hidden" id="page-loc-edit-id" value="">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-dept">Department <span class="text-rose-500">*</span></label>
                 <input id="page-loc-dept" type="text" placeholder="e.g. ACCT" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -847,10 +847,15 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
                 <input id="page-loc-location" type="text" placeholder="e.g. Acctg Office" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-printer">Printer assigned</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-printer">Printer assigned <span class="text-rose-500">*</span></label>
                 <input id="page-loc-printer" type="text" placeholder="e.g. Canon MF237W" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1" for="page-loc-ip">IP address</label>
+                <input id="page-loc-ip" type="text" placeholder="e.g. 192.168.1.50" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
             </div>
+            <p class="text-[11px] text-slate-400">Same department, location, or printer name is allowed in different combinations. Only an exact duplicate of department + location + printer is blocked.</p>
             <div class="flex flex-wrap gap-2">
               <button type="button" id="btn-page-loc-save" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-xs">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -866,7 +871,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
                   <span id="page-loc-count" class="text-xs font-semibold text-slate-500">0</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                  <input id="filter-locations-search" type="search" placeholder="Search department, location, printer…" class="flex-1 sm:w-64 px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <input id="filter-locations-search" type="search" placeholder="Search department, location, printer, IP…" class="flex-1 sm:w-64 px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <button type="button" id="btn-locations-search-clear" class="px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">Clear</button>
                 </div>
               </div>
@@ -877,6 +882,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
                       <th class="px-4 py-3 font-semibold">Department</th>
                       <th class="px-4 py-3 font-semibold">Location</th>
                       <th class="px-4 py-3 font-semibold">Printer</th>
+                      <th class="px-4 py-3 font-semibold">IP address</th>
                       <th class="px-4 py-3 font-semibold w-36">Actions</th>
                     </tr>
                   </thead>
@@ -1614,10 +1620,11 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         </button>
       </div>
       <div class="p-4 overflow-y-auto flex-1 space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           <input id="loc-edit-dept" type="text" placeholder="Department e.g. ACCT" class="px-3 py-2 text-sm rounded-xl border border-slate-200 uppercase font-mono">
           <input id="loc-edit-location" type="text" placeholder="Location e.g. Acctg Office" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
-          <input id="loc-edit-printer" type="text" placeholder="Printer name (optional)" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
+          <input id="loc-edit-printer" type="text" placeholder="Printer name (required)" class="px-3 py-2 text-sm rounded-xl border border-slate-200">
+          <input id="loc-edit-ip" type="text" placeholder="IP e.g. 192.168.1.50" class="px-3 py-2 text-sm rounded-xl border border-slate-200 font-mono">
         </div>
         <input type="hidden" id="loc-edit-id" value="">
         <div class="flex gap-2">
@@ -1631,6 +1638,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
                 <th class="px-3 py-2">Department</th>
                 <th class="px-3 py-2">Location</th>
                 <th class="px-3 py-2">Printer</th>
+                <th class="px-3 py-2">IP</th>
                 <th class="px-3 py-2 w-24">Actions</th>
               </tr>
             </thead>
@@ -5459,30 +5467,49 @@ function renderAvgYieldChart() {
   const MS_DAY = 86400000;
   const esc = (s) => (typeof escapeHTML === 'function' ? escapeHTML(s) : String(s || '').replace(/</g, '&lt;'));
 
-  // Cache intervals for click detail: key dept|||LOC -> [{toner, from, to, days}]
-  const intervalCache = {};
-
+  // Master locations → departments list (show all departments immediately)
   const master = (AppState.releaseLocations && AppState.releaseLocations.length)
     ? AppState.releaseLocations.filter(r => r.isActive !== false)
     : ((typeof RELEASE_LOCATIONS !== 'undefined' ? RELEASE_LOCATIONS : []).map(r => ({
         department: r.department,
         location: r.location,
-        printerName: r.printerName || ''
+        printerName: r.printerName || '',
+        ipAddress: r.ipAddress || ''
       })));
 
-  const locMap = new Map();
-  master.forEach(r => {
-    const loc = (r.location || '').trim();
-    if (!loc) return;
-    const dept = (r.department || '').trim() || '—';
-    const key = dept.toUpperCase() + '|||' + loc.toUpperCase();
-    if (!locMap.has(key)) {
-      locMap.set(key, {
-        department: dept,
-        location: loc,
-        printerName: (r.printerName || '').trim()
+  // deptKey -> { department, locations: Map(locKey -> { location, printerName, ipAddress }) }
+  const deptMap = new Map();
+  function ensureDept(dept) {
+    const dk = (dept || '—').trim().toUpperCase() || '—';
+    if (!deptMap.has(dk)) {
+      deptMap.set(dk, {
+        department: (dept || '—').trim() || '—',
+        locations: new Map()
       });
     }
+    return deptMap.get(dk);
+  }
+  function ensureLoc(deptEntry, loc, printerName, ipAddress) {
+    const lk = (loc || '—').trim().toUpperCase() || '—';
+    if (!deptEntry.locations.has(lk)) {
+      deptEntry.locations.set(lk, {
+        location: (loc || '—').trim() || '—',
+        printerName: (printerName || '').trim(),
+        ipAddress: (ipAddress || '').trim()
+      });
+    } else {
+      const existing = deptEntry.locations.get(lk);
+      if (!existing.printerName && printerName) existing.printerName = String(printerName).trim();
+      if (!existing.ipAddress && ipAddress) existing.ipAddress = String(ipAddress).trim();
+    }
+  }
+
+  master.forEach(r => {
+    const dept = (r.department || '').trim() || '—';
+    const loc = (r.location || '').trim();
+    if (!loc) return;
+    const d = ensureDept(dept);
+    ensureLoc(d, loc, r.printerName || r.printer_name, r.ipAddress || r.ip_address);
   });
 
   (AppState.transactions || []).forEach(t => {
@@ -5490,12 +5517,11 @@ function renderAvgYieldChart() {
     const loc = (t.location || '').trim();
     if (!loc) return;
     const dept = (t.department || '').trim() || '—';
-    const key = dept.toUpperCase() + '|||' + loc.toUpperCase();
-    if (!locMap.has(key)) {
-      locMap.set(key, { department: dept, location: loc, printerName: (t.locationPrinter || '').trim() });
-    }
+    const d = ensureDept(dept);
+    ensureLoc(d, loc, t.locationPrinter || '', '');
   });
 
+  // Pair consecutive RELEASED same toner + same location → day intervals
   const allReleased = (AppState.transactions || [])
     .filter(t => t.type === 'RELEASED')
     .map(t => {
@@ -5518,7 +5544,8 @@ function renderAvgYieldChart() {
     pairs[key].push(t);
   });
 
-  const stats = {};
+  // locationStats: deptKey|||locKey -> { sum, n, intervals: [] }
+  const locationStats = {};
   let totalSum = 0, totalN = 0;
 
   Object.values(pairs).forEach(list => {
@@ -5531,17 +5558,18 @@ function renderAvgYieldChart() {
       }
       const days = Math.round((curr.ts - prev.ts) / MS_DAY);
       if (!Number.isFinite(days) || days < 0) continue;
-      const k = curr.department.toUpperCase() + '|||' + curr.location.toUpperCase();
-      if (!stats[k]) stats[k] = { sum: 0, n: 0 };
-      stats[k].sum += days;
-      stats[k].n += 1;
+      const deptKey = curr.department.toUpperCase();
+      const locKey = curr.location.toUpperCase();
+      const k = deptKey + '|||' + locKey;
+      if (!locationStats[k]) locationStats[k] = { sum: 0, n: 0, intervals: [] };
+      locationStats[k].sum += days;
+      locationStats[k].n += 1;
       totalSum += days;
       totalN += 1;
-      if (!intervalCache[k]) intervalCache[k] = [];
       const tonerDesc = (typeof resolveTonerDescription === 'function'
         ? resolveTonerDescription(curr.code)
         : '') || curr.code;
-      intervalCache[k].push({
+      locationStats[k].intervals.push({
         toner: curr.code,
         description: tonerDesc,
         from: prev.date,
@@ -5550,12 +5578,47 @@ function renderAvgYieldChart() {
         fromRef: prev.ref,
         toRef: curr.ref
       });
+      // ensure location exists under department
+      const d = ensureDept(curr.department);
+      ensureLoc(d, curr.location, '', '');
     }
   });
 
-  // Expose for click handler
-  window.__lifespanIntervals = intervalCache;
-  window.__lifespanMeta = Object.fromEntries(locMap);
+  // Build department aggregates
+  const byDept = {}; // deptKey -> { department, sum, n, locCount, locations: [...] }
+  deptMap.forEach((meta, deptKey) => {
+    byDept[deptKey] = {
+      department: meta.department,
+      sum: 0,
+      n: 0,
+      locations: []
+    };
+    meta.locations.forEach((locMeta, locKey) => {
+      const sk = deptKey + '|||' + locKey;
+      const st = locationStats[sk];
+      const avg = st && st.n > 0 ? Math.round(st.sum / st.n) : null;
+      byDept[deptKey].locations.push({
+        location: locMeta.location,
+        printerName: locMeta.printerName,
+        ipAddress: locMeta.ipAddress,
+        avg,
+        n: st ? st.n : 0,
+        intervals: st ? st.intervals.slice() : []
+      });
+      if (st) {
+        byDept[deptKey].sum += st.sum;
+        byDept[deptKey].n += st.n;
+      }
+    });
+    byDept[deptKey].locations.sort((a, b) => {
+      if (a.avg != null && b.avg != null) return b.avg - a.avg;
+      if (a.avg != null) return -1;
+      if (b.avg != null) return 1;
+      return a.location.localeCompare(b.location);
+    });
+  });
+
+  window.__lifespanByDept = byDept;
 
   if (kpi) {
     kpi.textContent = totalN > 0
@@ -5563,29 +5626,27 @@ function renderAvgYieldChart() {
       : 'Overall: —';
   }
 
-  const entries = Array.from(locMap.entries()).map(([key, meta]) => {
-    const s = stats[key];
+  const entries = Object.keys(byDept).map(dk => {
+    const d = byDept[dk];
     return {
-      key,
-      department: meta.department,
-      location: meta.location,
-      printerName: meta.printerName,
-      avg: s && s.n > 0 ? Math.round(s.sum / s.n) : null,
-      n: s ? s.n : 0
+      key: dk,
+      department: d.department,
+      avg: d.n > 0 ? Math.round(d.sum / d.n) : null,
+      n: d.n,
+      locCount: d.locations.length,
+      locWithData: d.locations.filter(l => l.avg != null).length
     };
-  });
-
-  entries.sort((a, b) => {
+  }).sort((a, b) => {
     if (a.avg != null && b.avg != null) return b.avg - a.avg;
     if (a.avg != null) return -1;
     if (b.avg != null) return 1;
-    return (a.department + a.location).toLowerCase().localeCompare((b.department + b.location).toLowerCase());
+    return a.department.localeCompare(b.department);
   });
 
   if (entries.length === 0) {
     grid.innerHTML = `
       <div class="col-span-full py-10 text-center">
-        <p class="text-sm text-slate-500 font-medium">No locations yet</p>
+        <p class="text-sm text-slate-500 font-medium">No departments yet</p>
         <p class="text-xs text-slate-400 mt-1">Add locations under Departments &amp; Locations so they appear here.</p>
       </div>`;
     return;
@@ -5606,35 +5667,31 @@ function renderAvgYieldChart() {
       else if (ratio <= 0.66) { badge = 'bg-sky-50 text-sky-800'; numColor = 'text-sky-700'; }
       else { badge = 'bg-emerald-50 text-emerald-800'; numColor = 'text-emerald-700'; }
     }
-    const title = esc(e.location);
     const dept = esc(e.department);
-    const printer = e.printerName ? `<div class="text-[11px] text-slate-400 truncate" title="${esc(e.printerName)}">${esc(e.printerName)}</div>` : '';
     const sub = hasData
-      ? `${e.n} change interval${e.n === 1 ? '' : 's'} · click for dates`
-      : 'No changes yet · click for details';
+      ? `${e.locWithData} of ${e.locCount} location${e.locCount === 1 ? '' : 's'} · click for breakdown`
+      : `${e.locCount} location${e.locCount === 1 ? '' : 's'} · click for details`;
     return `
-      <button type="button" data-lifespan-key="${esc(e.key)}"
-        class="lifespan-loc-card text-left rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col gap-1.5 min-h-[7.5rem] w-full hover:border-slate-400 hover:bg-white hover:shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400">
-        <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-400 truncate">${dept}</div>
-        <div class="text-sm font-bold text-slate-800 truncate" title="${title}">${title}</div>
-        ${printer}
+      <button type="button" data-lifespan-dept="${esc(e.key)}"
+        class="lifespan-dept-card text-left rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col gap-1.5 min-h-[7.5rem] w-full hover:border-slate-400 hover:bg-white hover:shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400">
+        <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Department</div>
+        <div class="text-sm font-bold text-slate-800 truncate" title="${dept}">${dept}</div>
         <div class="flex items-baseline gap-1.5 mt-auto pt-1">
           <span class="text-3xl font-bold tracking-tight ${numColor} leading-none">${numText}</span>
-          <span class="text-sm font-medium text-slate-500">days</span>
+          <span class="text-sm font-medium text-slate-500">days avg</span>
         </div>
         <div class="flex items-center justify-between gap-2">
           <span class="text-[11px] text-slate-400">${sub}</span>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge}">${hasData ? 'avg lifespan' : 'awaiting data'}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge}">${hasData ? 'dept lifespan' : 'awaiting data'}</span>
         </div>
       </button>`;
   }).join('');
 }
 
-function openLifespanDetail(key) {
+function openLifespanDetail(deptKey) {
   const modal = document.getElementById('modal-lifespan-detail');
-  if (!key) return;
-  const meta = (window.__lifespanMeta && window.__lifespanMeta[key]) || {};
-  const intervals = (window.__lifespanIntervals && window.__lifespanIntervals[key]) || [];
+  if (!deptKey) return;
+  const data = (window.__lifespanByDept && window.__lifespanByDept[deptKey]) || null;
   const esc = (s) => (typeof escapeHTML === 'function' ? escapeHTML(s) : String(s || '').replace(/</g, '&lt;'));
 
   const titleEl = document.getElementById('lifespan-detail-title');
@@ -5642,50 +5699,74 @@ function openLifespanDetail(key) {
   const bodyEl = document.getElementById('lifespan-detail-body');
   if (!modal || !bodyEl) return;
 
-  const locName = meta.location || key.split('|||')[1] || 'Location';
-  const deptName = meta.department || key.split('|||')[0] || '';
-  if (titleEl) titleEl.textContent = locName;
+  const deptName = data ? data.department : deptKey;
+  if (titleEl) titleEl.textContent = deptName;
   if (subEl) {
-    const bits = [deptName];
-    if (meta.printerName) bits.push(meta.printerName);
-    subEl.textContent = bits.filter(Boolean).join(' · ') || 'Toner change history';
+    const locN = data ? data.locations.length : 0;
+    subEl.textContent = locN
+      ? `${locN} location${locN === 1 ? '' : 's'} · breakdown by location`
+      : 'Department lifespan breakdown';
   }
 
-  if (intervals.length === 0) {
+  if (!data || !data.locations.length) {
     bodyEl.innerHTML = `
       <div class="py-8 text-center">
-        <p class="text-sm text-slate-500 font-medium">No change intervals yet</p>
-        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Issue the same toner at least twice to this location. The days between those dates will appear here.</p>
+        <p class="text-sm text-slate-500 font-medium">No locations in this department</p>
       </div>`;
   } else {
-    const sorted = intervals.slice().sort((a, b) => (b.to || '').localeCompare(a.to || ''));
-    const avg = Math.round(sorted.reduce((s, x) => s + x.days, 0) / sorted.length);
-    bodyEl.innerHTML = `
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
-          Avg <strong class="text-slate-900">${avg}</strong> days
-        </span>
-        <span class="text-xs text-slate-400">${sorted.length} interval${sorted.length === 1 ? '' : 's'}</span>
-      </div>
-      <div class="space-y-2">
-        ${sorted.map(iv => `
-          <div class="rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-3 flex flex-wrap items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="text-xs font-semibold text-slate-700 tracking-wide truncate" title="${esc(iv.description || iv.toner)}">${esc(iv.description || iv.toner)}</div>
-              <div class="text-sm text-slate-800 mt-0.5 font-medium">
-                <span class="font-mono">${esc(iv.from)}</span>
-                <span class="text-slate-400 mx-1">→</span>
-                <span class="font-mono">${esc(iv.to)}</span>
+    const deptAvg = data.n > 0 ? Math.round(data.sum / data.n) : null;
+    const locBlocks = data.locations.map(loc => {
+      const has = loc.avg != null;
+      const intervals = (loc.intervals || []).slice().sort((a, b) => (b.to || '').localeCompare(a.to || ''));
+      const intervalHtml = intervals.length
+        ? `<div class="mt-2 space-y-1.5 pl-1 border-l-2 border-slate-200">
+            ${intervals.map(iv => `
+              <div class="flex flex-wrap items-center justify-between gap-2 py-1.5 px-2 rounded-lg bg-white border border-slate-100">
+                <div class="min-w-0">
+                  <div class="text-[11px] font-semibold text-slate-700 truncate">${esc(iv.description || iv.toner)}</div>
+                  <div class="text-xs text-slate-600 font-mono mt-0.5">
+                    ${esc(iv.from)} <span class="text-slate-400">→</span> ${esc(iv.to)}
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <span class="text-lg font-bold text-slate-900">${iv.days}</span>
+                  <span class="text-[10px] text-slate-500 ml-0.5">days</span>
+                </div>
               </div>
-              ${(iv.fromRef || iv.toRef) ? `<div class="text-[11px] text-slate-400 mt-0.5 truncate">${esc([iv.fromRef, iv.toRef].filter(Boolean).join(' → '))}</div>` : ''}
+            `).join('')}
+          </div>`
+        : `<p class="mt-2 text-[11px] text-slate-400">No change intervals yet (need 2+ issuances of the same toner here).</p>`;
+
+      const metaBits = [];
+      if (loc.printerName) metaBits.push(esc(loc.printerName));
+      if (loc.ipAddress) metaBits.push('IP ' + esc(loc.ipAddress));
+      return `
+        <div class="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-sm font-bold text-slate-800">${esc(loc.location)}</div>
+              ${metaBits.length ? `<div class="text-[11px] text-slate-400 mt-0.5 truncate">${metaBits.join(' · ')}</div>` : ''}
             </div>
             <div class="text-right shrink-0">
-              <div class="text-2xl font-bold text-slate-900 leading-none">${iv.days}</div>
-              <div class="text-[11px] font-medium text-slate-500 mt-0.5">days</div>
+              ${has
+                ? `<div class="text-2xl font-bold text-slate-900 leading-none">${loc.avg}</div>
+                   <div class="text-[10px] text-slate-500 mt-0.5">${loc.n} interval${loc.n === 1 ? '' : 's'}</div>`
+                : `<div class="text-xl font-bold text-slate-300 leading-none">—</div>
+                   <div class="text-[10px] text-slate-400 mt-0.5">no data</div>`}
             </div>
           </div>
-        `).join('')}
-      </div>`;
+          ${intervalHtml}
+        </div>`;
+    }).join('');
+
+    bodyEl.innerHTML = `
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-semibold">
+          Dept avg <strong>${deptAvg != null ? deptAvg : '—'}</strong> days
+        </span>
+        <span class="text-xs text-slate-400">${data.n} change interval${data.n === 1 ? '' : 's'} total</span>
+      </div>
+      <div class="space-y-3">${locBlocks}</div>`;
   }
 
   modal.classList.remove('hidden');
@@ -7536,9 +7617,9 @@ function setupEventListeners() {
   if (lifespanGrid && !lifespanGrid.dataset.lifespanBound) {
     lifespanGrid.dataset.lifespanBound = '1';
     lifespanGrid.addEventListener('click', (ev) => {
-      const card = ev.target.closest('[data-lifespan-key]');
+      const card = ev.target.closest('[data-lifespan-dept]');
       if (!card) return;
-      const key = card.getAttribute('data-lifespan-key');
+      const key = card.getAttribute('data-lifespan-dept');
       if (key && typeof openLifespanDetail === 'function') openLifespanDetail(key);
     });
   }
@@ -7991,7 +8072,7 @@ function renderLocationsTable() {
   if (!tbody) return;
   const rows = AppState.releaseLocations || [];
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="px-3 py-6 text-center text-slate-400">No locations yet. Add one above.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="px-3 py-6 text-center text-slate-400">No locations yet. Add one above.</td></tr>';
     return;
   }
   tbody.innerHTML = rows.map(r => `
@@ -7999,6 +8080,7 @@ function renderLocationsTable() {
       <td class="px-3 py-2 font-mono font-semibold">${escapeHTML(r.department)}</td>
       <td class="px-3 py-2">${escapeHTML(r.location)}</td>
       <td class="px-3 py-2 text-slate-600">${escapeHTML(r.printerName || '—')}</td>
+      <td class="px-3 py-2 font-mono text-slate-600">${escapeHTML(r.ipAddress || r.ip_address || '—')}</td>
       <td class="px-3 py-2 space-x-2">
         <button type="button" class="btn-loc-edit text-xs font-semibold text-blue-600 hover:underline" data-id="${r.id}">Edit</button>
         <button type="button" class="btn-loc-del text-xs font-semibold text-rose-600 hover:underline" data-id="${r.id}">Delete</button>
@@ -8040,6 +8122,8 @@ async function openLocationsModal() {
   document.getElementById('loc-edit-dept').value = '';
   document.getElementById('loc-edit-location').value = '';
   document.getElementById('loc-edit-printer').value = '';
+  const lip0 = document.getElementById('loc-edit-ip');
+  if (lip0) lip0.value = '';
   const modal = document.getElementById('modal-locations');
   const backdrop = document.getElementById('modal-backdrop');
   if (backdrop) backdrop.classList.remove('hidden');
@@ -8060,16 +8144,18 @@ async function saveLocationRow() {
   const department = (document.getElementById('loc-edit-dept')?.value || '').trim().toUpperCase();
   const location = (document.getElementById('loc-edit-location')?.value || '').trim();
   const printerName = (document.getElementById('loc-edit-printer')?.value || '').trim();
+  const ipAddress = (document.getElementById('loc-edit-ip')?.value || '').trim();
   if (!department || !location) {
     showToast('Department and location are required.', 'warning');
     return;
   }
+  if (!assertClientLocationUnique(department, location, printerName, id ? parseInt(id, 10) : null)) return;
   try {
     if (id) {
-      await apiRequest('locations.php', { method: 'PUT', body: { id: parseInt(id, 10), department, location, printerName } });
+      await apiRequest('locations.php', { method: 'PUT', body: { id: parseInt(id, 10), department, location, printerName, ipAddress } });
       showToast('Location updated.', 'success');
     } else {
-      await apiRequest('locations.php', { method: 'POST', body: { department, location, printerName } });
+      await apiRequest('locations.php', { method: 'POST', body: { department, location, printerName, ipAddress } });
       showToast('Location added.', 'success');
     }
     await loadReleaseLocations();
@@ -8078,6 +8164,8 @@ async function saveLocationRow() {
     document.getElementById('loc-edit-dept').value = '';
     document.getElementById('loc-edit-location').value = '';
     document.getElementById('loc-edit-printer').value = '';
+    const ipEl = document.getElementById('loc-edit-ip');
+    if (ipEl) ipEl.value = '';
     populateDeptSelect();
   } catch (e) {
     showToast(e.message || 'Save failed', 'error');
@@ -8197,6 +8285,33 @@ async function loadLocationsPage() {
   renderPageSuppliersTable();
 }
 
+
+/** Client-side location uniqueness (mirrors API rules). excludeId for edits.
+ * Same dept / location / printer name alone is OK.
+ * Only exact department + location + printer triple is blocked. */
+function assertClientLocationUnique(department, location, printerName, excludeId) {
+  const dept = (department || '').trim().toUpperCase();
+  const loc = (location || '').trim().toLowerCase();
+  const printer = (printerName || '').trim().toLowerCase();
+  if (!printer) {
+    showToast('Printer assigned is required.', 'warning');
+    return false;
+  }
+  const rows = AppState.releaseLocations || [];
+  for (const r of rows) {
+    if (excludeId && Number(r.id) === Number(excludeId)) continue;
+    if (r.isActive === false) continue;
+    const rd = String(r.department || '').trim().toUpperCase();
+    const rl = String(r.location || '').trim().toLowerCase();
+    const rp = String(r.printerName || '').trim().toLowerCase();
+    if (rd === dept && rl === loc && rp === printer) {
+      showToast('This department + location + printer already exists. The same printer name can be used in other departments or locations.', 'warning');
+      return false;
+    }
+  }
+  return true;
+}
+
 function renderPageLocationsTable() {
   const tbody = document.getElementById('page-locations-tbody');
   const empty = document.getElementById('page-locations-empty');
@@ -8205,7 +8320,7 @@ function renderPageLocationsTable() {
   const q = (document.getElementById('filter-locations-search')?.value || '').trim().toLowerCase();
   const allRows = AppState.releaseLocations || [];
   const rows = !q ? allRows : allRows.filter(r => {
-    const blob = [r.department, r.location, r.printerName, r.printer]
+    const blob = [r.department, r.location, r.printerName, r.printer, r.ipAddress, r.ip_address]
       .map(x => String(x || '').toLowerCase())
       .join(' ');
     return blob.includes(q);
@@ -8237,6 +8352,7 @@ function renderPageLocationsTable() {
       <td class="px-5 py-3 font-mono font-semibold text-slate-900">${escapeHTML(r.department)}</td>
       <td class="px-5 py-3">${escapeHTML(r.location)}</td>
       <td class="px-5 py-3 text-slate-600">${escapeHTML(r.printerName || '—')}</td>
+      <td class="px-5 py-3 font-mono text-slate-600">${escapeHTML(r.ipAddress || r.ip_address || '—')}</td>
       <td class="px-5 py-3 space-x-3">
         <button type="button" class="btn-page-loc-edit text-xs font-semibold text-blue-600 hover:underline" data-id="${r.id}">Edit</button>
         <button type="button" class="btn-page-loc-del text-xs font-semibold text-rose-600 hover:underline" data-id="${r.id}">Delete</button>
@@ -8270,23 +8386,27 @@ function renderPageLocationsTable() {
 }
 
 async function savePageLocationRow() {
-  const ok = await appConfirm({ title: 'Save location', message: 'Add or update this location and printer assigned?', confirmText: 'Save' });
+  const ok = await appConfirm({ title: 'Save location', message: 'Add this location, printer, and IP?', confirmText: 'Save' });
   if (!ok) return;
 
   const department = (document.getElementById('page-loc-dept')?.value || '').trim().toUpperCase();
   const location = (document.getElementById('page-loc-location')?.value || '').trim();
   const printerName = (document.getElementById('page-loc-printer')?.value || '').trim();
+  const ipAddress = (document.getElementById('page-loc-ip')?.value || '').trim();
   if (!department || !location) {
     showToast('Department and location are required.', 'warning');
     return;
   }
+  if (!assertClientLocationUnique(department, location, printerName, null)) return;
   try {
-    await apiRequest('locations.php', { method: 'POST', body: { department, location, printerName } });
+    await apiRequest('locations.php', { method: 'POST', body: { department, location, printerName, ipAddress } });
     showToast('Location added.', 'success');
     document.getElementById('page-loc-edit-id').value = '';
     document.getElementById('page-loc-dept').value = '';
     document.getElementById('page-loc-location').value = '';
     document.getElementById('page-loc-printer').value = '';
+    const ipEl = document.getElementById('page-loc-ip');
+    if (ipEl) ipEl.value = '';
     await loadReleaseLocations();
     renderPageLocationsTable();
     if (typeof renderCharts === "function") renderCharts();
@@ -8305,6 +8425,8 @@ function openEditLocationModal(row) {
   document.getElementById('edit-loc-dept').value = row.department || '';
   document.getElementById('edit-loc-location').value = row.location || '';
   document.getElementById('edit-loc-printer').value = row.printerName || '';
+  const ipField = document.getElementById('edit-loc-ip');
+  if (ipField) ipField.value = row.ipAddress || row.ip_address || '';
   const modal = document.getElementById('modal-edit-location');
   const dialog = document.getElementById('modal-edit-location-dialog');
   if (modal) {
@@ -8343,13 +8465,15 @@ async function saveEditLocationModal() {
   const department = (document.getElementById('edit-loc-dept')?.value || '').trim().toUpperCase();
   const location = (document.getElementById('edit-loc-location')?.value || '').trim();
   const printerName = (document.getElementById('edit-loc-printer')?.value || '').trim();
+  const ipAddress = (document.getElementById('edit-loc-ip')?.value || '').trim();
   if (!id) { showToast('Missing location id.', 'error'); return; }
   if (!department || !location) {
     showToast('Department and location are required.', 'warning');
     return;
   }
+  if (!assertClientLocationUnique(department, location, printerName, id)) return;
   try {
-    await apiRequest('locations.php', { method: 'PUT', body: { id, department, location, printerName } });
+    await apiRequest('locations.php', { method: 'PUT', body: { id, department, location, printerName, ipAddress } });
     showToast('Location updated.', 'success');
     closeEditLocationModal();
     await loadReleaseLocations();
@@ -8443,10 +8567,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             <input id="edit-loc-location" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-printer">Printer assigned</label>
-            <input id="edit-loc-printer" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-printer">Printer assigned <span class="text-rose-500">*</span></label>
+            <input id="edit-loc-printer" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Canon MF237W">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="edit-loc-ip">IP address</label>
+            <input id="edit-loc-ip" type="text" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. 192.168.1.50">
           </div>
         </div>
+        <p class="px-5 text-[11px] text-slate-400 -mt-2 mb-2">Same department, location, or printer name is allowed elsewhere. Only the exact department + location + printer set must be unique.</p>
         <div class="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
           <button type="button" id="btn-cancel-edit-location" class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-200 rounded-xl hover:bg-white">Cancel</button>
           <button type="button" id="btn-save-edit-location" class="px-5 py-2 text-sm font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm">Save changes</button>
