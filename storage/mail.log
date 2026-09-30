@@ -1,0 +1,180 @@
+[2026-09-30 10:14:34+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:14 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:14:34+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:14:34+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:37:53+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:37 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:37:53+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:37:53+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:39:22+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:39 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=1 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:39:22+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:39:22+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:39:49+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:39 AM (Philippine Time)
+------------------------------------------------
+OUT OF STOCK | INK Q2612A - CANON (OS00000100) | qty=0 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:39:49+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:39:49+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:42:02+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:42 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:42:02+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:42:02+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:42:03+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:42 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:42:03+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:42:03+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:46:21+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:46 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:46:21+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:46:21+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:47:16+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:47 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:47:16+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:47:16+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:47:54+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:47 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=1 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:47:54+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:47:54+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:48:10+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:48 AM (Philippine Time)
+------------------------------------------------
+OUT OF STOCK | INK Q2612A - CANON (OS00000100) | qty=0 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:48:10+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:48:10+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:54:04+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:54 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:54:04+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:54:04+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:54:04+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:54 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:54:04+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:54:04+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:56:28+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 10:56 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 10:56:28+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 10:56:28+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:06:05+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 11:06 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 11:06:05+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:06:05+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:06:31+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 11:06 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 11:06:31+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:06:31+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:10:32+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 11:10 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 11:10:32+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:10:32+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:11:52+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 11:11 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 11:11:52+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:11:52+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:12:26+08:00] driver=smtp to=amec.ict@ameuropharma.com subject=[Toner Alert] 1 item(s) need attention
+Toner Inventory — Low Stock Alert
+Sep 30, 2026 11:12 AM (Philippine Time)
+------------------------------------------------
+LOW STOCK | INK Q2612A - CANON (OS00000100) | qty=2 | reorder=2 | supplier=INKRITE
+------------------------------------------------
+Please reorder the items above.
+---
+[2026-09-30 11:12:26+08:00] SMTP ERROR: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).
+[2026-09-30 11:12:26+08:00] Low-stock alert FAILED to amec.ict@ameuropharma.com: SMTP password not set. Put a Gmail App Password in config/mail.php (smtp_pass).

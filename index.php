@@ -454,13 +454,13 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
           <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h3 class="font-bold text-slate-900">Average pages before toner change</h3>
-              <p class="text-xs text-slate-500">Mean actual yield (pages) from issuances that recorded page count — selected dashboard period</p>
+              <h3 class="font-bold text-slate-900">Toner lifespan by location</h3>
+              <p class="text-xs text-slate-500">Average days between toner changes at each location — selected dashboard period. All locations are listed.</p>
             </div>
-            <div id="kpi-avg-yield" class="text-sm font-semibold text-slate-700">Avg: —</div>
+            <div id="kpi-avg-yield" class="text-sm font-semibold text-slate-700">Overall: —</div>
           </div>
-          <div class="relative h-72">
-            <canvas id="chart-avg-yield"></canvas>
+          <div id="dept-lifespan-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div class="col-span-full py-10 text-center text-sm text-slate-400">Loading locations…</div>
           </div>
         </div>
 
@@ -5436,108 +5436,267 @@ function renderNotifications() {
 // 17. CHARTS (Chart.js Integration)
 // ==========================================
 function renderCharts() {
+  // Lifespan cards do not need Chart.js
+  if (typeof renderAvgYieldChart === 'function') renderAvgYieldChart();
   if (typeof Chart === 'undefined') return;
   renderDepartmentDemandChart();
   renderStockStatusChart();
-  renderAvgYieldChart();
 }
 
 function renderAvgYieldChart() {
-  const canvas = document.getElementById('chart-avg-yield');
-  if (!canvas) return;
-  if (AppState.charts.avgYield) {
+  if (AppState.charts && AppState.charts.avgYield) {
     try { AppState.charts.avgYield.destroy(); } catch (_) {}
+    AppState.charts.avgYield = null;
   }
 
-  const periodTxns = (typeof getDashboardFilteredTransactions === 'function')
-    ? getDashboardFilteredTransactions()
-    : (AppState.transactions || []);
+  const grid = document.getElementById('dept-lifespan-grid');
+  const kpi = document.getElementById('kpi-avg-yield');
+  if (!grid) return;
 
-  // Group RELEASED with positive actualYield by toner code (or description)
-  const buckets = {}; // code -> { sum, n, label }
-  let totalSum = 0, totalN = 0;
-  periodTxns.forEach(t => {
-    if (t.type !== 'RELEASED') return;
-    const y = t.actualYield != null ? Number(t.actualYield) : (t.yield != null ? Number(t.yield) : NaN);
-    if (!Number.isFinite(y) || y <= 0) return;
-    const code = (t.inkCode || '').toUpperCase() || 'UNKNOWN';
-    const desc = (typeof resolveTonerDescription === 'function' ? resolveTonerDescription(code) : '') || code;
-    if (!buckets[code]) buckets[code] = { sum: 0, n: 0, label: desc };
-    buckets[code].sum += y;
-    buckets[code].n += 1;
-    totalSum += y;
-    totalN += 1;
+  const filterType = (AppState.filters && AppState.filters.dashboardDate) || 'MONTH';
+  const from = (AppState.filters && AppState.filters.dashboardDateFrom) || '';
+  const to = (AppState.filters && AppState.filters.dashboardDateTo) || '';
+  const MS_DAY = 86400000;
+  const esc = (s) => (typeof escapeHTML === 'function' ? escapeHTML(s) : String(s || '').replace(/</g, '&lt;'));
+
+  // Cache intervals for click detail: key dept|||LOC -> [{toner, from, to, days}]
+  const intervalCache = {};
+
+  const master = (AppState.releaseLocations && AppState.releaseLocations.length)
+    ? AppState.releaseLocations.filter(r => r.isActive !== false)
+    : ((typeof RELEASE_LOCATIONS !== 'undefined' ? RELEASE_LOCATIONS : []).map(r => ({
+        department: r.department,
+        location: r.location,
+        printerName: r.printerName || ''
+      })));
+
+  const locMap = new Map();
+  master.forEach(r => {
+    const loc = (r.location || '').trim();
+    if (!loc) return;
+    const dept = (r.department || '').trim() || '—';
+    const key = dept.toUpperCase() + '|||' + loc.toUpperCase();
+    if (!locMap.has(key)) {
+      locMap.set(key, {
+        department: dept,
+        location: loc,
+        printerName: (r.printerName || '').trim()
+      });
+    }
   });
 
-  const kpi = document.getElementById('kpi-avg-yield');
+  (AppState.transactions || []).forEach(t => {
+    if (t.type !== 'RELEASED') return;
+    const loc = (t.location || '').trim();
+    if (!loc) return;
+    const dept = (t.department || '').trim() || '—';
+    const key = dept.toUpperCase() + '|||' + loc.toUpperCase();
+    if (!locMap.has(key)) {
+      locMap.set(key, { department: dept, location: loc, printerName: (t.locationPrinter || '').trim() });
+    }
+  });
+
+  const allReleased = (AppState.transactions || [])
+    .filter(t => t.type === 'RELEASED')
+    .map(t => {
+      const d = (t.date || (t.createdAt || '').slice(0, 10) || '').trim();
+      return {
+        code: ((t.inkCode || '').toUpperCase() || 'UNKNOWN'),
+        location: ((t.location || '').trim() || '—'),
+        department: ((t.department || '').trim() || '—'),
+        date: d,
+        ts: d ? new Date(d + 'T12:00:00').getTime() : NaN,
+        ref: t.referenceNumber || t.id || ''
+      };
+    })
+    .filter(t => t.date && Number.isFinite(t.ts));
+
+  const pairs = {};
+  allReleased.forEach(t => {
+    const key = t.code + '|||' + t.location.toUpperCase();
+    if (!pairs[key]) pairs[key] = [];
+    pairs[key].push(t);
+  });
+
+  const stats = {};
+  let totalSum = 0, totalN = 0;
+
+  Object.values(pairs).forEach(list => {
+    list.sort((a, b) => a.ts - b.ts);
+    for (let i = 1; i < list.length; i++) {
+      const prev = list[i - 1];
+      const curr = list[i];
+      if (typeof isDateInFilter === 'function') {
+        if (!isDateInFilter(curr.date, filterType, from, to)) continue;
+      }
+      const days = Math.round((curr.ts - prev.ts) / MS_DAY);
+      if (!Number.isFinite(days) || days < 0) continue;
+      const k = curr.department.toUpperCase() + '|||' + curr.location.toUpperCase();
+      if (!stats[k]) stats[k] = { sum: 0, n: 0 };
+      stats[k].sum += days;
+      stats[k].n += 1;
+      totalSum += days;
+      totalN += 1;
+      if (!intervalCache[k]) intervalCache[k] = [];
+      const tonerDesc = (typeof resolveTonerDescription === 'function'
+        ? resolveTonerDescription(curr.code)
+        : '') || curr.code;
+      intervalCache[k].push({
+        toner: curr.code,
+        description: tonerDesc,
+        from: prev.date,
+        to: curr.date,
+        days,
+        fromRef: prev.ref,
+        toRef: curr.ref
+      });
+    }
+  });
+
+  // Expose for click handler
+  window.__lifespanIntervals = intervalCache;
+  window.__lifespanMeta = Object.fromEntries(locMap);
+
   if (kpi) {
     kpi.textContent = totalN > 0
-      ? `Overall avg: ${Math.round(totalSum / totalN).toLocaleString()} pages (${totalN} issuance${totalN === 1 ? '' : 's'})`
-      : 'Avg: — (no yield data in period)';
+      ? `Overall: ${Math.round(totalSum / totalN).toLocaleString()} days (${totalN} change${totalN === 1 ? '' : 's'})`
+      : 'Overall: —';
   }
 
-  const entries = Object.entries(buckets)
-    .map(([code, b]) => ({ code, avg: b.sum / b.n, label: b.label, n: b.n }))
-    .sort((a, b) => b.avg - a.avg)
-    .slice(0, 12);
+  const entries = Array.from(locMap.entries()).map(([key, meta]) => {
+    const s = stats[key];
+    return {
+      key,
+      department: meta.department,
+      location: meta.location,
+      printerName: meta.printerName,
+      avg: s && s.n > 0 ? Math.round(s.sum / s.n) : null,
+      n: s ? s.n : 0
+    };
+  });
+
+  entries.sort((a, b) => {
+    if (a.avg != null && b.avg != null) return b.avg - a.avg;
+    if (a.avg != null) return -1;
+    if (b.avg != null) return 1;
+    return (a.department + a.location).toLowerCase().localeCompare((b.department + b.location).toLowerCase());
+  });
 
   if (entries.length === 0) {
-    AppState.charts.avgYield = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: ['No yield data'],
-        datasets: [{ label: 'Avg pages', data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Record yields on issuance to populate this chart', font: { size: 12 } }
-        },
-        scales: { y: { beginAtZero: true, max: 1000 } }
-      }
-    });
+    grid.innerHTML = `
+      <div class="col-span-full py-10 text-center">
+        <p class="text-sm text-slate-500 font-medium">No locations yet</p>
+        <p class="text-xs text-slate-400 mt-1">Add locations under Departments &amp; Locations so they appear here.</p>
+      </div>`;
     return;
   }
 
-  const colors = ['#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#14b8a6'];
-  AppState.charts.avgYield = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: entries.map(e => e.label.length > 28 ? e.label.slice(0, 26) + '…' : e.label),
-      datasets: [{
-        label: 'Average pages',
-        data: entries.map(e => Math.round(e.avg)),
-        backgroundColor: entries.map((_, i) => colors[i % colors.length]),
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            afterLabel: (ctx) => {
-              const e = entries[ctx.dataIndex];
-              return e ? `From ${e.n} issuance(s) · ${e.code}` : '';
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Pages', font: { size: 11 } }
-        },
-        x: {
-          ticks: { maxRotation: 45, minRotation: 0, font: { size: 10 } }
-        }
-      }
+  const withData = entries.filter(e => e.avg != null);
+  const maxAvg = withData.length ? Math.max(...withData.map(e => e.avg), 1) : 1;
+
+  grid.innerHTML = entries.map(e => {
+    const hasData = e.avg != null;
+    let badge = 'bg-slate-100 text-slate-600';
+    let numColor = 'text-slate-400';
+    let numText = '—';
+    if (hasData) {
+      numText = String(e.avg);
+      const ratio = e.avg / maxAvg;
+      if (ratio <= 0.33) { badge = 'bg-amber-50 text-amber-800'; numColor = 'text-amber-700'; }
+      else if (ratio <= 0.66) { badge = 'bg-sky-50 text-sky-800'; numColor = 'text-sky-700'; }
+      else { badge = 'bg-emerald-50 text-emerald-800'; numColor = 'text-emerald-700'; }
     }
-  });
+    const title = esc(e.location);
+    const dept = esc(e.department);
+    const printer = e.printerName ? `<div class="text-[11px] text-slate-400 truncate" title="${esc(e.printerName)}">${esc(e.printerName)}</div>` : '';
+    const sub = hasData
+      ? `${e.n} change interval${e.n === 1 ? '' : 's'} · click for dates`
+      : 'No changes yet · click for details';
+    return `
+      <button type="button" data-lifespan-key="${esc(e.key)}"
+        class="lifespan-loc-card text-left rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col gap-1.5 min-h-[7.5rem] w-full hover:border-slate-400 hover:bg-white hover:shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400">
+        <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-400 truncate">${dept}</div>
+        <div class="text-sm font-bold text-slate-800 truncate" title="${title}">${title}</div>
+        ${printer}
+        <div class="flex items-baseline gap-1.5 mt-auto pt-1">
+          <span class="text-3xl font-bold tracking-tight ${numColor} leading-none">${numText}</span>
+          <span class="text-sm font-medium text-slate-500">days</span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] text-slate-400">${sub}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge}">${hasData ? 'avg lifespan' : 'awaiting data'}</span>
+        </div>
+      </button>`;
+  }).join('');
+}
+
+function openLifespanDetail(key) {
+  const modal = document.getElementById('modal-lifespan-detail');
+  if (!key) return;
+  const meta = (window.__lifespanMeta && window.__lifespanMeta[key]) || {};
+  const intervals = (window.__lifespanIntervals && window.__lifespanIntervals[key]) || [];
+  const esc = (s) => (typeof escapeHTML === 'function' ? escapeHTML(s) : String(s || '').replace(/</g, '&lt;'));
+
+  const titleEl = document.getElementById('lifespan-detail-title');
+  const subEl = document.getElementById('lifespan-detail-sub');
+  const bodyEl = document.getElementById('lifespan-detail-body');
+  if (!modal || !bodyEl) return;
+
+  const locName = meta.location || key.split('|||')[1] || 'Location';
+  const deptName = meta.department || key.split('|||')[0] || '';
+  if (titleEl) titleEl.textContent = locName;
+  if (subEl) {
+    const bits = [deptName];
+    if (meta.printerName) bits.push(meta.printerName);
+    subEl.textContent = bits.filter(Boolean).join(' · ') || 'Toner change history';
+  }
+
+  if (intervals.length === 0) {
+    bodyEl.innerHTML = `
+      <div class="py-8 text-center">
+        <p class="text-sm text-slate-500 font-medium">No change intervals yet</p>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Issue the same toner at least twice to this location. The days between those dates will appear here.</p>
+      </div>`;
+  } else {
+    const sorted = intervals.slice().sort((a, b) => (b.to || '').localeCompare(a.to || ''));
+    const avg = Math.round(sorted.reduce((s, x) => s + x.days, 0) / sorted.length);
+    bodyEl.innerHTML = `
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+          Avg <strong class="text-slate-900">${avg}</strong> days
+        </span>
+        <span class="text-xs text-slate-400">${sorted.length} interval${sorted.length === 1 ? '' : 's'}</span>
+      </div>
+      <div class="space-y-2">
+        ${sorted.map(iv => `
+          <div class="rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-slate-700 tracking-wide truncate" title="${esc(iv.description || iv.toner)}">${esc(iv.description || iv.toner)}</div>
+              <div class="text-sm text-slate-800 mt-0.5 font-medium">
+                <span class="font-mono">${esc(iv.from)}</span>
+                <span class="text-slate-400 mx-1">→</span>
+                <span class="font-mono">${esc(iv.to)}</span>
+              </div>
+              ${(iv.fromRef || iv.toRef) ? `<div class="text-[11px] text-slate-400 mt-0.5 truncate">${esc([iv.fromRef, iv.toRef].filter(Boolean).join(' → '))}</div>` : ''}
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-2xl font-bold text-slate-900 leading-none">${iv.days}</div>
+              <div class="text-[11px] font-medium text-slate-500 mt-0.5">days</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+}
+
+function closeLifespanDetail() {
+  const modal = document.getElementById('modal-lifespan-detail');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
 }
 
 
@@ -7371,6 +7530,22 @@ function setupEventListeners() {
   const kpiBackdrop = document.getElementById('modal-kpi-detail-backdrop');
   if (btnCloseKpi) btnCloseKpi.addEventListener('click', closeKpiDetail);
   if (kpiBackdrop) kpiBackdrop.addEventListener('click', closeKpiDetail);
+
+  // Lifespan location cards → detail modal
+  const lifespanGrid = document.getElementById('dept-lifespan-grid');
+  if (lifespanGrid && !lifespanGrid.dataset.lifespanBound) {
+    lifespanGrid.dataset.lifespanBound = '1';
+    lifespanGrid.addEventListener('click', (ev) => {
+      const card = ev.target.closest('[data-lifespan-key]');
+      if (!card) return;
+      const key = card.getAttribute('data-lifespan-key');
+      if (key && typeof openLifespanDetail === 'function') openLifespanDetail(key);
+    });
+  }
+  const btnCloseLifespan = document.getElementById('btn-close-lifespan-detail');
+  const lifespanBackdrop = document.getElementById('modal-lifespan-detail-backdrop');
+  if (btnCloseLifespan) btnCloseLifespan.addEventListener('click', closeLifespanDetail);
+  if (lifespanBackdrop) lifespanBackdrop.addEventListener('click', closeLifespanDetail);
   const btnCloseDup = document.getElementById('btn-close-dup-modal');
   const dupBackdrop = document.getElementById('modal-duplicate-backdrop');
   if (btnCloseDup) btnCloseDup.addEventListener('click', closeDuplicateModal);
@@ -8347,6 +8522,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 </div>
 
 <!-- KPI detail modal -->
+
+<div id="modal-lifespan-detail" class="hidden" style="position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div id="modal-lifespan-detail-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:28rem;max-height:85vh;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);border:1px solid #e4e4e7;overflow:hidden;display:flex;flex-direction:column;">
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div class="min-w-0 pr-2">
+        <h3 id="lifespan-detail-title" class="text-base font-bold text-slate-900 truncate">Location</h3>
+        <p id="lifespan-detail-sub" class="text-xs text-slate-500 mt-0.5 truncate"></p>
+      </div>
+      <button type="button" id="btn-close-lifespan-detail" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 shrink-0" title="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div id="lifespan-detail-body" class="px-5 py-4 overflow-y-auto text-sm text-slate-700 flex-1"></div>
+  </div>
+</div>
+
 <div id="modal-kpi-detail" class="hidden" style="position:fixed;inset:0;z-index:10040;display:none;align-items:center;justify-content:center;padding:1rem;">
   <div id="modal-kpi-detail-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
   <div style="position:relative;z-index:1;width:100%;max-width:36rem;max-height:85vh;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);border:1px solid #e4e4e7;overflow:hidden;display:flex;flex-direction:column;">
