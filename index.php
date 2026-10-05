@@ -258,13 +258,30 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </button>
 
           <!-- Notification Dropdown Panel -->
-          <div id="notif-panel" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden">
-            <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 class="text-sm font-bold text-slate-900">Notifications</h3>
-              <button id="btn-clear-notifs" type="button" class="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors">Clear all</button>
+          <div id="notif-panel" class="hidden absolute right-0 mt-2 w-[22rem] sm:w-[26rem] bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-sm font-bold text-slate-900">Notifications</h3>
+                <div class="flex items-center gap-2">
+                  <button id="btn-mark-all-read" type="button" class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors">Mark all read</button>
+                  <span class="text-slate-300">|</span>
+                  <button id="btn-clear-notifs" type="button" class="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors">Clear all</button>
+                </div>
+              </div>
+              <div id="notif-summary" class="hidden text-[11px] text-slate-600 bg-white/80 border border-slate-200 rounded-lg px-2.5 py-1.5"></div>
+              <div class="flex flex-wrap gap-1.5" id="notif-filter-tabs">
+                <button type="button" data-notif-filter="ALL" class="notif-filter-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 text-white">All</button>
+                <button type="button" data-notif-filter="stock" class="notif-filter-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Stock</button>
+                <button type="button" data-notif-filter="action" class="notif-filter-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Activity</button>
+                <button type="button" data-notif-filter="unread" class="notif-filter-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Unread</button>
+              </div>
             </div>
-            <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+            <div id="notif-list" class="max-h-96 overflow-y-auto divide-y divide-slate-100">
               <div class="p-6 text-center text-sm text-slate-400" id="notif-empty">No notifications yet</div>
+            </div>
+            <div class="px-3 py-2 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2">
+              <button type="button" id="btn-notif-goto-inventory" class="text-[11px] font-semibold text-slate-600 hover:text-blue-700">View inventory</button>
+              <button type="button" id="btn-notif-email-low" class="text-[11px] font-semibold text-amber-700 hover:text-amber-900">Email low-stock alert</button>
             </div>
           </div>
         </div>
@@ -368,10 +385,10 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs px-4 py-3 flex flex-wrap items-center gap-3">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Period</span>
           <select id="filter-dash-date" class="py-2 px-3 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 min-w-[10rem]">
-            <option value="ALL">All time</option>
+            <option value="ALL" selected>All time</option>
             <option value="TODAY">Today</option>
             <option value="WEEK">Last 7 days</option>
-            <option value="MONTH" selected>This month</option>
+            <option value="MONTH">This month</option>
             <option value="CUSTOM">Custom range</option>
           </select>
           <div id="dash-custom-range" class="hidden flex flex-wrap items-center gap-2">
@@ -768,10 +785,10 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             </div>
             <div class="w-44">
               <select id="filter-txn-date" class="w-full py-2 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="ALL">All Time</option>
+                <option value="ALL" selected>All Time</option>
                 <option value="TODAY">Today</option>
                 <option value="WEEK">This Week</option>
-                <option value="MONTH" selected>This Month</option>
+                <option value="MONTH">This Month</option>
                 <option value="CUSTOM">Custom Range</option>
               </select>
             </div>
@@ -954,10 +971,10 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <div class="w-40">
             <label class="block text-[11px] font-semibold text-slate-500 mb-1" for="filter-logs-period">Period</label>
             <select id="filter-logs-period" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white">
-              <option value="ALL">All time</option>
+              <option value="ALL" selected>All time</option>
               <option value="TODAY">Today</option>
               <option value="WEEK">Last 7 days</option>
-              <option value="MONTH" selected>This month</option>
+              <option value="MONTH">This month</option>
               <option value="CUSTOM">Custom range</option>
             </select>
           </div>
@@ -1311,14 +1328,19 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-date">Date</label>
-            <input id="modal-rel-date" type="date" readonly tabindex="-1" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed">
-            <p class="text-[11px] text-slate-500 mt-1">Always set to today — not editable</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-qty">Quantity <span class="text-rose-500">*</span></label>
+              <input id="modal-rel-qty" type="number" min="1" max="999" step="1" value="1"
+                class="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <p class="text-[11px] text-slate-500 mt-1">Default 1. Increase if the department needs more.</p>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-date">Date</label>
+              <input id="modal-rel-date" type="date" readonly tabindex="-1" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed">
+              <p class="text-[11px] text-slate-500 mt-1">Always set to today — not editable</p>
+            </div>
           </div>
-
-
-          <p class="text-xs text-slate-500">Issuance is always <strong>1 unit</strong> per ticket.</p>
           <div class="flex justify-end gap-3 pt-2">
             <button type="button" id="btn-modal-cancel-rel" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
             <button type="button" id="btn-modal-process-rel" class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl">Record Issuance</button>
@@ -1331,7 +1353,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           </div>
           <h4 class="text-xl font-bold text-slate-900 mb-1">Issuance Recorded</h4>
           <p class="text-sm text-slate-500 mb-1">Reference <span id="m-rel-success-ref" class="font-mono font-semibold text-emerald-700"></span></p>
-          <p class="text-xs text-slate-400 mb-6">1 unit deducted · Transaction logged</p>
+          <p class="text-xs text-slate-400 mb-6"><span id="m-rel-success-qty">1</span> unit(s) deducted · Transaction logged</p>
           <button type="button" id="btn-release-done" class="px-6 py-2.5 text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-lg">Done</button>
         </div>
       </div>
@@ -2303,7 +2325,10 @@ const AppState = {
     transactionDateFrom: "",
     transactionDateTo: "",
     transactionDept: "ALL",
-    reportDate: "ALL"
+    reportDate: "ALL",
+    dashboardDate: "ALL",
+    dashboardDateFrom: "",
+    dashboardDateTo: ""
   },
   notifications: []
 };
@@ -2940,7 +2965,7 @@ function isDateInFilter(dateStr, filterType, fromStrOverride, toStrOverride) {
 }
 
 function getDashboardFilteredTransactions() {
-  const filterType = AppState.filters.dashboardDate || 'MONTH';
+  const filterType = AppState.filters.dashboardDate || 'ALL';
   const from = AppState.filters.dashboardDateFrom || '';
   const to = AppState.filters.dashboardDateTo || '';
   return (AppState.transactions || []).filter(t =>
@@ -2961,7 +2986,7 @@ function syncDashCustomRangeUI() {
   if (to) to.value = AppState.filters.dashboardDateTo || '';
   const sel = document.getElementById('filter-dash-date');
   if (sel && sel.value !== AppState.filters.dashboardDate) {
-    sel.value = AppState.filters.dashboardDate || 'MONTH';
+    sel.value = AppState.filters.dashboardDate || 'ALL';
   }
   const label = document.getElementById('dash-period-label');
   if (label) {
@@ -3294,7 +3319,7 @@ function saveNewToner() {
         renderAlerts();
         closeAddTonerModal();
         showToast(`Toner ${code} saved to database.`, 'success');
-        pushNotification('success', 'Toner Added', `${code} was saved to MySQL inventory.`, { source: 'action' });
+        pushNotification('success', 'Toner Added', `${code} was saved to inventory.`, { source: 'action', inkCode: code, action: { type: 'stockCard', payload: code } });
         return;
       } catch (apiErr) {
         console.error('[Toner] API add failed:', apiErr);
@@ -3354,7 +3379,7 @@ async function confirmRemoveToner() {
       renderAlerts();
       closeRemoveTonerModal();
       showToast(`Toner ${code} removed from inventory.`, 'success');
-      pushNotification('warning', 'Toner Removed', `${code} was removed from the master inventory.`, { source: 'action' });
+      pushNotification('warning', 'Toner Removed', `${code} was removed from the master inventory.`, { source: 'action', inkCode: code, action: { type: 'inventory' } });
     } catch (e) {
       showToast(e.message || 'Failed to remove toner.', 'error');
     }
@@ -3838,7 +3863,7 @@ const TicketService = {
     renderAlerts();
 
     showToast(`Delivery ${ticket.referenceNumber} processed successfully! Stock incremented.`, 'success');
-    pushNotification('success', 'Delivery Received', `Ticket ${ticket.referenceNumber} processed. Stock incremented.`, { source: 'action' });
+    pushNotification('success', 'Delivery Received', `Ticket ${ticket.referenceNumber} processed. Stock incremented.`, { source: 'action', referenceNumber: ticket.referenceNumber, action: { type: 'delivery' } });
     return true;
   },
 
@@ -3861,18 +3886,18 @@ const TicketService = {
     let validationFailed = false;
     let failureDetail = '';
 
-    // Business rule: 1 release ticket = 1 toner (use first item / primary toner on ticket)
+    // Use primary item quantity (supports multi-unit issuance)
     const items = ticket.items && ticket.items.length ? ticket.items : [{ inkCode: 'UNKNOWN', quantity: 1 }];
-    // Only validate the primary toner line at qty 1
     const primary = items[0];
+    const requestedQty = Math.max(1, Number(primary.quantity) || 1);
     {
       const matched = inks.find(i => i.inkCode.toUpperCase() === (primary.inkCode || '').toUpperCase());
       const available = matched ? (Number(matched.quantity) || 0) : 0;
-      const requested = 1;
+      const requested = requestedQty;
 
       if (!matched || available < requested) {
         validationFailed = true;
-        failureDetail = `${primary.inkCode}: Need 1 unit, but only ${available} available in stock.`;
+        failureDetail = `${primary.inkCode}: Need ${requested} unit(s), but only ${available} available in stock.`;
       }
     }
 
@@ -3888,10 +3913,9 @@ const TicketService = {
 
     releaseItems.forEach(item => {
       const matched = inks.find(i => i.inkCode.toUpperCase() === item.inkCode.toUpperCase());
-      // Business rule: 1 ticket = 1 toner unit
-      const reqQty = 1;
+      const reqQty = Math.max(1, Number(item.quantity) || 1);
 
-      // Stock Decrement: New Stock = Current Stock - 1
+      // Stock Decrement by requested quantity
       matched.quantity = (Number(matched.quantity) || 0) - reqQty;
       matched.updatedAt = executionTime;
 
@@ -3941,7 +3965,7 @@ const TicketService = {
     renderAlerts();
 
     showToast(`Toner release ${ticket.referenceNumber} processed successfully! Stock decremented.`, 'success');
-    pushNotification('success', 'Toner Released', `Ticket ${ticket.referenceNumber} processed. Toner stock decremented.`, { source: 'action' });
+    pushNotification('success', 'Toner Released', `Ticket ${ticket.referenceNumber} processed. Toner stock decremented.`, { source: 'action', referenceNumber: ticket.referenceNumber, action: { type: 'issue' } });
     return true;
   },
 
@@ -3994,7 +4018,7 @@ const TicketService = {
       serialNumber: primary.serialNumber || 'N/A',
       brand: primary.brand || '',
       color: primary.color || '',
-      quantity: 1,
+      quantity: requestedQty,
       date: executionTime.split('T')[0],
       supplier: '',
       givenTo: primary.givenTo || '',
@@ -4017,7 +4041,7 @@ const TicketService = {
     renderAlerts();
 
     showToast(`Issuance ${ref} flagged as defective.`, 'success');
-    pushNotification('warning', 'Defective Return', `Ticket ${ref} (${primary.inkCode}) marked defective.`, { source: 'action' });
+    pushNotification('warning', 'Defective Return', `Ticket ${ref} (${primary.inkCode}) marked defective.`, { source: 'action', referenceNumber: ref, inkCode: primary.inkCode, action: { type: 'issue' } });
     return true;
   }
 };
@@ -4738,7 +4762,7 @@ async function clearMailLog() {
 
 
 function syncLogsCustomRangeUI() {
-  const period = document.getElementById('filter-logs-period')?.value || 'MONTH';
+  const period = document.getElementById('filter-logs-period')?.value || 'ALL';
   const wrap = document.getElementById('logs-custom-range');
   if (wrap) {
     if (period === 'CUSTOM') wrap.classList.remove('hidden');
@@ -4773,7 +4797,7 @@ function populateLogsFilterMeta(meta, keepSelection) {
 async function loadSystemLogs() {
   const tbody = document.getElementById('logs-tbody');
   const q = (document.getElementById('filter-logs-search')?.value || '').trim();
-  const period = document.getElementById('filter-logs-period')?.value || 'MONTH';
+  const period = document.getElementById('filter-logs-period')?.value || 'ALL';
   const action = document.getElementById('filter-logs-action')?.value || 'ALL';
   const actor = document.getElementById('filter-logs-actor')?.value || 'ALL';
   const from = document.getElementById('filter-logs-from')?.value || '';
@@ -4832,7 +4856,7 @@ function resetLogsFilters() {
   const f = document.getElementById('filter-logs-from');
   const to = document.getElementById('filter-logs-to');
   if (s) s.value = '';
-  if (p) p.value = 'MONTH';
+  if (p) p.value = 'ALL';
   if (a) a.value = 'ALL';
   if (u) u.value = 'ALL';
   if (f) f.value = '';
@@ -5308,38 +5332,248 @@ function getStockStatus(quantity, reorderLevel) {
 }
 
 // ==========================================
-// 16. ALERTS
+// 16. ALERTS / NOTIFICATIONS
 // ==========================================
-// In-memory notification store (also regenerated from stock on each render)
+// Persisted action notifications + live stock alerts
 AppState.notifications = AppState.notifications || [];
+AppState.notifFilter = AppState.notifFilter || 'ALL';
+
+const NOTIF_STORAGE_KEY = 'toner_notifications_v1';
+const NOTIF_MAX = 50;
+
+function loadPersistedNotifications() {
+  try {
+    const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.filter(n => n && n.source !== 'stock') : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function persistNotifications() {
+  try {
+    const toSave = (AppState.notifications || [])
+      .filter(n => n.source !== 'stock')
+      .slice(0, NOTIF_MAX);
+    localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(toSave));
+  } catch (_) {}
+}
+
+function relativeTime(iso) {
+  if (!iso) return '';
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return formatDateTime(iso);
+  const sec = Math.round((Date.now() - t) / 1000);
+  if (sec < 45) return 'Just now';
+  if (sec < 3600) return Math.floor(sec / 60) + ' min ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + ' hr ago';
+  if (sec < 86400 * 7) return Math.floor(sec / 86400) + ' day(s) ago';
+  return formatDateTime(iso);
+}
 
 function pushNotification(type, title, message, meta = {}) {
-  AppState.notifications.unshift({
+  const n = {
     id: 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-    type, // 'warning' | 'danger' | 'success' | 'info'
-    title,
-    message,
+    type: type || 'info', // 'warning' | 'danger' | 'success' | 'info'
+    title: title || 'Notification',
+    message: message || '',
     time: new Date().toISOString(),
     read: false,
+    source: meta.source || 'action',
+    action: meta.action || null, // { type: 'inventory'|'stockCard'|'transactions'|'issue', payload }
+    inkCode: meta.inkCode || null,
+    referenceNumber: meta.referenceNumber || null,
     ...meta
-  });
-  // Keep last 30
-  if (AppState.notifications.length > 30) AppState.notifications = AppState.notifications.slice(0, 30);
+  };
+  AppState.notifications = AppState.notifications || [];
+  // Dedupe identical action alerts within 30s
+  const dup = AppState.notifications.find(x =>
+    x.source === n.source && x.title === n.title && x.message === n.message &&
+    Math.abs(new Date(x.time) - new Date(n.time)) < 30000
+  );
+  if (dup) {
+    dup.time = n.time;
+    dup.read = false;
+  } else {
+    AppState.notifications.unshift(n);
+  }
+  if (AppState.notifications.length > NOTIF_MAX) {
+    AppState.notifications = AppState.notifications.slice(0, NOTIF_MAX);
+  }
+  persistNotifications();
+  renderNotifications();
+  // Browser notification for critical out-of-stock (when tab not focused)
+  if (n.type === 'danger' && document.hidden && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try {
+      new Notification(n.title, { body: n.message, tag: n.id });
+    } catch (_) {}
+  }
+  return n;
+}
+
+function markNotificationRead(id) {
+  const n = (AppState.notifications || []).find(x => x.id === id);
+  if (n) {
+    n.read = true;
+    persistNotifications();
+    renderNotifications();
+  }
+}
+
+function markAllNotificationsRead() {
+  (AppState.notifications || []).forEach(n => { n.read = true; });
+  persistNotifications();
   renderNotifications();
 }
 
+function getDismissedStockMap() {
+  try {
+    const raw = localStorage.getItem('toner_notif_dismissed_stock');
+    return raw ? (JSON.parse(raw) || {}) : {};
+  } catch (_) { return {}; }
+}
+
+function setDismissedStockMap(map) {
+  try {
+    localStorage.setItem('toner_notif_dismissed_stock', JSON.stringify(map || {}));
+  } catch (_) {}
+}
+
+function clearAllNotifications() {
+  // Clear everything the user sees, including stock alerts for now
+  AppState.notifications = [];
+  // Remember current low/out items so they don't immediately reappear after Clear
+  const dismissed = getDismissedStockMap();
+  (AppState.inks || []).forEach(item => {
+    const s = getStockStatus(item.quantity, item.reorderLevel);
+    if (s === STOCK_STATUS.OUT_OF_STOCK || s === STOCK_STATUS.LOW_STOCK) {
+      const code = (item.inkCode || '').toUpperCase();
+      if (code) dismissed[code] = Number(item.quantity);
+    }
+  });
+  setDismissedStockMap(dismissed);
+  // Also hide today's digest until tomorrow / new activity
+  try { localStorage.setItem('toner_notif_digest_cleared', new Date().toISOString().slice(0, 10)); } catch (_) {}
+  persistNotifications();
+  renderNotifications();
+}
+
+function handleNotificationClick(n) {
+  if (!n) return;
+  markNotificationRead(n.id);
+  // Dismiss stock alert for current quantity (won't reappear until stock changes)
+  if (n.source === 'stock' && n.inkCode) {
+    const dismissed = getDismissedStockMap();
+    const item = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === String(n.inkCode).toUpperCase());
+    dismissed[String(n.inkCode).toUpperCase()] = item ? Number(item.quantity) || 0 : 0;
+    setDismissedStockMap(dismissed);
+    AppState.notifications = (AppState.notifications || []).filter(x => x.id !== n.id);
+    persistNotifications();
+  }
+  const panel = document.getElementById('notif-panel');
+  if (panel) panel.classList.add('hidden');
+
+  const action = n.action || {};
+  const type = action.type || (n.source === 'stock' ? 'stockCard' : null);
+  const code = action.payload || n.inkCode;
+
+  if (type === 'stockCard' && code && typeof openStockCard === 'function') {
+    navigateTo('inventory');
+    setTimeout(() => openStockCard(code), 80);
+    return;
+  }
+  if (type === 'inventory' || n.source === 'stock') {
+    navigateTo('inventory');
+    if (code) {
+      const search = document.getElementById('filter-inv-search');
+      if (search) {
+        search.value = code;
+        AppState.filters.inventorySearch = code;
+        if (typeof renderInventory === 'function') renderInventory();
+      }
+    }
+    return;
+  }
+  if (type === 'transactions' || type === 'issue' || type === 'delivery') {
+    AppState.filters.transactionType = type === 'delivery' ? 'RECEIVED' : 'RELEASED';
+    AppState.filters.transactionDate = 'ALL';
+    if (n.referenceNumber) AppState.filters.transactionSearch = n.referenceNumber;
+    navigateTo('transactions');
+    const dateSel = document.getElementById('filter-txn-date');
+    if (dateSel) dateSel.value = 'ALL';
+    if (typeof renderTransactions === 'function') renderTransactions();
+    return;
+  }
+}
+
+function buildTodayActivityNotifications() {
+  // One digest card for today's activity (not duplicated every render)
+  const todayStr = new Date().toISOString().slice(0, 10);
+  try {
+    if (localStorage.getItem('toner_notif_digest_cleared') === todayStr) {
+      AppState.notifications = (AppState.notifications || []).filter(n => n.id !== 'digest-today');
+      return;
+    }
+  } catch (_) {}
+
+  const existing = (AppState.notifications || []).find(n => n.id === 'digest-today');
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
+  const txns = (AppState.transactions || []).filter(t => {
+    const dt = parseLocalDate(t.date || t.createdAt);
+    return dt && dt.getFullYear() === y && dt.getMonth() === m && dt.getDate() === d;
+  });
+  const released = txns.filter(t => t.type === 'RELEASED');
+  const received = txns.filter(t => t.type === 'RECEIVED');
+  const unitsOut = released.reduce((s, t) => s + (Number(t.quantity) || 0), 0);
+  const unitsIn = received.reduce((s, t) => s + (Number(t.quantity) || 0), 0);
+  if (released.length === 0 && received.length === 0) {
+    AppState.notifications = (AppState.notifications || []).filter(n => n.id !== 'digest-today');
+    return;
+  }
+  const msg = [
+    received.length ? `${received.length} delivery ticket(s) (+${unitsIn} units)` : null,
+    released.length ? `${released.length} issuance(s) (−${unitsOut} units)` : null
+  ].filter(Boolean).join(' · ');
+  const digest = {
+    id: 'digest-today',
+    type: 'info',
+    title: "Today's activity",
+    message: msg,
+    time: new Date().toISOString(),
+    read: existing ? existing.read : false,
+    source: 'digest',
+    action: { type: 'transactions' }
+  };
+  AppState.notifications = (AppState.notifications || []).filter(n => n.id !== 'digest-today');
+  AppState.notifications.push(digest);
+}
+
 function renderAlerts() {
-  // Rebuild stock-based alerts; keep action/success notifications
-  const lowOrOut = AppState.inks.filter(item => {
+  // Rebuild stock-based alerts; keep action / digest notifications
+  const lowOrOut = (AppState.inks || []).filter(item => {
     const s = getStockStatus(item.quantity, item.reorderLevel);
     return s === STOCK_STATUS.OUT_OF_STOCK || s === STOCK_STATUS.LOW_STOCK;
   });
 
   AppState.notifications = (AppState.notifications || []).filter(n => n.source !== 'stock');
 
+  const dismissed = getDismissedStockMap();
   lowOrOut.forEach(item => {
     const isOut = Number(item.quantity) <= 0;
     const code = item.inkCode || '';
+    const codeKey = code.toUpperCase();
+    const qty = Number(item.quantity) || 0;
+    // If user cleared/dismissed this item, only re-show when stock changes (e.g. goes lower or was restocked then low again)
+    if (Object.prototype.hasOwnProperty.call(dismissed, codeKey)) {
+      const prevQty = Number(dismissed[codeKey]);
+      if (qty === prevQty) return; // still same level — stay dismissed
+      // stock changed → remove dismiss so alert can show again
+      delete dismissed[codeKey];
+      setDismissedStockMap(dismissed);
+    }
     const desc = (item.description || '').trim();
     const label = desc ? `${code} — ${desc}` : code;
     AppState.notifications.push({
@@ -5348,23 +5582,33 @@ function renderAlerts() {
       title: isOut ? 'Out of stock' : 'Low stock alert',
       message: isOut
         ? `${label} has 0 units. Order replacement soon.`
-        : `${label} is low (${item.quantity} on hand; reorder at ${item.reorderLevel}).`,
+        : `${label} is low (${qty} on hand; reorder at ${item.reorderLevel}).`,
       time: new Date().toISOString(),
       read: false,
       source: 'stock',
-      inkCode: code
+      inkCode: code,
+      action: { type: 'stockCard', payload: code }
     });
   });
 
+  buildTodayActivityNotifications();
+
   AppState.notifications.sort((a, b) => {
-    if (a.read !== b.read) return a.read ? 1 : -1;
+    // Danger stock first, then unread, then time
+    const rank = (n) => {
+      if (n.source === 'stock' && n.type === 'danger') return 0;
+      if (n.source === 'stock') return 1;
+      if (!n.read) return 2;
+      return 3;
+    };
+    const ra = rank(a), rb = rank(b);
+    if (ra !== rb) return ra - rb;
     return new Date(b.time) - new Date(a.time);
   });
 
   renderNotifications();
 }
 
-/** Email admins if inventory is still low/out (server cooldown applies unless force). */
 async function triggerLowStockEmailCheck(force = false) {
   try {
     const q = force ? 'check_low_stock.php?force=1' : 'check_low_stock.php';
@@ -5392,11 +5636,19 @@ async function triggerLowStockEmailCheck(force = false) {
 function renderNotifications() {
   const list = document.getElementById('notif-list');
   const badge = document.getElementById('notif-badge');
-  const empty = document.getElementById('notif-empty');
+  const summary = document.getElementById('notif-summary');
   if (!list) return;
 
-  const notifs = AppState.notifications || [];
-  const unread = notifs.filter(n => !n.read).length;
+  const all = AppState.notifications || [];
+  const filter = AppState.notifFilter || 'ALL';
+  let notifs = all;
+  if (filter === 'stock') notifs = all.filter(n => n.source === 'stock');
+  else if (filter === 'action') notifs = all.filter(n => n.source === 'action' || n.source === 'digest');
+  else if (filter === 'unread') notifs = all.filter(n => !n.read);
+
+  const unread = all.filter(n => !n.read).length;
+  const lowCount = all.filter(n => n.source === 'stock' && n.type === 'warning').length;
+  const outCount = all.filter(n => n.source === 'stock' && n.type === 'danger').length;
 
   if (badge) {
     if (unread > 0) {
@@ -5407,40 +5659,80 @@ function renderNotifications() {
     }
   }
 
+  if (summary) {
+    if (lowCount + outCount > 0) {
+      summary.classList.remove('hidden');
+      const parts = [];
+      if (outCount) parts.push(`<span class="font-bold text-rose-700">${outCount} out of stock</span>`);
+      if (lowCount) parts.push(`<span class="font-bold text-amber-700">${lowCount} low stock</span>`);
+      summary.innerHTML = parts.join(' · ') + ' — click an item to open its stock card';
+    } else {
+      summary.classList.add('hidden');
+      summary.innerHTML = '';
+    }
+  }
+
+  // Filter tab styles
+  document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+    const active = btn.getAttribute('data-notif-filter') === filter;
+    btn.className = active
+      ? 'notif-filter-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 text-white'
+      : 'notif-filter-btn px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50';
+  });
+
   if (notifs.length === 0) {
-    list.innerHTML = '<div class="p-6 text-center text-sm text-slate-400" id="notif-empty">No notifications yet</div>';
+    list.innerHTML = '<div class="p-6 text-center text-sm text-slate-400" id="notif-empty">No notifications in this view</div>';
     return;
   }
 
+  const colors = {
+    danger: 'bg-rose-100 text-rose-700',
+    warning: 'bg-amber-100 text-amber-700',
+    success: 'bg-emerald-100 text-emerald-700',
+    info: 'bg-blue-100 text-blue-700'
+  };
+  const icons = {
+    danger: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+    warning: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+    success: 'M5 13l4 4L19 7',
+    info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+  };
+
   list.innerHTML = notifs.map(n => {
-    const colors = {
-      danger: 'bg-rose-50 text-rose-600',
-      warning: 'bg-amber-50 text-amber-600',
-      success: 'bg-emerald-50 text-emerald-600',
-      info: 'bg-blue-50 text-blue-600'
-    };
     const iconBg = colors[n.type] || colors.info;
-    const timeStr = formatDateTime(n.time);
+    const path = icons[n.type] || icons.info;
+    const timeStr = relativeTime(n.time);
+    const clickable = n.source === 'stock' || n.action || n.inkCode || n.referenceNumber;
     return `
-      <div class="p-3.5 hover:bg-slate-50 transition-colors ${n.read ? 'opacity-70' : ''}" data-notif-id="${n.id}">
+      <div class="p-3.5 hover:bg-slate-50 transition-colors cursor-pointer ${n.read ? 'opacity-70' : 'bg-blue-50/30'}" data-notif-id="${escapeHTML(n.id)}" role="button" tabindex="0">
         <div class="flex gap-3">
           <div class="w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${path}"></path></svg>
           </div>
-          <div class="flex-1 min-w-0">
+          <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-2">
-              <p class="text-sm font-semibold text-slate-900">${escapeHTML(n.title)}</p>
-              <span class="text-[10px] text-slate-400 whitespace-nowrap">${timeStr}</span>
+              <p class="text-sm font-semibold text-slate-900 leading-snug">${escapeHTML(n.title)}</p>
+              ${n.read ? '' : '<span class="mt-1 w-2 h-2 rounded-full bg-blue-500 shrink-0" title="Unread"></span>'}
             </div>
             <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">${escapeHTML(n.message)}</p>
+            <div class="flex items-center justify-between gap-2 mt-1.5">
+              <span class="text-[10px] text-slate-400">${escapeHTML(timeStr)}</span>
+              ${clickable ? '<span class="text-[10px] font-semibold text-blue-600">Open →</span>' : ''}
+            </div>
           </div>
         </div>
       </div>`;
   }).join('');
+
+  list.querySelectorAll('[data-notif-id]').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.getAttribute('data-notif-id');
+      const n = (AppState.notifications || []).find(x => x.id === id);
+      handleNotificationClick(n);
+    });
+  });
 }
 
-
-// ==========================================
 // 17. CHARTS (Chart.js Integration)
 // ==========================================
 function renderCharts() {
@@ -5461,7 +5753,7 @@ function renderAvgYieldChart() {
   const kpi = document.getElementById('kpi-avg-yield');
   if (!grid) return;
 
-  const filterType = (AppState.filters && AppState.filters.dashboardDate) || 'MONTH';
+  const filterType = (AppState.filters && AppState.filters.dashboardDate) || 'ALL';
   const from = (AppState.filters && AppState.filters.dashboardDateFrom) || '';
   const to = (AppState.filters && AppState.filters.dashboardDateTo) || '';
   const MS_DAY = 86400000;
@@ -6214,7 +6506,7 @@ function recordManualDelivery() {
       document.getElementById('receive-step-form')?.classList.add('hidden');
       document.getElementById('receive-step-success')?.classList.remove('hidden');
       showToast(`MRR ${ref} posted — check Transaction History → Incoming.`, 'success');
-      pushNotification('success', 'Delivery Received', `MRR ${ref} processed from ERP.`, { source: 'action' });
+      pushNotification('success', 'Delivery Received', `MRR ${ref} processed from ERP.`, { source: 'action', referenceNumber: ref, action: { type: 'delivery' } });
       AppState.activeMrrLookup = null;
     } catch (e) {
       if (e.data && e.data.duplicate) openDuplicateModal(ref, 'DELIVERY');
@@ -6303,6 +6595,8 @@ function recordManualIssuance() {
   const locationPrinter = (document.getElementById('modal-rel-printer')?.value || '').trim();
   const yieldRaw = document.getElementById('modal-rel-yield')?.value;
   const issuedBy = (document.getElementById('modal-rel-issued-by')?.value || '').trim();
+  const qtyRaw = document.getElementById('modal-rel-qty')?.value;
+  const qty = Math.max(1, Math.min(999, parseInt(qtyRaw, 10) || 1));
   // Issuance date is always the current day
   const date = new Date().toISOString().split('T')[0];
   const dateInput = document.getElementById('modal-rel-date');
@@ -6332,8 +6626,8 @@ function recordManualIssuance() {
   const totalQty = AppState.inks
     .filter(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase())
     .reduce((s, i) => s + (Number(i.quantity) || 0), 0);
-  if (totalQty < 1) {
-    showToast(`Insufficient stock for ${toner} (0 on hand).`, 'error');
+  if (totalQty < qty) {
+    showToast(`Insufficient stock for ${toner} (need ${qty}, only ${totalQty} on hand).`, 'error');
     return;
   }
 
@@ -6357,7 +6651,7 @@ function recordManualIssuance() {
       brand: matched?.brand || '',
       printerModel: matched?.printerModel || '',
       color: matched?.color || 'Black',
-      quantity: 1,
+      quantity: qty,
       serialNumber: ''
     }]
   };
@@ -6367,7 +6661,7 @@ function recordManualIssuance() {
       if (AppState.useBackend) {
         const okIssue = await appConfirm({
           title: 'Confirm stock issuance',
-          message: 'Record this toner issuance and deduct 1 unit from inventory?',
+          message: `Record this toner issuance and deduct ${qty} unit(s) from inventory?`,
           confirmText: 'Issue toner'
         });
         if (!okIssue) return;
@@ -6383,7 +6677,8 @@ function recordManualIssuance() {
             location,
             locationPrinter: locationPrinter === '—' ? '' : locationPrinter,
             actualYield,
-            issuedBy
+            issuedBy,
+            quantity: qty
           }, { silent: true, loadingMessage: 'Issuing toner…' });
           await loadFromBackendSilent();
         } finally {
@@ -6391,9 +6686,11 @@ function recordManualIssuance() {
         }
         renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
         document.getElementById('m-rel-success-ref').textContent = ref;
+        const successQtyEl = document.getElementById('m-rel-success-qty');
+        if (successQtyEl) successQtyEl.textContent = String(qty);
         document.getElementById('release-step-form')?.classList.add('hidden');
         document.getElementById('release-step-success')?.classList.remove('hidden');
-        showToast(`Issuance ${ref} recorded.`, 'success');
+        showToast(`Issuance ${ref} recorded (${qty} unit(s)).`, 'success');
         // If API reported low-stock email, surface a soft reminder in UI
         try {
           const invItem = (AppState.inks || []).find(i => (i.inkCode || '').toUpperCase() === toner.toUpperCase());
@@ -6402,14 +6699,16 @@ function recordManualIssuance() {
           if (qty !== null && qty <= reorder) {
             pushNotification('warning', 'Low stock after issuance',
               `${toner} is still low (${qty} left; reorder at ${reorder}). Admins were emailed if configured.`,
-              { source: 'action' });
+              { source: 'action', inkCode: toner, action: { type: 'stockCard', payload: toner } });
           }
         } catch (_) {}
-        pushNotification('success', 'Toner Released', `Ticket ${ref} processed. Toner stock decremented.`, { source: 'action' });
+        pushNotification('success', 'Toner Released', `Ticket ${ref} processed. Toner stock decremented.`, { source: 'action', referenceNumber: ref, action: { type: 'issue' }, inkCode: toner });
       } else {
         const ok = TicketService.processReleaseTicket(ticket);
         if (ok) {
           document.getElementById('m-rel-success-ref').textContent = ref;
+          const successQtyEl2 = document.getElementById('m-rel-success-qty');
+          if (successQtyEl2) successQtyEl2.textContent = String(qty);
           document.getElementById('release-step-form')?.classList.add('hidden');
           document.getElementById('release-step-success')?.classList.remove('hidden');
         }
@@ -6485,6 +6784,8 @@ async function openReleaseModal() {
   if (hint) hint.textContent = '';
   if (yieldEl) yieldEl.value = '';
   if (printerEl) printerEl.value = '';
+  const qtyEl = document.getElementById('modal-rel-qty');
+  if (qtyEl) qtyEl.value = '1';
   fillLocationsForDept('', 'modal-rel-location', 'm-rel-location-auto', 'm-rel-location-auto-text');
   const modal = document.getElementById('modal-release');
   const backdrop = document.getElementById('modal-backdrop');
@@ -6923,7 +7224,7 @@ function setupEventListeners() {
             await loadFromBackend();
             renderDashboard(); renderInventory(); renderTransactions(); renderCharts(); renderAlerts();
             showToast(`Issuance ${refNum} flagged as defective.`, 'success');
-            pushNotification('warning', 'Defective Return', `Ticket ${refNum} marked defective.`, { source: 'action' });
+            pushNotification('warning', 'Defective Return', `Ticket ${refNum} marked defective.`, { source: 'action', referenceNumber: refNum, action: { type: 'issue' } });
           } else {
             const ok = TicketService.processDefectiveReturn(refNum, notes);
             if (!ok) return;
@@ -6940,23 +7241,21 @@ function setupEventListeners() {
     });
   }
 
+    // Restore notifications from previous session
+  AppState.notifications = loadPersistedNotifications();
+
   // ---------- Notification bell ----------
   const btnNotif = document.getElementById('btn-notifications');
   const notifPanel = document.getElementById('notif-panel');
   const btnClearNotifs = document.getElementById('btn-clear-notifs');
+  const btnMarkAllRead = document.getElementById('btn-mark-all-read');
 
   if (btnNotif && notifPanel) {
     btnNotif.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isHidden = notifPanel.classList.contains('hidden');
       notifPanel.classList.toggle('hidden');
-      if (isHidden) {
-        // Mark all as read when opened
-        (AppState.notifications || []).forEach(n => { n.read = true; });
-        renderNotifications();
-      }
+      // Do not auto-mark read — user can Mark all read
     });
-    // Close when clicking outside
     document.addEventListener('click', (e) => {
       if (!notifPanel.classList.contains('hidden') && !notifPanel.contains(e.target) && e.target !== btnNotif && !btnNotif.contains(e.target)) {
         notifPanel.classList.add('hidden');
@@ -6964,12 +7263,56 @@ function setupEventListeners() {
     });
   }
   if (btnClearNotifs) {
-    btnClearNotifs.addEventListener('click', () => {
-      AppState.notifications = [];
-      renderNotifications();
+    btnClearNotifs.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearAllNotifications();
+      showToast('Notifications cleared.', 'info');
     });
   }
-  // ---------- Logout ----------
+  if (btnMarkAllRead) {
+    btnMarkAllRead.addEventListener('click', (e) => {
+      e.stopPropagation();
+      markAllNotificationsRead();
+    });
+  }
+  document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      AppState.notifFilter = btn.getAttribute('data-notif-filter') || 'ALL';
+      renderNotifications();
+    });
+  });
+  const btnNotifInv = document.getElementById('btn-notif-goto-inventory');
+  if (btnNotifInv) {
+    btnNotifInv.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('notif-panel')?.classList.add('hidden');
+      navigateTo('inventory');
+    });
+  }
+  const btnNotifEmail = document.getElementById('btn-notif-email-low');
+  if (btnNotifEmail) {
+    btnNotifEmail.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      try {
+        await triggerLowStockEmailCheck(true);
+      } catch (err) {
+        showToast(err.message || 'Could not send low-stock email.', 'error');
+      }
+    });
+  }
+  // Optional: request browser notification permission once (non-blocking)
+  try {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      // soft prompt only after user opens bell once
+      btnNotif?.addEventListener('click', function askPerm() {
+        Notification.requestPermission().catch(() => {});
+        btnNotif.removeEventListener('click', askPerm);
+      });
+    }
+  } catch (_) {}
+
+// ---------- Logout ----------
   const btnLogout = document.getElementById('btn-logout');
   const btnCancelLogout = document.getElementById('btn-cancel-logout');
   const btnConfirmLogout = document.getElementById('btn-confirm-logout');
@@ -7155,7 +7498,7 @@ function setupEventListeners() {
       const hint = document.getElementById('modal-rel-stock-hint');
       if (hint && opt && opt.value) {
         const q = opt.getAttribute('data-qty') || '0';
-        hint.textContent = `${opt.value}: ${q} unit(s) on hand · issuance uses 1 unit`;
+        hint.textContent = `${opt.value}: ${q} unit(s) on hand`;
       } else if (hint) hint.textContent = '';
     });
   }
@@ -7571,7 +7914,7 @@ function setupEventListeners() {
   const dashDate = document.getElementById('filter-dash-date');
   if (dashDate) {
     dashDate.addEventListener('change', (e) => {
-      AppState.filters.dashboardDate = e.target.value || 'MONTH';
+      AppState.filters.dashboardDate = e.target.value || 'ALL';
       if (AppState.filters.dashboardDate !== 'CUSTOM') {
         AppState.filters.dashboardDateFrom = '';
         AppState.filters.dashboardDateTo = '';
@@ -7649,7 +7992,7 @@ function setupEventListeners() {
   if (btnClearTxnFilters) {
     btnClearTxnFilters.addEventListener('click', () => {
       AppState.filters.transactionSearch = '';
-      AppState.filters.transactionDate = 'MONTH';
+      AppState.filters.transactionDate = 'ALL';
       AppState.filters.transactionDateFrom = '';
       AppState.filters.transactionDateTo = '';
       AppState.filters.transactionDept = 'ALL';
@@ -7658,7 +8001,7 @@ function setupEventListeners() {
       const f = document.getElementById('filter-txn-from');
       const to = document.getElementById('filter-txn-to');
       if (s) s.value = '';
-      if (d) d.value = 'MONTH';
+      if (d) d.value = 'ALL';
       if (f) f.value = '';
       if (to) to.value = '';
       if (typeof syncTxnCustomRangeUI === 'function') syncTxnCustomRangeUI();

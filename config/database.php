@@ -1,8 +1,4 @@
 <?php
-/**
- * SQL Server — toner_inventory database (Navicat / VMAPPS2)
- * Copy this file to your project config/ folder.
- */
 return [
     'driver'   => 'sqlsrv',
     'server'   => 'VMAPPS2',

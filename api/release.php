@@ -1,6 +1,6 @@
 <?php
 /**
- * Stock Issuance — deduct 1 unit, log RELEASED with yield + issuer + location printer.
+ * Stock Issuance — deduct N units (default 1), log RELEASED with yield + issuer + location printer.
  */
 require_once __DIR__ . '/../config/bootstrap.php';
 require_once __DIR__ . '/../config/activity_log.php';
@@ -21,6 +21,15 @@ $yield = isset($in['actualYield']) ? (int)$in['actualYield'] : (isset($in['yield
 $issuedBy = trim((string)($in['issuedBy'] ?? ''));
 $recordedBy = auth_user();
 $date = date('Y-m-d');
+
+// Quantity: allow more than 1 when department needs multiple units
+$qty = isset($in['quantity']) ? (int)$in['quantity'] : (isset($in['qty']) ? (int)$in['qty'] : 1);
+if ($qty < 1) {
+    fail('Quantity must be at least 1.');
+}
+if ($qty > 999) {
+    fail('Quantity is too large (max 999 per ticket).');
+}
 
 if ($ref === '') fail('Issuance reference is required.');
 if ($inkCode === '') fail('Item code is required. Select an item from the list.');
@@ -70,12 +79,12 @@ try {
     }
     $row = array_change_key_case($row, CASE_LOWER);
     $onHand = (int)($row['quantity'] ?? 0);
-    if ($onHand < 1) {
+    if ($onHand < $qty) {
         $pdo->rollBack();
-        fail("Insufficient stock for {$inkCode} (0 on hand).");
+        fail("Insufficient stock for {$inkCode} (need {$qty}, only {$onHand} on hand).");
     }
 
-    $newQty = $onHand - 1;
+    $newQty = $onHand - $qty;
     $upd = $pdo->prepare(
         'UPDATE dbo.toner_inventory SET quantity = ?, updated_at = SYSUTCDATETIME() WHERE id = ?'
     );
@@ -85,8 +94,8 @@ try {
 
     // Build insert dynamically for optional columns
     $cols = ['txn_code', 'type', 'reference_number', 'ink_code', 'quantity', 'txn_date', 'department', 'location', 'purpose', 'status', 'created_at'];
-    $vals = ['?', "'RELEASED'", '?', '?', '1', '?', '?', '?', '?', "'RECORDED'", 'SYSUTCDATETIME()'];
-    $params = [$txnCode, $ref, $inkCode, $date, $dept, $location, 'Stock issuance'];
+    $vals = ['?', "'RELEASED'", '?', '?', '?', '?', '?', '?', '?', "'RECORDED'", 'SYSUTCDATETIME()'];
+    $params = [$txnCode, $ref, $inkCode, $qty, $date, $dept, $location, 'Stock issuance'];
 
     if (txn_has_column($pdo, 'actual_yield')) {
         $cols[] = 'actual_yield';
@@ -114,12 +123,11 @@ try {
 
     $pdo->commit();
 
-    // If this toner is still low/out after issuance, email admins (reminder on issue)
+    // If this toner is still low/out after issuance, email admins
     $mailResult = null;
     try {
         $reorder = (int)($row['reorder_level'] ?? 3);
         if ($newQty <= $reorder) {
-            // Always email immediately when this issuance leaves the item low/out (bypass cooldown)
             $mailResult = notify_low_stock($pdo, [
                 'force' => true,
                 'force_items' => [$inkCode],
@@ -132,7 +140,7 @@ try {
     activity_log('issue_toner', 'Issued toner', [
         'reference' => $ref,
         'itemCode' => $inkCode,
-        'details' => 'Issued 1 × ' . $inkCode . ' to ' . $dept . ' / ' . $location . ($issuedBy ? ' (by ' . $issuedBy . ')' : ''),
+        'details' => 'Issued ' . $qty . ' × ' . $inkCode . ' to ' . $dept . ' / ' . $location . ($issuedBy ? ' (by ' . $issuedBy . ')' : ''),
     ]);
 
     ok([
@@ -140,7 +148,7 @@ try {
         'referenceNumber' => $ref,
         'inkCode' => $inkCode,
         'itemCode' => $inkCode,
-        'quantity' => 1,
+        'quantity' => $qty,
         'lowStockAlert' => $mailResult,
         'newStock' => $newQty,
         'department' => $dept,
