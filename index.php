@@ -254,7 +254,9 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
             </svg>
-            <span id="notif-badge" class="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center hidden leading-none">0</span>
+            <!-- Red alert dot (shown when there are stock alerts or unread) -->
+            <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white hidden" aria-hidden="true"></span>
+            <span id="notif-badge" class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center hidden leading-none">0</span>
           </button>
 
           <!-- Notification Dropdown Panel -->
@@ -472,7 +474,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
             <div>
               <h3 class="font-bold text-slate-900">Toner lifespan by department</h3>
-              <p class="text-xs text-slate-500">Average days between toner changes per department — selected dashboard period. Click a department for location breakdown.</p>
+              <p class="text-xs text-slate-500">Average days between changes and average page yield per department — selected dashboard period. Click a department for location breakdown.</p>
             </div>
             <div id="kpi-avg-yield" class="text-sm font-semibold text-slate-700">Overall: —</div>
           </div>
@@ -5650,12 +5652,27 @@ function renderNotifications() {
   const lowCount = all.filter(n => n.source === 'stock' && n.type === 'warning').length;
   const outCount = all.filter(n => n.source === 'stock' && n.type === 'danger').length;
 
+  const dot = document.getElementById('notif-dot');
+  const hasAlerts = (lowCount + outCount) > 0 || unread > 0 || all.some(n => !n.read);
+
+  // Red dot: any stock alert or unread notification
+  if (dot) {
+    if (hasAlerts) dot.classList.remove('hidden');
+    else dot.classList.add('hidden');
+  }
+
+  // Count badge: only when unread > 0 (optional number)
   if (badge) {
     if (unread > 0) {
       badge.textContent = unread > 99 ? '99+' : String(unread);
       badge.classList.remove('hidden');
+      if (dot) dot.classList.add('hidden'); // prefer number over plain dot when counting
+    } else if (hasAlerts) {
+      badge.classList.add('hidden');
+      if (dot) dot.classList.remove('hidden');
     } else {
       badge.classList.add('hidden');
+      if (dot) dot.classList.add('hidden');
     }
   }
 
@@ -5818,13 +5835,16 @@ function renderAvgYieldChart() {
     .filter(t => t.type === 'RELEASED')
     .map(t => {
       const d = (t.date || (t.createdAt || '').slice(0, 10) || '').trim();
+      const yRaw = t.actualYield != null ? t.actualYield : (t.actual_yield != null ? t.actual_yield : null);
+      const yieldPages = yRaw != null && yRaw !== '' && Number.isFinite(Number(yRaw)) ? Number(yRaw) : null;
       return {
         code: ((t.inkCode || '').toUpperCase() || 'UNKNOWN'),
         location: ((t.location || '').trim() || '—'),
         department: ((t.department || '').trim() || '—'),
         date: d,
         ts: d ? new Date(d + 'T12:00:00').getTime() : NaN,
-        ref: t.referenceNumber || t.id || ''
+        ref: t.referenceNumber || t.id || '',
+        yieldPages
       };
     })
     .filter(t => t.date && Number.isFinite(t.ts));
@@ -5836,9 +5856,10 @@ function renderAvgYieldChart() {
     pairs[key].push(t);
   });
 
-  // locationStats: deptKey|||locKey -> { sum, n, intervals: [] }
+  // locationStats: deptKey|||locKey -> { sum, n, yieldSum, yieldN, intervals: [] }
   const locationStats = {};
   let totalSum = 0, totalN = 0;
+  let totalYieldSum = 0, totalYieldN = 0;
 
   Object.values(pairs).forEach(list => {
     list.sort((a, b) => a.ts - b.ts);
@@ -5853,11 +5874,13 @@ function renderAvgYieldChart() {
       const deptKey = curr.department.toUpperCase();
       const locKey = curr.location.toUpperCase();
       const k = deptKey + '|||' + locKey;
-      if (!locationStats[k]) locationStats[k] = { sum: 0, n: 0, intervals: [] };
+      if (!locationStats[k]) locationStats[k] = { sum: 0, n: 0, yieldSum: 0, yieldN: 0, intervals: [] };
       locationStats[k].sum += days;
       locationStats[k].n += 1;
       totalSum += days;
       totalN += 1;
+      // Page yield for this change cycle: prefer yield logged on the replacement (curr), else previous
+      const yPages = curr.yieldPages != null ? curr.yieldPages : (prev.yieldPages != null ? prev.yieldPages : null);
       const tonerDesc = (typeof resolveTonerDescription === 'function'
         ? resolveTonerDescription(curr.code)
         : '') || curr.code;
@@ -5867,6 +5890,7 @@ function renderAvgYieldChart() {
         from: prev.date,
         to: curr.date,
         days,
+        yieldPages: yPages,
         fromRef: prev.ref,
         toRef: curr.ref
       });
@@ -5876,30 +5900,55 @@ function renderAvgYieldChart() {
     }
   });
 
+  // Aggregate page yield from ALL released rows in period (works even with a single issuance)
+  allReleased.forEach(t => {
+    if (typeof isDateInFilter === 'function') {
+      if (!isDateInFilter(t.date, filterType, from, to)) return;
+    }
+    if (t.yieldPages == null || !Number.isFinite(t.yieldPages) || t.yieldPages < 0) return;
+    const deptKey = t.department.toUpperCase();
+    const locKey = t.location.toUpperCase();
+    const k = deptKey + '|||' + locKey;
+    if (!locationStats[k]) locationStats[k] = { sum: 0, n: 0, yieldSum: 0, yieldN: 0, intervals: [] };
+    locationStats[k].yieldSum += t.yieldPages;
+    locationStats[k].yieldN += 1;
+    totalYieldSum += t.yieldPages;
+    totalYieldN += 1;
+    const d = ensureDept(t.department);
+    ensureLoc(d, t.location, '', '');
+  });
+
   // Build department aggregates
-  const byDept = {}; // deptKey -> { department, sum, n, locCount, locations: [...] }
+  const byDept = {}; // deptKey -> { department, sum, n, yieldSum, yieldN, locations: [...] }
   deptMap.forEach((meta, deptKey) => {
     byDept[deptKey] = {
       department: meta.department,
       sum: 0,
       n: 0,
+      yieldSum: 0,
+      yieldN: 0,
       locations: []
     };
     meta.locations.forEach((locMeta, locKey) => {
       const sk = deptKey + '|||' + locKey;
       const st = locationStats[sk];
       const avg = st && st.n > 0 ? Math.round(st.sum / st.n) : null;
+      const avgYield = st && st.yieldN > 0 ? Math.round(st.yieldSum / st.yieldN) : null;
       byDept[deptKey].locations.push({
         location: locMeta.location,
         printerName: locMeta.printerName,
         ipAddress: locMeta.ipAddress,
         avg,
+        avgYield,
         n: st ? st.n : 0,
+        yieldN: st ? st.yieldN : 0,
         intervals: st ? st.intervals.slice() : []
       });
       if (st) {
         byDept[deptKey].sum += st.sum;
         byDept[deptKey].n += st.n;
+        byDept[deptKey].yieldSum += st.yieldSum || 0;
+        byDept[deptKey].yieldN += st.yieldN || 0;
       }
     });
     byDept[deptKey].locations.sort((a, b) => {
@@ -5913,9 +5962,16 @@ function renderAvgYieldChart() {
   window.__lifespanByDept = byDept;
 
   if (kpi) {
-    kpi.textContent = totalN > 0
-      ? `Overall: ${Math.round(totalSum / totalN).toLocaleString()} days (${totalN} change${totalN === 1 ? '' : 's'})`
-      : 'Overall: —';
+    const dayPart = totalN > 0
+      ? `${Math.round(totalSum / totalN).toLocaleString()} days (${totalN} change${totalN === 1 ? '' : 's'})`
+      : null;
+    const yieldPart = totalYieldN > 0
+      ? `${Math.round(totalYieldSum / totalYieldN).toLocaleString()} pages avg (${totalYieldN} reading${totalYieldN === 1 ? '' : 's'})`
+      : null;
+    if (dayPart && yieldPart) kpi.textContent = `Overall: ${dayPart} · ${yieldPart}`;
+    else if (dayPart) kpi.textContent = `Overall: ${dayPart}`;
+    else if (yieldPart) kpi.textContent = `Overall: ${yieldPart}`;
+    else kpi.textContent = 'Overall: —';
   }
 
   const entries = Object.keys(byDept).map(dk => {
@@ -5924,14 +5980,20 @@ function renderAvgYieldChart() {
       key: dk,
       department: d.department,
       avg: d.n > 0 ? Math.round(d.sum / d.n) : null,
+      avgYield: d.yieldN > 0 ? Math.round(d.yieldSum / d.yieldN) : null,
       n: d.n,
+      yieldN: d.yieldN,
       locCount: d.locations.length,
-      locWithData: d.locations.filter(l => l.avg != null).length
+      locWithData: d.locations.filter(l => l.avg != null).length,
+      locWithYield: d.locations.filter(l => l.avgYield != null).length
     };
   }).sort((a, b) => {
     if (a.avg != null && b.avg != null) return b.avg - a.avg;
     if (a.avg != null) return -1;
     if (b.avg != null) return 1;
+    if (a.avgYield != null && b.avgYield != null) return b.avgYield - a.avgYield;
+    if (a.avgYield != null) return -1;
+    if (b.avgYield != null) return 1;
     return a.department.localeCompare(b.department);
   });
 
@@ -5960,21 +6022,31 @@ function renderAvgYieldChart() {
       else { badge = 'bg-emerald-50 text-emerald-800'; numColor = 'text-emerald-700'; }
     }
     const dept = esc(e.department);
+    const hasYield = e.avgYield != null;
     const sub = hasData
       ? `${e.locWithData} of ${e.locCount} location${e.locCount === 1 ? '' : 's'} · click for breakdown`
-      : `${e.locCount} location${e.locCount === 1 ? '' : 's'} · click for details`;
+      : (hasYield
+        ? `${e.locWithYield} location${e.locWithYield === 1 ? '' : 's'} with yield · click for details`
+        : `${e.locCount} location${e.locCount === 1 ? '' : 's'} · click for details`);
+    const yieldLine = hasYield
+      ? `<div class="flex items-baseline gap-1.5">
+          <span class="text-lg font-bold tracking-tight text-indigo-700 leading-none">${Number(e.avgYield).toLocaleString()}</span>
+          <span class="text-xs font-medium text-slate-500">pages avg yield</span>
+        </div>`
+      : `<div class="text-xs text-slate-400">Page yield: —</div>`;
     return `
       <button type="button" data-lifespan-dept="${esc(e.key)}"
-        class="lifespan-dept-card text-left rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col gap-1.5 min-h-[7.5rem] w-full hover:border-slate-400 hover:bg-white hover:shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400">
+        class="lifespan-dept-card text-left rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col gap-1.5 min-h-[8.5rem] w-full hover:border-slate-400 hover:bg-white hover:shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400">
         <div class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Department</div>
         <div class="text-sm font-bold text-slate-800 truncate" title="${dept}">${dept}</div>
         <div class="flex items-baseline gap-1.5 mt-auto pt-1">
           <span class="text-3xl font-bold tracking-tight ${numColor} leading-none">${numText}</span>
           <span class="text-sm font-medium text-slate-500">days avg</span>
         </div>
+        ${yieldLine}
         <div class="flex items-center justify-between gap-2">
           <span class="text-[11px] text-slate-400">${sub}</span>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge}">${hasData ? 'dept lifespan' : 'awaiting data'}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge}">${hasData || hasYield ? 'dept lifespan' : 'awaiting data'}</span>
         </div>
       </button>`;
   }).join('');
@@ -5995,9 +6067,13 @@ function openLifespanDetail(deptKey) {
   if (titleEl) titleEl.textContent = deptName;
   if (subEl) {
     const locN = data ? data.locations.length : 0;
-    subEl.textContent = locN
-      ? `${locN} location${locN === 1 ? '' : 's'} · breakdown by location`
-      : 'Department lifespan breakdown';
+    const deptAvg = data && data.n > 0 ? Math.round(data.sum / data.n) : null;
+    const deptYield = data && data.yieldN > 0 ? Math.round(data.yieldSum / data.yieldN) : null;
+    const bits = [];
+    if (locN) bits.push(`${locN} location${locN === 1 ? '' : 's'}`);
+    if (deptAvg != null) bits.push(`${deptAvg} days avg`);
+    if (deptYield != null) bits.push(`${deptYield.toLocaleString()} pages avg yield`);
+    subEl.textContent = bits.length ? bits.join(' · ') : 'Department lifespan breakdown';
   }
 
   if (!data || !data.locations.length) {
@@ -6021,8 +6097,13 @@ function openLifespanDetail(deptKey) {
                   </div>
                 </div>
                 <div class="text-right shrink-0">
-                  <span class="text-lg font-bold text-slate-900">${iv.days}</span>
-                  <span class="text-[10px] text-slate-500 ml-0.5">days</span>
+                  <div>
+                    <span class="text-lg font-bold text-slate-900">${iv.days}</span>
+                    <span class="text-[10px] text-slate-500 ml-0.5">days</span>
+                  </div>
+                  ${iv.yieldPages != null
+                    ? `<div class="text-[11px] font-semibold text-indigo-700 mt-0.5">${Number(iv.yieldPages).toLocaleString()} pages</div>`
+                    : `<div class="text-[10px] text-slate-400 mt-0.5">no yield</div>`}
                 </div>
               </div>
             `).join('')}
@@ -6044,19 +6125,27 @@ function openLifespanDetail(deptKey) {
                 ? `<div class="text-2xl font-bold text-slate-900 leading-none">${loc.avg}</div>
                    <div class="text-[10px] text-slate-500 mt-0.5">${loc.n} interval${loc.n === 1 ? '' : 's'}</div>`
                 : `<div class="text-xl font-bold text-slate-300 leading-none">—</div>
-                   <div class="text-[10px] text-slate-400 mt-0.5">no data</div>`}
+                   <div class="text-[10px] text-slate-400 mt-0.5">no days data</div>`}
+              ${loc.avgYield != null
+                ? `<div class="text-sm font-bold text-indigo-700 mt-1 leading-none">${Number(loc.avgYield).toLocaleString()} <span class="text-[10px] font-medium text-slate-500">pages avg</span></div>
+                   <div class="text-[10px] text-slate-400">${loc.yieldN} yield reading${loc.yieldN === 1 ? '' : 's'}</div>`
+                : ''}
             </div>
           </div>
           ${intervalHtml}
         </div>`;
     }).join('');
 
+    const deptYieldAvg = data.yieldN > 0 ? Math.round(data.yieldSum / data.yieldN) : null;
     bodyEl.innerHTML = `
       <div class="mb-4 flex flex-wrap items-center gap-2">
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white text-xs font-semibold">
           Dept avg <strong>${deptAvg != null ? deptAvg : '—'}</strong> days
         </span>
-        <span class="text-xs text-slate-400">${data.n} change interval${data.n === 1 ? '' : 's'} total</span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-semibold">
+          Page yield <strong>${deptYieldAvg != null ? Number(deptYieldAvg).toLocaleString() : '—'}</strong> pages avg
+        </span>
+        <span class="text-xs text-slate-400">${data.n} change interval${data.n === 1 ? '' : 's'}${data.yieldN ? ` · ${data.yieldN} yield reading${data.yieldN === 1 ? '' : 's'}` : ''}</span>
       </div>
       <div class="space-y-3">${locBlocks}</div>`;
   }
