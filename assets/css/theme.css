@@ -33,7 +33,6 @@ input[type=checkbox],input[type=radio]{ accent-color:#2563eb; }
 @keyframes t-pop{ from{opacity:0; transform:translateY(8px) scale(.985)} to{opacity:1; transform:none} }
 .page-view:not(.hidden){ animation:t-fade .22s var(--t-ease); }
 .modal-card:not(.hidden){ animation:t-pop .2s var(--t-ease); }
-#modal-backdrop:not(.hidden){ animation:t-fade .15s ease-out; }
 
 /* Cards: softer depth, subtle lift on KPI cards */
 .bg-white.rounded-xl.border,.bg-white.rounded-2xl.border{ border-color:#e8ecf2; box-shadow:var(--t-card); }
@@ -102,3 +101,10 @@ input[type=checkbox],input[type=radio]{ accent-color:#4f46e5; }
 table tbody tr:hover{ background:#f5f7ff !important; }
 .txn-main-tab,.loc-sup-tab{ border-radius:.6rem .6rem 0 0; }
 .kpi-card{ border-radius:1rem; }
+
+/* ---- Instant modal backdrop -----------------------------------------------
+   No blur on modals (blur is what made the backdrop appear late): a plain dark
+   tint paints in the same frame as the modal on any computer. */
+.backdrop-blur-md,.modal-shell-backdrop,[id$="-backdrop"]{ -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+#modal-backdrop,.modal-shell-backdrop{ background-color:rgba(15,23,42,.62) !important; }
+#app-header{ -webkit-backdrop-filter:none !important; backdrop-filter:none !important; background:#fff !important; }

@@ -21,10 +21,13 @@ export function openReleaseDetailModal(ref, id) {
   const yieldVal = (t.actualYield != null && t.actualYield !== '' && Number(t.actualYield) > 0)
     ? Number(t.actualYield).toLocaleString() + ' pages'
     : '—';
+  const qtyNum = (t.quantity != null && t.quantity !== '') ? Number(t.quantity) : 1;
+  const qtyVal = (Number.isFinite(qtyNum) && qtyNum > 0 ? qtyNum : 1).toLocaleString() + (qtyNum === 1 ? ' unit' : ' units');
   if (body) {
     body.innerHTML = `<dl>
       ${row('Date', escapeHTML(formatDate(t.date || t.createdAt) || '—'))}
       ${row('Item', escapeHTML((t.inkCode || '') + (desc ? ' — ' + desc : '')))}
+      ${row('Quantity issued', escapeHTML(qtyVal))}
       ${row('Department', escapeHTML(t.department || '—'))}
       ${row('Location', escapeHTML(t.location || '—'))}
       ${row('Printer assigned', escapeHTML(t.locationPrinter || '—'))}
@@ -32,6 +35,7 @@ export function openReleaseDetailModal(ref, id) {
       ${row('Issued by', escapeHTML(t.issuedBy || '—'))}
       ${row('Recorded by', escapeHTML(t.recordedBy || '—'))}
       ${row('Purpose', escapeHTML(t.purpose || 'Stock issuance'))}
+      ${(t.notes && String(t.notes).trim()) ? row('Notes', escapeHTML(String(t.notes).trim())) : ''}
       ${t.defective ? row('Flag', '<span class="text-rose-700 font-semibold">Later marked defective</span>') : ''}
     </dl>`;
   }

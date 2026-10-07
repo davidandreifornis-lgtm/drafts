@@ -43,6 +43,8 @@ export async function openReleaseModal() {
   if (printerEl) printerEl.value = '';
   const qtyEl = document.getElementById('modal-rel-qty');
   if (qtyEl) qtyEl.value = '1';
+  const notesEl = document.getElementById('modal-rel-notes');
+  if (notesEl) notesEl.value = '';
   fillLocationsForDept('', 'modal-rel-location', 'm-rel-location-auto', 'm-rel-location-auto-text');
   const modal = document.getElementById('modal-release');
   const backdrop = document.getElementById('modal-backdrop');

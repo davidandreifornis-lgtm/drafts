@@ -93,6 +93,11 @@
               <p class="text-[11px] text-slate-500 mt-1">Always set to today — not editable</p>
             </div>
           </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-800 mb-1" for="modal-rel-notes">Notes <span class="text-slate-400 font-normal">(optional)</span></label>
+            <textarea id="modal-rel-notes" rows="2" maxlength="500" placeholder="e.g. Urgent request, temporary printer swap, partial set…" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-y"></textarea>
+            <p class="text-[11px] text-slate-500 mt-1">Optional remark for this issuance. Not required.</p>
+          </div>
           <div class="flex justify-end gap-3 pt-2">
             <button type="button" id="btn-modal-cancel-rel" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl">Cancel</button>
             <button type="button" id="btn-modal-process-rel" class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl">Record Issuance</button>

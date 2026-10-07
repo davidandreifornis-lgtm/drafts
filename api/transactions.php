@@ -72,6 +72,7 @@ try {
             'locationPrinter' => (string)($r['location_printer'] ?? ''),
             'defectiveAt' => (string)($r['defective_at'] ?? ''),
             'defectiveNotes' => (string)($r['defective_notes'] ?? ''),
+            'notes' => (string)($r['notes'] ?? ''),
             'updatedAt' => (string)($r['updated_at'] ?? ''),
         ];
     }

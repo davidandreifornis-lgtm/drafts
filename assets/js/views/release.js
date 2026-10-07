@@ -116,6 +116,7 @@ export function recordManualIssuance() {
   const locationPrinter = (document.getElementById('modal-rel-printer')?.value || '').trim();
   const yieldRaw = document.getElementById('modal-rel-yield')?.value;
   const issuedBy = (document.getElementById('modal-rel-issued-by')?.value || '').trim();
+  const notes = (document.getElementById('modal-rel-notes')?.value || '').trim();
   const qtyRaw = document.getElementById('modal-rel-qty')?.value;
   const qty = Math.max(1, Math.min(999, parseInt(qtyRaw, 10) || 1));
   // Issuance date is always the current day
@@ -199,7 +200,8 @@ export function recordManualIssuance() {
             locationPrinter: locationPrinter === '—' ? '' : locationPrinter,
             actualYield,
             issuedBy,
-            quantity: qty
+            quantity: qty,
+            notes: notes || null
           }, { silent: true, loadingMessage: 'Issuing toner…' });
           await loadFromBackendSilent();
         } finally {

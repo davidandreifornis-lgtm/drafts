@@ -19,6 +19,10 @@ $location = trim((string)($in['location'] ?? ''));
 $locationPrinter = trim((string)($in['locationPrinter'] ?? $in['printerName'] ?? ''));
 $yield = isset($in['actualYield']) ? (int)$in['actualYield'] : (isset($in['yield']) ? (int)$in['yield'] : null);
 $issuedBy = trim((string)($in['issuedBy'] ?? ''));
+$notes = trim((string)($in['notes'] ?? $in['note'] ?? ''));
+if (mb_strlen($notes) > 500) {
+    $notes = mb_substr($notes, 0, 500);
+}
 $recordedBy = auth_user();
 $date = date('Y-m-d');
 
@@ -117,6 +121,11 @@ try {
         $vals[] = '?';
         $params[] = $locationPrinter !== '' ? $locationPrinter : null;
     }
+    if (txn_has_column($pdo, 'notes')) {
+        $cols[] = 'notes';
+        $vals[] = '?';
+        $params[] = $notes !== '' ? $notes : null;
+    }
 
     $sql = 'INSERT INTO dbo.toner_transactions (' . implode(', ', $cols) . ') VALUES (' . implode(', ', $vals) . ')';
     $pdo->prepare($sql)->execute($params);
@@ -140,7 +149,7 @@ try {
     activity_log('issue_toner', 'Issued toner', [
         'reference' => $ref,
         'itemCode' => $inkCode,
-        'details' => 'Issued ' . $qty . ' × ' . $inkCode . ' to ' . $dept . ' / ' . $location . ($issuedBy ? ' (by ' . $issuedBy . ')' : ''),
+        'details' => 'Issued ' . $qty . ' × ' . $inkCode . ' to ' . $dept . ' / ' . $location . ($issuedBy ? ' (by ' . $issuedBy . ')' : '') . ($notes !== '' ? ' — note: ' . $notes : ''),
     ]);
 
     ok([
@@ -157,6 +166,7 @@ try {
         'actualYield' => $yield,
         'issuedBy' => $issuedBy,
         'recordedBy' => $recordedBy,
+        'notes' => $notes !== '' ? $notes : null,
         'txnCode' => $txnCode,
     ]);
 } catch (Throwable $e) {

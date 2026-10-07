@@ -81,6 +81,7 @@ CREATE TABLE dbo.toner_transactions (
   issued_by        NVARCHAR(150) NULL,
   location_printer NVARCHAR(200) NULL,
   recorded_by      NVARCHAR(150) NULL,
+  notes            NVARCHAR(500) NULL,               -- optional remark on an issuance
   CONSTRAINT UQ_txn_code UNIQUE (txn_code)
 );
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_txn_ref' AND object_id=OBJECT_ID('dbo.toner_transactions'))
