@@ -1,0 +1,104 @@
+/* Visual polish layer — CSS only. No markup/JS changes, so behavior is untouched.
+   Loaded after app.css. Delete the <link> in index.php to revert instantly. */
+:root{
+  --t-ring: 0 0 0 3px rgba(37,99,235,.18);
+  --t-card: 0 1px 2px rgba(15,23,42,.04), 0 6px 20px -8px rgba(15,23,42,.10);
+  --t-card-hover: 0 2px 4px rgba(15,23,42,.05), 0 14px 30px -12px rgba(15,23,42,.18);
+  --t-ease: cubic-bezier(.2,.7,.2,1);
+}
+html{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
+body{ font-feature-settings:"cv11","ss01"; background:linear-gradient(180deg,#f8fafc 0,#f4f6fa 100%) fixed; }
+::selection{ background:#dbeafe; color:#0f172a; }
+
+/* Smooth, consistent interaction feedback everywhere */
+button,a,input,select,textarea,.nav-link,.kpi-card,tr{ transition:background-color .15s var(--t-ease),color .15s var(--t-ease),border-color .15s var(--t-ease),box-shadow .2s var(--t-ease),opacity .15s; }
+button:not(:disabled),.kpi-card,[role=button]{ cursor:pointer; }
+button:active:not(:disabled){ transform:translateY(.5px); }
+button:disabled{ opacity:.55; cursor:not-allowed; }
+
+/* Clear keyboard focus + friendlier inputs */
+:focus-visible{ outline:2px solid #2563eb; outline-offset:2px; border-radius:6px; }
+input:not([type=checkbox]):not([type=radio]),select,textarea{ border-radius:.6rem; }
+input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus{ outline:none; border-color:#60a5fa !important; box-shadow:var(--t-ring); }
+input::placeholder,textarea::placeholder{ color:#94a3b8; }
+input[type=checkbox],input[type=radio]{ accent-color:#2563eb; }
+
+/* Header + sidebar */
+#app-header{ box-shadow:0 1px 0 rgba(15,23,42,.04) !important; }
+#sidebar .nav-link{ border-radius:.7rem; margin:2px 8px; position:relative; }
+#sidebar .nav-link:hover{ background:#f1f5f9; }
+
+/* Page entrance (opacity only, so layout/JS toggling is unaffected) */
+@keyframes t-fade{ from{opacity:0} to{opacity:1} }
+@keyframes t-pop{ from{opacity:0; transform:translateY(8px) scale(.985)} to{opacity:1; transform:none} }
+.page-view:not(.hidden){ animation:t-fade .22s var(--t-ease); }
+.modal-card:not(.hidden){ animation:t-pop .2s var(--t-ease); }
+#modal-backdrop:not(.hidden){ animation:t-fade .15s ease-out; }
+
+/* Cards: softer depth, subtle lift on KPI cards */
+.bg-white.rounded-xl.border,.bg-white.rounded-2xl.border{ border-color:#e8ecf2; box-shadow:var(--t-card); }
+.kpi-card:hover{ box-shadow:var(--t-card-hover); transform:translateY(-2px); border-color:#d6deea; }
+.modal-card{ border-radius:1.1rem; box-shadow:0 24px 60px -20px rgba(15,23,42,.35),0 0 0 1px rgba(15,23,42,.05); }
+
+/* Buttons: more tactile, same colors */
+button.bg-blue-600,button.bg-emerald-600,button.bg-rose-600,button.bg-slate-800,button.bg-slate-900,a.bg-blue-600{ box-shadow:0 1px 2px rgba(15,23,42,.18),inset 0 1px 0 rgba(255,255,255,.14); }
+button.bg-blue-600:hover:not(:disabled),button.bg-emerald-600:hover:not(:disabled),button.bg-rose-600:hover:not(:disabled){ box-shadow:0 4px 12px -2px rgba(15,23,42,.25),inset 0 1px 0 rgba(255,255,255,.18); }
+
+/* Tables: readable rows, sticky-feel headers, clear hover */
+table{ border-collapse:separate; border-spacing:0; }
+thead th{ font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:#64748b; font-weight:600; background:#f8fafc; }
+tbody tr{ border-color:#eef1f6; }
+tbody tr:hover{ background:#f8fafc; }
+tr.inventory-row{ cursor:pointer; }
+tbody td{ vertical-align:middle; }
+
+/* Badges / chips */
+span.rounded-full,span.rounded-md{ font-weight:600; letter-spacing:.01em; }
+
+/* Toasts and notification panel */
+#toast-container>*,#toast>*{ border-radius:.8rem; box-shadow:0 12px 30px -10px rgba(15,23,42,.35); }
+#notif-panel{ border-radius:1rem; box-shadow:0 20px 50px -16px rgba(15,23,42,.35); overflow:hidden; }
+
+/* Scrollbars */
+*{ scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent; }
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:999px; border:2px solid transparent; background-clip:content-box; }
+::-webkit-scrollbar-thumb:hover{ background:#94a3b8; background-clip:content-box; border:2px solid transparent; }
+
+/* Comfortable tap targets on touch screens */
+@media (pointer:coarse){ button,select,input:not([type=checkbox]):not([type=radio]){ min-height:42px; } }
+/* Print: keep reports clean */
+@media print{ #app-header,#sidebar,.kpi-card:hover{ box-shadow:none !important; } *{ animation:none !important; } }
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ animation:none !important; transition:none !important; } }
+
+/* ===================== BRAND NEW LOOK (v2) ===================== */
+:root{ --brand:#4f46e5; --brand-600:#4f46e5; --brand-700:#4338ca; --brand-50:#eef2ff; --nav-bg:#0f172a; }
+body{ background:radial-gradient(1200px 500px at 85% -10%,#e0e7ff55,transparent 60%),linear-gradient(180deg,#f8fafc,#f1f5f9) fixed; }
+
+/* Dark navigation rail */
+#sidebar{ background:linear-gradient(180deg,#0f172a 0%,#111c35 100%) !important; border-right:0 !important; box-shadow:4px 0 24px -12px rgba(15,23,42,.5); }
+#sidebar .nav-link{ color:#94a3b8 !important; margin:2px 4px; border-radius:.75rem !important; }
+#sidebar .nav-link:hover{ background:rgba(255,255,255,.07) !important; color:#fff !important; }
+#sidebar .nav-link.bg-blue-50,#sidebar .nav-link.text-blue-700{ background:linear-gradient(135deg,#6366f1,#4f46e5) !important; color:#fff !important; box-shadow:0 6px 16px -6px rgba(79,70,229,.7); }
+#sidebar .text-slate-400,#sidebar .text-slate-500{ color:#64748b !important; }
+#sidebar .text-slate-900,#sidebar .text-slate-800,#sidebar .text-slate-700,#sidebar .text-slate-600{ color:#e2e8f0 !important; }
+#sidebar .border-slate-200,#sidebar .border-slate-100,#sidebar .border-t{ border-color:rgba(255,255,255,.08) !important; }
+#sidebar .bg-slate-50,#sidebar .bg-white,#sidebar .bg-slate-100{ background:rgba(255,255,255,.06) !important; }
+
+/* Header + titles */
+#app-header{ background:rgba(255,255,255,.8) !important; border-bottom:1px solid #e6eaf2 !important; }
+#main-area h2.text-2xl{ font-weight:800; letter-spacing:-.02em; color:#0b1220; }
+
+/* Primary actions use the brand color */
+button.bg-blue-600,a.bg-blue-600{ background:linear-gradient(135deg,#6366f1,#4f46e5) !important; color:#fff !important; }
+button.bg-blue-600:hover:not(:disabled),a.bg-blue-600:hover{ background:linear-gradient(135deg,#4f46e5,#4338ca) !important; }
+:focus-visible{ outline-color:#6366f1; }
+input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus{ border-color:#818cf8 !important; box-shadow:0 0 0 3px rgba(99,102,241,.18); }
+input[type=checkbox],input[type=radio]{ accent-color:#4f46e5; }
+::selection{ background:#e0e7ff; }
+
+/* Cards, tables, tabs */
+.bg-white.rounded-xl.border,.bg-white.rounded-2xl.border{ border-radius:1rem; border-color:#e6eaf2 !important; }
+table tbody tr:hover{ background:#f5f7ff !important; }
+.txn-main-tab,.loc-sup-tab{ border-radius:.6rem .6rem 0 0; }
+.kpi-card{ border-radius:1rem; }

@@ -1,0 +1,7 @@
+# Always revalidate JS/CSS so edits show up immediately (avoids stale cached scripts
+# rendering old table columns under new headers).
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
