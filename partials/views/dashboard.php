@@ -115,7 +115,7 @@
             </div>
             <div id="kpi-avg-yield" class="text-sm font-semibold text-slate-700">Overall: —</div>
           </div>
-          <div id="dept-lifespan-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div id="dept-lifespan-grid" class="keep-color grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             <div class="col-span-full py-10 text-center text-sm text-slate-400">Loading departments…</div>
           </div>
         </div>

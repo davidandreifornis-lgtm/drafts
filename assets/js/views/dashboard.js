@@ -610,7 +610,7 @@ export function renderDepartmentDemandChart() {
     return;
   }
 
-  const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#06b6d4', '#ec4899', '#84cc16'];
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#84cc16'];
 
   AppState.charts.activity = new Chart(canvas, {
     type: 'bar',

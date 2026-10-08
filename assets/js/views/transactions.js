@@ -192,15 +192,15 @@ export function renderTransactions() {
         if (isDefective) {
       const desc = resolveTonerDescription(t.inkCode) || t.description || '';
       const st = String(t.status || 'DEFECTIVE').toUpperCase();
-      let statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-100 text-rose-800 border border-rose-200">DEFECTIVE</span>';
+      let statusBadge = '<span class="keep-color inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-600 text-white border border-rose-600">DEFECTIVE</span>';
       if (st === 'SENT_TO_SUPPLIER') {
-        statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-200">SENT TO SUPPLIER</span>';
+        statusBadge = '<span class="keep-color inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-100 text-rose-800 border border-rose-300">SENT TO SUPPLIER</span>';
       } else if (st === 'REPLACED') {
-        statusBadge = '<span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">REPLACED</span>';
+        statusBadge = '<span class="keep-color inline-flex px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-200">REPLACED</span>';
       }
-      const actions = `<button type="button" class="btn-def-view text-xs font-semibold text-blue-700 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}">View</button>`;
+      const actions = `<button type="button" class="keep-color btn-def-view text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline" data-ref="${escapeHTML(t.referenceNumber)}">View</button>`;
       return `
-        <tr class="hover:bg-slate-50 transition-colors">
+        <tr class="keep-color hover:bg-rose-50/60 transition-colors">
           <td class="px-4 py-3.5 font-mono font-bold text-rose-700">${escapeHTML(t.referenceNumber)}</td>
           <td class="px-4 py-3.5 text-xs text-slate-600">${formatDate(t.date || t.createdAt)}</td>
           <td class="px-4 py-3.5 font-mono font-semibold text-slate-900">${escapeHTML(t.inkCode)}</td>
@@ -211,7 +211,7 @@ export function renderTransactions() {
     }
     const desc = resolveTonerDescription(t.inkCode) || t.description || '';
     const defBadge = t.defective
-      ? ' <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-100 text-rose-700">DEFECTIVE</span>'
+      ? ' <span class="keep-color ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-100 text-rose-700">DEFECTIVE</span>'
       : '';
     return `
       <tr class="hover:bg-slate-50 transition-colors">

@@ -60,7 +60,7 @@ export function relativeTime(iso) {
 export function pushNotification(type, title, message, meta = {}) {
   const n = {
     id: 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-    type: type || 'info', // 'warning' | 'danger' | 'success' | 'info'
+    type: (/defective/i.test(String(title) + ' ' + String(message)) ? 'danger' : type) || 'info', // 'warning' | 'danger' | 'success' | 'info'
     title: title || 'Notification',
     message: message || '',
     time: new Date().toISOString(),
@@ -397,19 +397,20 @@ export function renderNotifications() {
   };
 
   list.innerHTML = notifs.map(n => {
-    const iconBg = colors[n.type] || colors.info;
+    const isDef = /defective/i.test(String(n.title) + ' ' + String(n.message));
+    const iconBg = (isDef ? colors.danger : colors[n.type]) || colors.info;
     const path = icons[n.type] || icons.info;
     const timeStr = relativeTime(n.time);
     const clickable = n.source === 'stock' || n.action || n.inkCode || n.referenceNumber;
     return `
-      <div class="p-3.5 hover:bg-slate-50 transition-colors cursor-pointer ${n.read ? 'opacity-70' : 'bg-blue-50/30'}" data-notif-id="${escapeHTML(n.id)}" role="button" tabindex="0">
+      <div class="${isDef ? 'keep-color border-l-4 border-rose-500 bg-rose-50/70 hover:bg-rose-50' : 'hover:bg-slate-50'} p-3.5 transition-colors cursor-pointer ${n.read ? 'opacity-80' : (isDef ? '' : 'bg-blue-50/30')}" data-notif-id="${escapeHTML(n.id)}" role="button" tabindex="0">
         <div class="flex gap-3">
           <div class="w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${path}"></path></svg>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-2">
-              <p class="text-sm font-semibold text-slate-900 leading-snug">${escapeHTML(n.title)}</p>
+              <p class="text-sm font-semibold ${isDef ? 'text-rose-700' : 'text-slate-900'} leading-snug">${escapeHTML(n.title)}</p>
               ${n.read ? '' : '<span class="mt-1 w-2 h-2 rounded-full bg-blue-500 shrink-0" title="Unread"></span>'}
             </div>
             <p class="text-xs text-slate-600 mt-0.5 leading-relaxed">${escapeHTML(n.message)}</p>

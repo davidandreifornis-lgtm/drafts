@@ -1,5 +1,5 @@
 <!-- alias: modal-def-replace → modal-defective-replace (see core/modal.js) -->
-    <div id="modal-defective-replace" class="hidden" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem;">
+    <div id="modal-defective-replace" class="keep-color hidden" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem;">
       <div id="modal-defective-replace-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);"></div>
       <div id="modal-defective-replace-dialog" style="position:relative;z-index:1;width:100%;max-width:28rem;background:#fff;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);border:1px solid #e2e8f0;overflow:hidden;">
         <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-3" style="background:linear-gradient(to right,#fff1f2,#ffffff);">

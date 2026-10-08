@@ -36,9 +36,9 @@
 
         <!-- Inventory Table Container -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-white">
             <p class="text-sm text-slate-500"><span id="inv-result-count" class="font-semibold text-slate-800">0</span> toners</p>
-            <p class="hidden sm:flex items-center gap-4 text-xs text-slate-500">
+            <p class="keep-color hidden sm:flex items-center gap-4 text-xs text-slate-500">
               <span class="inline-flex items-center gap-1.5"><i class="w-2 h-2 rounded-full bg-emerald-500"></i>In stock</span>
               <span class="inline-flex items-center gap-1.5"><i class="w-2 h-2 rounded-full bg-amber-500"></i>Low</span>
               <span class="inline-flex items-center gap-1.5"><i class="w-2 h-2 rounded-full bg-rose-500"></i>Out</span>

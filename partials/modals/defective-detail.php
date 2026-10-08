@@ -1,4 +1,4 @@
-<div id="modal-defective-detail" class="hidden" style="position:fixed;inset:0;z-index:10070;display:none;align-items:center;justify-content:center;padding:1rem;">
+<div id="modal-defective-detail" class="keep-color hidden" style="position:fixed;inset:0;z-index:10070;display:none;align-items:center;justify-content:center;padding:1rem;">
   <div id="modal-defective-detail-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"></div>
   <div style="position:relative;z-index:1;width:100%;max-width:28rem;max-height:90vh;overflow:auto;background:#fff;border-radius:1.25rem;border:1px solid #e4e4e7;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);">
     <div class="px-5 py-4 border-b border-slate-100 flex items-start justify-between gap-3 sticky top-0 bg-white z-10">
