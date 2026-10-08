@@ -11,6 +11,7 @@ import { bindModalChrome } from "./core/modal.js";
 import "./core/notifications.js";
 
 // Application bootstrap: imports every layout/view/modal/service module and starts the app
+import "./core/ui-polish.js";
 import "./app.js";
 
 // View / modal extension modules (filled in subsequent steps)

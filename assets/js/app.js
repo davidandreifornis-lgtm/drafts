@@ -75,6 +75,7 @@ function setupEventListeners() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  document.body.classList.add('is-loading');
   setupEventListeners();
   loadReleaseLocations().catch(() => {});
   loadSuppliers().catch(() => {});
@@ -115,4 +116,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (_) { navigateTo('dashboard'); }
 
   renderAlerts();
+  document.dispatchEvent(new CustomEvent('toner:ready'));
 });

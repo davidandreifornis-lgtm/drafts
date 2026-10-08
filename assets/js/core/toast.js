@@ -1,34 +1,40 @@
 import { escapeHTML } from "./format.js";
 
+const ICONS = {
+  success: '<path d="M9 12.5l2.2 2.2L15.5 10M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+  error: '<path d="M15 9l-6 6M9 9l6 6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+  warning: '<path d="M12 8v4m0 4h.01M10.3 3.9L2.4 17.6A2 2 0 004.1 20.6h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>',
+  info: '<path d="M12 8h.01M11 12h1v4h1m8-4a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+};
+const MAX_VISIBLE = 4;
+
 export function showToast(message, type = "info") {
   const container = document.getElementById("toast-container");
   if (!container) return;
+  const kind = ICONS[type] ? type : "info";
+  const duration = kind === "error" ? 7000 : kind === "warning" ? 6000 : 4000;
+
+  // keep the stack tidy: drop the oldest when too many
+  const live = container.querySelectorAll(".t-toast");
+  if (live.length >= MAX_VISIBLE) live[0].remove();
 
   const toast = document.createElement("div");
-  toast.className = `p-4 rounded-xl shadow-lg border text-sm flex items-start gap-3 transform transition-all duration-300 pointer-events-auto max-w-sm ${
-    type === "success" ? "bg-white border-emerald-200 text-emerald-900 shadow-emerald-100" :
-    type === "error" ? "bg-white border-rose-200 text-rose-900 shadow-rose-100" :
-    type === "warning" ? "bg-white border-amber-200 text-amber-900 shadow-amber-100" :
-    "bg-white border-blue-200 text-blue-900 shadow-blue-100"
-  }`;
-
-  const icon = type === "success"
-    ? `<svg class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
-    : type === "error"
-    ? `<svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
-    : `<svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
+  toast.className = `t-toast t-${kind}`;
+  toast.setAttribute("role", kind === "error" ? "alert" : "status");
   toast.innerHTML = `
-    ${icon}
-    <div class="flex-1 text-xs font-medium leading-relaxed">${escapeHTML(message)}</div>
-    <button type="button" class="text-slate-400 hover:text-slate-600 ml-2" onclick="this.parentElement.remove()">&times;</button>
-  `;
-
+    <svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${ICONS[kind]}</svg>
+    <div class="t-msg">${escapeHTML(message)}</div>
+    <button type="button" class="t-x" aria-label="Dismiss">&times;</button>
+    <span class="t-bar" style="animation-duration:${duration}ms"></span>`;
   container.appendChild(toast);
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "translate-y-2");
-    setTimeout(() => toast.remove(), 300);
-  }, 4500);
+
+  let remaining = duration, started = Date.now(), timer;
+  const close = () => { clearTimeout(timer); toast.classList.add("t-out"); setTimeout(() => toast.remove(), 220); };
+  const start = () => { started = Date.now(); timer = setTimeout(close, remaining); };
+  toast.addEventListener("mouseenter", () => { clearTimeout(timer); remaining -= Date.now() - started; toast.classList.add("t-paused"); });
+  toast.addEventListener("mouseleave", () => { toast.classList.remove("t-paused"); start(); });
+  toast.querySelector(".t-x").addEventListener("click", close);
+  start();
 }
 
 window.showToast = showToast;
